@@ -73,7 +73,7 @@ if [ "$ROLE" == "gateware" ]; then
     # BPM Gateware
     git clone --branch=v0.1 git://github.com/lnls-dig/bpm-gw.git
     # BPM IPMI
-    git clone --branch=master git://github.com/lnls-dig/bpm-ipmi.git
+    git clone --branch=v0.1 git://github.com/lnls-dig/bpm-ipmi.git
 
     # Configure and Install
     for project in bpm-gw bpm-ipmi; do
