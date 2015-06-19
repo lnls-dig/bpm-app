@@ -68,8 +68,44 @@ if [ "$ROLE" == "server" ]; then
     done
 fi
 
+# BPM client lib flags
+BOARD_VAL=afcv3
+ERRHAND_DBG_VAL=y
+ERRHAND_MIN_LEVEL_VAL=DBG_LVL_INFO
+ERRHAND_SUBSYS_ON_VAL='"(DBG_DEV_MNGR | DBG_DEV_IO | DBG_SM_IO | DBG_LIB_CLIENT | DBG_SM_PR | DBG_SM_CH | DBG_LL_IO | DBG_HAL_UTILS)"'
+
 # Client
 if [ "$ROLE" == "client" ]; then
+    # BPM libbpmclient
+    git clone --branch=v0.1 git://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
+
+    # Configure and Install
+    for project in .bpm-sw-libs; do
+        cd $project && \
+        git submodule update --init --recursive
+
+        # Compile an install dynamic libraries needed by client
+        # applications
+        for lib in liberrhand libhutils libbpmclient; do
+            COMMAND="make \
+                ERRHAND_DBG=${ERRHAND_DBG_VAL} \
+                ERRHAND_MIN_LEVEL=${ERRHAND_MIN_LEVEL_VAL} \
+                ERRHAND_SUBSYS_ON='"${ERRHAND_SUBSYS_ON_VAL}"' \
+                BOARD=${BOARD_VAL} $lib && \
+                make ${lib}_install"
+            eval $COMMAND
+
+            # Check last command return status
+            if [ $? -ne 0 ]; then
+                echo "Could not compile/install project $project." >&2
+                echo "Try executing the script with root access." >&2
+                exit 1
+            fi
+        done
+
+        cd ..
+    done
+
     # BPM Client Software
     git clone --branch=v0.1.2 git://github.com/lnls-dig/bpm-sw-cli.git
 
