@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-./get-all.sh $ROLE
+./get-all.sh $ROLE $BOARD
