@@ -6,6 +6,7 @@ BPM_SW_WITH_EXAMPLES="with_examples"
 BPM_SW_CLI_PREFIX=/usr/local
 
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
+VALID_BOARDS_STR="Valid values are: \"ml605\" and \"afcv3\"."
 
 # Select if we are deploying in server or client: server or client
 ROLE=$1
@@ -17,6 +18,19 @@ fi
 
 if [ "$ROLE" != "server" ] && [ "$ROLE" != "client" ] && [ "$ROLE" != "gateware" ]; then
     echo "Unsupported role. "$VALID_ROLES_STR
+    exit 1
+fi
+
+# Select board in which we will work. Options are: ml605 or afcv3
+BOARD=$2
+
+if [ -z "$BOARD" ]; then
+    echo "\"BOARD\" variable unset. "$VALID_BOARDS_STR
+    exit 1
+fi
+
+if [ "$BOARD" != "afcv3" ] && [ "$BOARD" != "ml605" ]; then
+    echo "Unsupported board. "$VALID_BOARDS_STR
     exit 1
 fi
 
@@ -69,7 +83,7 @@ if [ "$ROLE" == "server" ]; then
 fi
 
 # BPM client lib flags
-BOARD_VAL=afcv3
+BOARD_VAL=${BOARD}
 ERRHAND_DBG_VAL=y
 ERRHAND_MIN_LEVEL_VAL=DBG_LVL_INFO
 ERRHAND_SUBSYS_ON_VAL='"(DBG_DEV_MNGR | DBG_DEV_IO | DBG_SM_IO | DBG_LIB_CLIENT | DBG_SM_PR | DBG_SM_CH | DBG_LL_IO | DBG_HAL_UTILS)"'
