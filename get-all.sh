@@ -71,7 +71,7 @@ fi
 # Client
 if [ "$ROLE" == "client" ]; then
     # BPM Client Software
-    git clone --branch=v0.1.1 git://github.com/lnls-dig/bpm-sw-cli.git
+    git clone --branch=v0.1.2 git://github.com/lnls-dig/bpm-sw-cli.git
 
     # Configure and Install
     for project in bpm-sw-cli; do
