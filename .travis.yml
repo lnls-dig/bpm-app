@@ -6,8 +6,10 @@ compiler:
 - gcc
 
 env:
-- ROLE=client
-- ROLE=server
+- ROLE=client BOARD=ml605
+- ROLE=client BOARD=afcv3
+- ROLE=server BOARD=ml605
+- ROLE=server BOARD=afcv3
 - ROLE=gateware
 
 before_install:
