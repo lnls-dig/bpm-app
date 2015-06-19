@@ -56,7 +56,7 @@ if [ "$ROLE" == "server" ]; then
     for project in bpm-sw; do
         cd $project && \
         git submodule update --init --recursive && \
-        ./compile ${BPM_SW_BOARD} ${BPM_SW_WITH_EXAMPLES} && \
+        ./compile.sh ${BPM_SW_BOARD} ${BPM_SW_WITH_EXAMPLES} && \
         cd ..
 
         # Check last command return status
