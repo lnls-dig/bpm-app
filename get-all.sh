@@ -37,6 +37,13 @@ if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
         make install && \
         ldconfig && \
         cd ..
+
+        # Check last command return status
+        if [ $? -ne 0 ]; then
+            echo "Could not compile/install project $project." >&2
+            echo "Try executing the script with root access." >&2
+            exit 1
+        fi
     done
 fi
 
@@ -51,6 +58,13 @@ if [ "$ROLE" == "server" ]; then
         git submodule update --init --recursive && \
         ./compile ${BPM_SW_BOARD} ${BPM_SW_WITH_EXAMPLES} && \
         cd ..
+
+        # Check last command return status
+        if [ $? -ne 0 ]; then
+            echo "Could not compile/install project $project." >&2
+            echo "Try executing the script with root access." >&2
+            exit 1
+        fi
     done
 fi
 
@@ -87,5 +101,12 @@ if [ "$ROLE" == "gateware" ]; then
         cd $project && \
         git submodule update --init --recursive && \
         cd ..
+
+        # Check last command return status
+        if [ $? -ne 0 ]; then
+            echo "Could not compile/install project $project." >&2
+            echo "Try executing the script with root access." >&2
+            exit 1
+        fi
     done
 fi
