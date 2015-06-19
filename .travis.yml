@@ -1,0 +1,22 @@
+# Travis CI script
+
+language: c
+compiler:
+- clang
+- gcc
+
+env:
+- ROLE=client
+- ROLE=server
+- ROLE=gateware
+
+before_install:
+- git submodule update --init --recursive
+
+#   Build-check-install all subprojects
+before_script:
+- sudo apt-get install uuid-dev
+
+#   Build and check this project
+script:
+- ./ci_build.sh
