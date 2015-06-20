@@ -24,12 +24,12 @@ fi
 # Select board in which we will work. Options are: ml605 or afcv3
 BOARD=$2
 
-if [ -z "$BOARD" ]; then
+if [ -z "$BOARD" ] && [ "$ROLE" != "gateware" ]; then
     echo "\"BOARD\" variable unset. "$VALID_BOARDS_STR
     exit 1
 fi
 
-if [ "$BOARD" != "afcv3" ] && [ "$BOARD" != "ml605" ]; then
+if [ "$BOARD" != "afcv3" ] && [ "$BOARD" != "ml605" ] && [ "$ROLE" != "gateware" ]; then
     echo "Unsupported board. "$VALID_BOARDS_STR
     exit 1
 fi
