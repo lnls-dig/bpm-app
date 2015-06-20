@@ -48,8 +48,8 @@ if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
         ./autogen.sh && \
         ./configure &&
         make check && \
-        make install && \
-        ldconfig && \
+        sudo make install && \
+        sudo ldconfig && \
         cd ..
 
         # Check last command return status
@@ -70,7 +70,7 @@ if [ "$ROLE" == "server" ]; then
     for project in bpm-sw; do
         cd $project && \
         git submodule update --init --recursive && \
-        ./compile.sh ${BPM_SW_BOARD} ${BPM_SW_WITH_EXAMPLES} && \
+        sudo ./compile.sh ${BPM_SW_BOARD} ${BPM_SW_WITH_EXAMPLES} && \
         cd ..
 
         # Check last command return status
@@ -106,7 +106,7 @@ if [ "$ROLE" == "client" ]; then
                 ERRHAND_MIN_LEVEL=${ERRHAND_MIN_LEVEL_VAL} \
                 ERRHAND_SUBSYS_ON='"${ERRHAND_SUBSYS_ON_VAL}"' \
                 BOARD=${BOARD_VAL} $lib && \
-                make ${lib}_install"
+                sudo make ${lib}_install"
             eval $COMMAND
 
             # Check last command return status
@@ -127,7 +127,7 @@ if [ "$ROLE" == "client" ]; then
     for project in bpm-sw-cli; do
         cd $project && \
         git submodule update --init --recursive && \
-        ./compile.sh ${BPM_SW_CLI_PREFIX} && \
+        sudo ./compile.sh ${BPM_SW_CLI_PREFIX} && \
         cd ..
 
         # Check last command return status
