@@ -1,0 +1,700 @@
+\input texinfo    @c -*-texinfo-*-
+%
+% bpm-doc.in - main file for the documentation
+%
+%%%%
+
+%------------------------------------------------------------------------------
+%
+%                         NOTE FOR THE UNAWARE USER
+%                         =========================
+%
+%    This file is a texinfo source. It isn't the binary file of some strange
+%    editor of mine. If you want ASCII, you should "make fine-delay.txt".
+%
+%------------------------------------------------------------------------------
+
+%
+% This is not a conventional info file...
+% I use three extra features:
+%   - The '%' as a comment marker, if at beginning of line ("\%" -> "%")
+%   - leading blanks are allowed (this is something I can't live without)
+%   - braces are automatically escaped when they appear in example blocks
+%
+
+@comment %**start of header
+
+@documentlanguage en
+@documentencoding ISO-8859-1
+@setfilename bpm-doc.info
+@settitle bpm-doc
+@iftex
+@afourpaper
+@end iftex
+@c @paragraphindent asis
+@c @exampleindent asis
+@c %**end of header
+
+@c @setchapternewpage off
+
+@c ##########################################################################
+
+@c This set of macros were taken from http://www.delorie.com/pcb/docs/gs/
+@c project
+
+@comment wrap terms at their definition
+@ifhtml
+@macro tdef{TERM}
+@html
+<a name="\TERM\">\TERM\</a>
+@end html
+@end macro
+@end ifhtml
+
+@iftex
+@tex
+\gdef\tdef#1{%
+  \ifpdf
+    \pdfdest name{#1} xyz
+    \pdfoutline goto name{#1} count 0 {#1}
+  \fi
+  #1%
+}
+@end tex
+@end iftex
+
+@ifnottex
+@ifnothtml
+@macro tdef{TERM}
+\TERM\
+@end macro
+@end ifnothtml
+@end ifnottex
+
+@comment wrap terms to cross reference
+@ifhtml
+@macro tref{TERM}
+@url{#\TERM\,,\TERM\}
+@end macro
+@macro trefl{TERM,LINK}
+@url{#\LINK\,,\TERM\}
+@end macro
+@end ifhtml
+
+@ifnothtml
+@macro tref{TERM}
+\TERM\
+@end macro
+@macro trefl{TERM,LINK}
+\TERM\
+@end macro
+@end ifnothtml
+
+@comment image legend
+@macro iml{ITXT}
+@center @i{\ITXT\}
+@end macro
+
+@c ##########################################################################
+
+@set update-month July 2015
+@set doc-version Draft v0.1
+@set tagname bpm-doc-v0.1
+@c WARNING: in @example I Can't use @value{tagname}, so please look for this
+@c string when updating the document.
+@finalout
+
+@titlepage
+@title BPM System Deploy Documentation
+@subtitle @value{update-month} (@value{tagname})
+@subtitle BPM system deploy document
+@author CNPEM-LNLS DIG / Lucas Russo
+@end titlepage
+
+@iftex
+@headings off
+@everyheading @thischapter @| @| @thispage
+@everyfooting @| @| @value{doc-version}
+@end iftex
+
+@c @headings single
+
+@c ##########################################################################
+@iftex
+@contents
+@end iftex
+
+@c ##########################################################################
+@c @include my-bib-macros.texi
+@c @mybibuselist{References}
+
+@c ##########################################################################
+@node Top
+@top Introduction
+
+This is the system deploy document for the BPM system, being developed at LNLS
+by the Beam Diagnostics Group (DIG) for the Sirius Synchrotron Machine
+@url{http://lnls.cnpem.br/sirius}. This is meant to serve as a reference guide
+on deployment of the system, as it specifies which of the software/gateware/
+hardware is compatible to each other, as well as major and minor system releases.
+
+@c ##########################################################################
+@node Glossary
+@chapter Glossary
+
+@table @dfn
+
+@item @tdef{block}
+@itemx @tdef{module}
+@itemx @tdef{core}
+@itemx @tdef{FPGA core}
+    A logical boundary between parts of a system. It is usually referred to a
+    well-defined subsystem which have different functionalities in the context
+    of a FPGA design.
+
+@item @tdef{AMC}
+    Advanced Mezzanine Card.
+
+@item @tdef{BPM}
+    Beam Position Monitor.
+
+@item @tdef{DBE}
+    Digital Back-End.
+
+@item @tdef{EBPM}
+    Beam Position Monitor Eletronics. Refers to the set of eletronics necessary
+    to measure the beam position.
+
+@item @tdef{EEPROM}
+    Electrically Erasable Programmable Read-Only Memory. It is a type of non-volatile
+    memory used to store small amounts of data, such as calibration and information
+    data.
+
+@item @tdef{FMC}
+    FPGA Mezzanine Card.
+
+@item @tdef{FOFB}
+    Fast Orbit Feedback. A dedicated system responsible for correcting
+    beam disturbances up to hundreds of Hertz.
+
+@item @tdef{FPGA}
+    Field-Programmable Gate Array.
+
+@item @tdef{HDL}
+    Hardware Description Language.
+
+@item @tdef{FMC HPC}
+    FPGA Mezzanine Card with High Pin Count connector. This type of FMC has
+    a connector with 400 pins.
+
+@item @tdef{FMC LPC}
+    FPGA Mezzanine Card with Low Pin Count connector. This type of FMC has
+    a connector with 200 pins.
+
+@item @tdef{IP}
+    Intellectual Property. Commonly used along with @tref{core} meaning the same
+    as @tref{block}, @tref{core} or @tref{FPGA core}.
+
+@item @tdef{LNLS}
+    Laborat@'orio Nacional de Luz S@'incrotron (Brazilian Synchrotron Light Laboratory).
+
+@item @tdef{MicroTCA}
+    Micro Telecommunications Computing Architecture.
+
+@item @tdef{MicroTCA.4}
+    MicroTCA Enhancements for Rear I/O and Precision Timing.
+
+@item @tdef{M-LVDS}
+    Multipoint Low Voltage Differential Signaling.
+
+@item @tdef{PICMG}
+    PCI Industrial Computer Manufacturers Group.
+
+@item @tdef{RFFE}
+    RF Front-End. Analog eletronic board aimed at conditioning an RF signal to
+    a specific purpose.
+
+@item @tdef{SBC}
+    Single-Board Computer. A complete hardware solution in a single board, composed
+    of a processor, memory and I/O capabilities.
+
+@item @tdef{CLI}
+    Command Line Interface. A low level, text-only, terminal interface to an
+    equipment or other software.
+
+@item @tdef{SoC}
+    System On Chip. A single integrated circuit composed of a complete computer solution
+    and other eletronic systems, such as: SPI, I2C, CAN, Flash memory, JTAG, timers,
+    PWM controllers.
+
+@item @tdef{Wishbone}
+    An interconnection protocol between IP cores, defining a standard way to
+    exchange data. Full specification is available at
+    @url{http://cdn.opencores.org/downloads/wbspec_b4.pdf}.
+
+@end table
+
+@c ##########################################################################
+
+@node BPM Documentation
+@chapter BPM Documentation
+
+BPM documentation manuals information
+
+@c ==========================================================================
+
+@node BPM Official Manuals
+@section The Official Manuals
+
+This is the current set of manuals of the BPM system:
+
+@itemize @bullet
+
+@item @i{BPM HDL Specification Manual}: documentation about the general
+specifications of the BPM FPGA gateware and project overview, located in
+@url{https://github.com/lnls-dig/bpm-hdl-spec}
+
+@end itemize
+
+@c ##########################################################################
+@node Project Information and Repositories
+@chapter Project Information and Repositories
+
+The BPM project is hosted in various repositories:
+
+@c --------------------------------------------------------------------------
+
+@noindent @b{Project Information:}
+@table @r
+@item BPM
+    @itemize @bullet
+    @item
+        @url{http://www.ohwr.org/projects/bpm}
+    @end itemize
+
+    Top project page for general BPM information. It also hosts the subprojects
+    RFFE (RF Front-End), FMC ADC (ADC boards) and DBE (Digital Back-End) platform.
+    The later is a microTCA system composed of a commercial crate, AMC CPU (PowerPC)
+    and MCH (MicroController Hub, as required by the microTCA standard). Also, a
+    custom, fully-compliant microTCA board named AFC (AMC FMC Carrier) is hosted
+    in a repository mentioned below.
+
+@item BPM Application
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/bpm-app}
+    @end itemize
+
+    BPM project repository containing general information about the project. It
+    basically hosts scripts and manuals comprising which hardware/gateware/software
+    are compatible with each other.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@noindent @b{BPM Hardware:}
+
+@table @r
+@item RFFE
+    @itemize @bullet
+    @item
+        @url{http://www.ohwr.org/projects/bpm-rffe}
+    @end itemize
+
+    Top project page for the RFFE hardware development.
+
+    @itemize @bullet
+    @item
+        @url{git://ohwr.org/bpm/bpm-rffe}
+    @item
+        @url{git@@ohwr.org:bpm/bpm-rffe.git}
+    @end itemize
+
+    Git repository for the RFFE hardware development.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item FMC ADC 130MSPS
+    @itemize @bullet
+    @item
+        @url{http://www.ohwr.org/projects/fmc-adc-130m-16b-4cha}
+    @end itemize
+
+    Top project page for the FMC ADC 130MSPS hardware development.
+
+    @itemize @bullet
+    @item
+        @url{git://ohwr.org/fmc-projects/fmc-adc-130m-16b-4cha}
+    @item
+        @url{git@@ohwr.org:fmc-projects/fmc-adc-130m-16b-4cha.git}
+    @end itemize
+
+    Git repository for the FMC ADC 130MSPS hardware development.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item AFC
+    @itemize @bullet
+    @item
+        @url{http://www.ohwr.org/projects/afc}
+    @end itemize
+
+    Top project page for the AFC (part of the Digital Back-End) hardware
+    development.
+
+    @itemize @bullet
+    @item
+        @url{git://ohwr.org/fmc-projects/afc}
+    @item
+        @url{git@@ohwr.org:fmc-projects/afc.git}
+    @end itemize
+
+    Git repository for the AFC hardware development.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@noindent @b{BPM Gateware:}
+
+@table @r
+@item BPM-GW
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/bpm-gw}
+    @item
+        @url{http://www.ohwr.org/projects/bpm-gw}
+    @end itemize
+
+    Top project page for the BPM gateware. This contains VHDL/Verilog code
+    that goes inside the FPGA located at the AFC board and performs the core
+    functionality of the BPM, such as PCIe communication, DSP beam signal
+    processing, data aquisition, real-time orbit monitoring and infrastructure
+    monitoring.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/bpm-gw}
+    @item
+        @url{git@@github.com:lnls-dig/bpm-gw.git}
+    @item
+        @url{git://ohwr.com/bpm/bpm-gw}
+    @item
+        @url{git@@ohwr.com:bpm/bpm-gw.git}
+    @end itemize
+
+    Git repository for the BPM Gateware.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item DSP-CORES
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/dsp-cores}
+    @end itemize
+
+    Project page for the BPM DSP Cores. This contains VHDL/Verilog code that
+    performs the beam signal processing with the following main modules:
+    Multipliers, Adders, Dividers, CIC filters, CORDIC, DDS, Delta-over-sigma.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/dsp-cores}
+    @item
+        @url{git@@github.com:lnls-dig/dsp-cores.git}
+    @end itemize
+
+    Git repository for the BPM DSP Cores.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item GENERAL-CORES
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/general-cores}
+    @end itemize
+
+    Project page for the BPM General Cores. This hosts general cores for FPGA
+    designs, such as: I2C, SPI, OneWire, Wishbone Interconnect, Interrupt
+    controller, GPIO controller, Round-robin arbiter, FIFOs, RAMs, Shift-register
+    FIFO, synchronization modules and others.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/general-cores}
+    @item
+        @url{git@@github.com:lnls-dig/general-cores.git}
+    @end itemize
+
+    Git repository for the BPM General Cores.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@noindent @b{BPM Software:}
+
+@table @r
+@item BPM-IPMI
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/bpm-ipmi}
+    @end itemize
+
+    Top project page for the BPM IPMI software. This contains code that goes in
+    the AFC MicroController for performing IPMI tasks and board managing/housekeeping.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/bpm-ipmi}
+    @item
+        @url{git@@github.com:lnls-dig/bpm-ipmi.git}
+    @end itemize
+
+    Git repository for the BPM IPMI.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item BPM-RFFE-CONTROLLER
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/bpm-rffe-controller}
+    @end itemize
+
+    Top project page for the BPM RFFE Controller software. This contains code
+    that goes inside the RFFE controller board and performs monitoring tasks,
+    such as temperature control, and replies to commands from a client via a TCP/IP
+    connection, such as changes in attenuator settings and switching control.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/bpm-rffe-controller}
+    @item
+        @url{git@@github.com:lnls-dig/bpm-rffe-controller.git}
+    @end itemize
+
+    Git repository for the BPM RFFE Controller.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item BPM-SW
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/bpm-sw}
+    @end itemize
+
+    Top project page for the BPM Sofware. This contains code that goes inside
+    the MicroTCA.4 Crate CPU and performs monitoring tasks, data readout, data
+    aquisition and general control of the AFC boards. This software can handle
+    an arbitrary number of AFC FPGA boards connected in the same MicroTCA.4
+    Crate.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/bpm-sw}
+    @item
+        @url{git@@github.com:lnls-dig/bpm-sw.git}
+    @end itemize
+
+    Git repository for the BPM Sofware.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item FPGA-PCIE-DRIVER
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/fpga_pcie_driver}
+    @end itemize
+
+    Top project page for the FPGA PCIE Driver. This contains linux device driver
+    for communicating with the a PCIe FPGA endpoint, usually an AFC or other
+    compatible board, such as AFCK (@url{http://www.ohwr.org/projects/afck}) or
+    Xilinx ML605 Kit (@url{http://www.xilinx.com/products/
+    boards-and-kits/ek-v6-ml605-g.html}).
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/fpga_pcie_driver}
+    @item
+        @url{git@@github.com:lnls-dig/fpga_pcie_driver.git}
+    @end itemize
+
+    Git repository for the FPGA PCIe Driver.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item BPM-SW-CLI
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/bpm-sw-cli}
+    @end itemize
+
+    Top project page for the BPM Software Command Line Interface (CLI). Contains
+    scripts for continuous data acquisition and controlling of the AFC boards.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/bpm-sw-cli}
+    @item
+        @url{git@@github.com:lnls-dig/bpm-sw-cli.git}
+    @end itemize
+
+    Git repository for the BPM SW Command Line Interface.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item LIBSODIUM
+    @itemize @bullet
+    @item
+        @url{https://github.com/jedisct1/libsodium}
+    @end itemize
+
+    Top project page for LIBSOIDUM. It is a @quotedblleft{} easy-to-use software
+    library for encryption, decryption, signatures, password hashing and more
+    @quotedblright{}.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/jedisct1/libsodium}
+    @end itemize
+
+    Git repository for LIBSODIUM.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item LIBZMQ
+    @itemize @bullet
+    @item
+        @url{https://github.com/zeromq/libzmq}
+    @end itemize
+
+    Top project page for ZMQ. It is lightweight messaging library, in use inside
+    BPM-SW.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/zeromq/libzmq}
+    @end itemize
+
+    Git repository for LIBZMQ.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item CZMQ
+    @itemize @bullet
+    @item
+        @url{https://github.com/zeromq/czmq}
+    @end itemize
+
+    Top project page for CZMQ. It is a high level C library for working with zeroMQ,
+    as weel as some utility classes, such as an implementation of a gossip protocol,
+    config file parsing, data structures, etc.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/zeromq/czmq}
+    @end itemize
+
+    Git repository for CZMQ.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item MALAMUTE
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/malamute}
+    @end itemize
+
+    Top project page for the Malamute project. Contains a reference Broker design
+    and protocol used for exchanging messages between server (CPU in MicroTCA.4
+    Crate) and clients (every other piece of software).
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/malamute}
+    @item
+        @url{git@@github.com:lnls-dig/malamute.git}
+    @end itemize
+
+    Git repository for the Malamute.
+@end table
+
+@c ##########################################################################
+@node Release Versions
+@chapter Release Versions
+
+The following table(s) sumarize(s) hardware/gateware/software versions
+there are known to work with each other.
+
+@float Table,tab:bpm_system_compat_v_0_1
+@multitable @columnfractions .15 .30 .30 .15
+@headitem Subsystem    @tab     Item/Repository   @tab     Description      @tab    Version
+@item INFRA            @tab     MicroTCA.4 Crate  @tab    Vadatech VT811    @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 MCH    @tab    Vadatech MCH002   @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 CPU    @tab    Vadatech AMC720   @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 PS     @tab    Vadatech UTC017   @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 FAN    @tab    Vadatech UTC091   @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 Alarm  @tab    Vadatech Telco Alarm @tab   @math{N/A}
+@item INFRA SW         @tab     MicroTCA.4 Crate Shelf @tab    Vadatech Shelf    @tab   @math{3.2.0}
+@item INFRA SW         @tab     MicroTCA.4 Crate Carrier @tab    Vadatech Carrier  @tab   @math{2.7.0}
+@item INFRA SW         @tab     MicroTCA.4 MCH    @tab    Vadatech MCH002   @tab   @math{3.1.0}
+@item INFRA SW         @tab     MicroTCA.4 CPU    @tab    Vadatech AMC720   @tab   @math{03.50}
+@item INFRA SW         @tab     MicroTCA.4 PS     @tab    Vadatech UTC017   @tab   @math{03.11}
+@item INFRA SW         @tab     MicroTCA.4 FAN    @tab    Vadatech UTC091   @tab   @math{04.00}
+@item INFRA SW         @tab     MicroTCA.4 Alarm  @tab    Vadatech Telco Alarm @tab   @math{N/A}
+@item HW               @tab     RFFE              @tab    RF Front-End      @tab   @math{2.0}
+@item HW               @tab     RFFE Controller   @tab    RF Front-End Controller  @tab   @math{2.0}
+@item HW               @tab     FMC-ADC 130M      @tab    FMC ADC mezzanine @tab   @math{2.0/3.0}
+@item HW               @tab     AFC               @tab    AMC FPGA Board    @tab   @math{3.0}
+@item GW               @tab     BPM-GW            @tab    BPM Gateware      @tab   @math{0.1}
+@item GW               @tab     DSP-CORES         @tab    DSP Cores Gateware @tab   @math{0.2}
+@item SW               @tab     BPM-RFFE-CONTROLLER @tab  BPM RFFE Controller Software  @tab   git commit @math{3fe0147489}
+@item SW               @tab     BPM-SW            @tab    BPM Software      @tab   @math{0.1}
+@item SW               @tab     BPM-SW-CLI        @tab    BPM CLI Software  @tab   @math{0.1.2}
+@item SW               @tab     BPM-IPMI          @tab    BPM IPMI Software @tab   @math{0.1}
+@item LIBS SW          @tab     LIBSODIUM         @tab    LIBSODIUM Library @tab   @math{1.0.3}
+@item LIBS SW          @tab     LIBZMQ            @tab    LIBZMQ Library    @tab   @math{4.2.0}
+@item LIBS SW          @tab     CZMQ              @tab    CZMQ Library      @tab   @math{3.0.2}
+@item LIBS SW          @tab     MALAMUTE          @tab    MALAMUTE Library  @tab   @math{0.1.0}
+@end multitable
+@caption{Compatibility table for BPM system v0.1}
+@end float
+
+@c --------------------------------------------------------------------------
+
+@c ==========================================================================
+@c @node @mybibnode{}
+@c @chapter References
+@c
+@c @itemize @asis
+@c
+@c @mybibitem{LaTeX2e} Leslie Lamport, LaTeX User's Guide and
+@c Reference Manual, 2nd edition, Addison-Wesley, Reading,
+@c Massachusetts, 1994.
+@c
+@c @end itemize
+
+@c ##########################################################################
+@bye
