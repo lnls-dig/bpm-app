@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote  name="github"
+           fetch="https://github.com" />
+
+  <default revision="master"
+           remote="github"
+           sync-j="4" />
+
+  <project name="lnls-dig/malamute" remote="github" path="malamute"/>
+  <project name="lnls-dig/bpm-epics-ioc" remote="github" path="bpm-epics-ioc"/>
+  <project name="lnls-dig/bpm-sw" remote="github" path="bpm-sw"/>
+  <project name="lnls-dig/bpm-sw-cli" remote="github" path="bpm-sw-cli"/>
+
+</manifest>
