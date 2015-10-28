@@ -7,17 +7,24 @@ BPM_SW_CLI_PREFIX=/usr/local
 
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
 VALID_BOARDS_STR="Valid values are: \"ml605\" and \"afcv3\"."
+VALID_AUTOTOOLS_STR="Valid values are: \"with_autotools\" and \"without_autotools\"."
+
+function usage {
+    echo "Usage: $0 <ROLE> <BOARD> <AUTOTOOLS_CFG>"
+}
 
 # Select if we are deploying in server or client: server or client
 ROLE=$1
 
 if [ -z "$ROLE" ]; then
     echo "\"ROLE\" variable unset. "$VALID_ROLES_STR
+    usage
     exit 1
 fi
 
 if [ "$ROLE" != "server" ] && [ "$ROLE" != "client" ] && [ "$ROLE" != "gateware" ]; then
     echo "Unsupported role. "$VALID_ROLES_STR
+    usage
     exit 1
 fi
 
@@ -26,12 +33,40 @@ BOARD=$2
 
 if [ -z "$BOARD" ] && [ "$ROLE" != "gateware" ]; then
     echo "\"BOARD\" variable unset. "$VALID_BOARDS_STR
+    usage
     exit 1
 fi
 
 if [ "$BOARD" != "afcv3" ] && [ "$BOARD" != "ml605" ] && [ "$ROLE" != "gateware" ]; then
     echo "Unsupported board. "$VALID_BOARDS_STR
+    usage
     exit 1
+fi
+
+# Select if we want autotools or not. Options are: with_autotools or without_autotools
+AUTOTOOLS_CFG=$3
+
+if [ -z "$AUTOTOOLS_CFG" ]; then
+    echo "\"AUTOTOOLS_CFG\" variable unset. "$VALID_AUTOTOOLS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ "$AUTOTOOLS_CFG" != "with_autotools" ] && [ "$AUTOTOOLS_CFG" != "without_autotools" ]; then
+    echo "Unsupported option. "$VALID_AUTOTOOLS_CFG_STR
+    usage
+    exit 1
+fi
+
+# Check if we want to install autotools
+if [ "$AUTOTOOLS_CFG" == "with_autotools" ]; then
+    ./get-autotools.sh
+
+    # Check last command return status
+    if [ $? -ne 0 ]; then
+        echo "Could not compile/install project autotools." >&2
+        exit 1
+    fi
 fi
 
 # Both server and client needs these libraries
