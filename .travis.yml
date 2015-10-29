@@ -5,19 +5,22 @@ compiler:
 - clang
 - gcc
 
+sudo: false
+
 env:
-- ROLE=client BOARD=ml605
-- ROLE=client BOARD=afcv3
-- ROLE=server BOARD=ml605
-- ROLE=server BOARD=afcv3
+- ROLE=client BOARD=ml605 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
+- ROLE=client BOARD=afcv3 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
+- ROLE=server BOARD=ml605 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
+- ROLE=server BOARD=afcv3 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
 - ROLE=gateware
+
+addons:
+  apt:
+    packages:
+    - uuid-dev
 
 before_install:
 - git submodule update --init --recursive
-
-#   Build-check-install all subprojects
-before_script:
-- sudo apt-get install uuid-dev
 
 #   Build and check this project
 script:
