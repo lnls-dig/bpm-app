@@ -5,6 +5,8 @@ set -u
 # Exit on error
 set -e
 
+echo "Installing EPICS"
+
 USER=$(whoami)
 TOP_DIR=$(pwd)
 EPICS_ENV_DIR=/etc/profile.d
@@ -106,4 +108,4 @@ sed -i -e "s|SUPPORT=.*|SUPPORT=${EPICS_SYNAPPS}|g" \
 make release
 make
 
-echo "EPICS installation completed"
+echo "EPICS installation successfully completed"
