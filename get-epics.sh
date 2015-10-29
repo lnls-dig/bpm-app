@@ -41,7 +41,7 @@ wget http://www.aps.anl.gov/bcda/synApps/tar/synApps_${SYNAPPS_VERSION}.tar.gz
 ############################## EPICS Base #####################################
 
 # Prepare environment
-sudo mkdir ${EPICS_DIR}
+sudo mkdir -p ${EPICS_DIR}
 sudo chmod 755 ${EPICS_DIR}
 sudo chown ${USER}:${USER} ${EPICS_DIR}
 
