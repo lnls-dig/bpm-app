@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Check for uninitialized variables
+set -u
+# Exit on error
+set -e
+
 # Install compatible autotools version not available in some
 # distributions
 
