@@ -39,3 +39,5 @@ for project in m4-${M4_VERSION} autoconf-${AUTOCONF_VERSION} \
         exit 1
     fi
 done
+
+echo "Autotools installation completed"
