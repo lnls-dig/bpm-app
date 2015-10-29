@@ -7,13 +7,13 @@ set -e
 
 echo "Installing EPICS"
 
+# Source EPICS variables
+. ./epics.sh
+
 USER=$(whoami)
 TOP_DIR=$(pwd)
 EPICS_ENV_DIR=/etc/profile.d
 LDCONF_DIR=/etc/ld.so.conf.d
-EPICS_DIR=/opt/epics
-EPICS_BASE=${EPICS_DIR}/base
-EPICS_EXTENSIONS=${EPICS_DIR}/extensions
 EPICS_EXTENSIONS_SRC=${EPICS_EXTENSIONS}/src
 
 # Install EPICS base and used modules
@@ -26,7 +26,7 @@ SYNAPPS_VERSION=5_7
 
 EPICS_MSI=${EPICS_EXTENSIONS_SRC}/msi${MSI_VERSION}
 EPICS_PROCSERV=${EPICS_EXTENSIONS_SRC}/procServ-${PROCSERV_VERSION}
-EPICS_SYNAPPS=${EPICS_DIR}/synApps/support_${SYNAPPS_VERSION}
+EPICS_SYNAPPS=${EPICS_FOLDER}/synApps/support_${SYNAPPS_VERSION}
 
 if [ $(id -u) -eq 0 ]; then
     echo "This should not be intended to run as root"
@@ -42,16 +42,16 @@ wget http://www.aps.anl.gov/bcda/synApps/tar/synApps_${SYNAPPS_VERSION}.tar.gz
 ############################## EPICS Base #####################################
 
 # Prepare environment
-sudo mkdir -p ${EPICS_DIR}
-sudo chmod 755 ${EPICS_DIR}
-sudo chown ${USER}:${USER} ${EPICS_DIR}
+sudo mkdir -p ${EPICS_FOLDER}
+sudo chmod 755 ${EPICS_FOLDER}
+sudo chown ${USER}:${USER} ${EPICS_FOLDER}
 
 # Copy EPICS environment variables to profile
 sudo cp ${TOP_DIR}/epics.sh ${EPICS_ENV_DIR}
 . ${EPICS_ENV_DIR}/epics.sh
 
 # Extract and install EPICS
-cd ${EPICS_DIR}
+cd ${EPICS_FOLDER}
 tar xvzf ${TOP_DIR}/baseR${EPICS_BASE_VERSION}.tar.gz
 
 # Symlink to EPICS base
@@ -68,7 +68,7 @@ make
 ############################ EPICS Extensions ##################################
 
 # Extract and install extensions
-cd ${EPICS_DIR}
+cd ${EPICS_FOLDER}
 tar xvzf ${TOP_DIR}/extensionsTop_${EXTERNSIONS_VERSION}.tar.gz
 
 # Jump to dir and compile
@@ -97,7 +97,7 @@ make install
 
 ########################### EPICS synApps modules ##############################
 
-cd ${EPICS_DIR}
+cd ${EPICS_FOLDER}
 tar xvzf ${TOP_DIR}/synApps_${SYNAPPS_VERSION}.tar.gz
 
 cd ${EPICS_SYNAPPS}
