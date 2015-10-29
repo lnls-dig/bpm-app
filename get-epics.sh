@@ -35,7 +35,7 @@ fi
 wget http://www.aps.anl.gov/epics/download/base/baseR${EPICS_BASE_VERSION}.tar.gz
 wget http://www.aps.anl.gov/epics/download/extensions/extensionsTop_${EXTERNSIONS_VERSION}.tar.gz
 wget http://www.aps.anl.gov/epics/download/extensions/msi${MSI_VERSION}.tar.gz
-wget http://sourceforge.net/projects/procserv/files/${PROCSERV_VERSION}/procServ-${PROCSERV_VERSION}.tar.gz/download
+wget http://sourceforge.net/projects/procserv/files/${PROCSERV_VERSION}/procServ-${PROCSERV_VERSION}.tar.gz/download -O procServ-${PROCSERV_VERSION}.tar.gz
 wget http://www.aps.anl.gov/bcda/synApps/tar/synApps_${SYNAPPS_VERSION}.tar.gz
 
 ############################## EPICS Base #####################################
