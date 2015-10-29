@@ -54,7 +54,7 @@ cd ${EPICS_DIR}
 tar xvzf ${TOP_DIR}/baseR${EPICS_BASE_VERSION}.tar.gz
 
 # Symlink to EPICS base
-ln -s baseR${EPICS_BASE_VERSION} base
+ln -sf baseR${EPICS_BASE_VERSION} base
 
 # Update ldconfig with EPICS libs
 sudo touch ${LDCONF_DIR}/epics.conf
