@@ -29,7 +29,6 @@ for project in m4-${M4_VERSION} autoconf-${AUTOCONF_VERSION} \
     tar xzvf ${project}.tar.gz && \
         cd $project && \
         ./configure &&
-        make check && \
         sudo make install && \
         sudo ldconfig && \
         cd ..
