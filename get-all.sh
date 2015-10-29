@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# Check for uninitialized variables
-set -u
 # Exit on error
 set -e
 
@@ -100,6 +98,9 @@ if [ "$EPICS_CFG" == "with_epics" ]; then
         exit 1
     fi
 fi
+
+# Check for uninitialized variables
+set -u
 
 ################################## BPM SW #####################################
 
