@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Check for uninitialized variables
+set -u
+# Exit on error
+set -e
+
 # Our options
 BPM_SW_BOARD=afcv3
 BPM_SW_WITH_EXAMPLES="with_examples"
@@ -8,9 +13,10 @@ BPM_SW_CLI_PREFIX=/usr/local
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
 VALID_BOARDS_STR="Valid values are: \"ml605\" and \"afcv3\"."
 VALID_AUTOTOOLS_STR="Valid values are: \"with_autotools\" and \"without_autotools\"."
+VALID_EPICS_STR="Valid values are: \"with_epics\" and \"without_epics\"."
 
 function usage {
-    echo "Usage: $0 <ROLE> <BOARD> <AUTOTOOLS_CFG>"
+    echo "Usage: $0 <ROLE> <BOARD> <AUTOTOOLS_CFG> <EPICS_CFG>"
 }
 
 # Select if we are deploying in server or client: server or client
@@ -68,6 +74,34 @@ if [ "$AUTOTOOLS_CFG" == "with_autotools" ]; then
         exit 1
     fi
 fi
+
+# Select if we want epics or not. Options are: with_epics or without_epics
+EPICS_CFG=$4
+
+if [ -z "$EPICS_CFG" ]; then
+    echo "\"EPICS_CFG\" variable unset. "$VALID_EPICS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ "$EPICS_CFG" != "with_epics" ] && [ "$EPICS_CFG" != "without_epics" ]; then
+    echo "Unsupported option. "$VALID_EPICS_CFG_STR
+    usage
+    exit 1
+fi
+
+# Check if we want to install epics
+if [ "$EPICS_CFG" == "with_epics" ]; then
+    ./get-epics.sh
+
+    # Check last command return status
+    if [ $? -ne 0 ]; then
+        echo "Could not compile/install project epics." >&2
+        exit 1
+    fi
+fi
+
+################################## BPM SW #####################################
 
 # Both server and client needs these libraries
 if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
@@ -211,3 +245,5 @@ if [ "$ROLE" == "gateware" ]; then
         fi
     done
 fi
+
+echo "BPM software installation completed"
