@@ -26,7 +26,7 @@ SYNAPPS_VERSION=5_7
 
 EPICS_MSI=${EPICS_EXTENSIONS_SRC}/msi${MSI_VERSION}
 EPICS_PROCSERV=${EPICS_EXTENSIONS_SRC}/procServ-${PROCSERV_VERSION}
-EPICS_SYNAPPS=${EPICS_FOLDER}/synApps/support_${SYNAPPS_VERSION}
+EPICS_SYNAPPS=${EPICS_FOLDER}/synApps_${SYNAPPS_VERSION}/support
 
 if [ $(id -u) -eq 0 ]; then
     echo "This should not be intended to run as root"
