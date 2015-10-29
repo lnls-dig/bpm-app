@@ -10,8 +10,8 @@ BPM_SW_CLI_PREFIX=/usr/local
 
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
 VALID_BOARDS_STR="Valid values are: \"ml605\" and \"afcv3\"."
-VALID_AUTOTOOLS_STR="Valid values are: \"with_autotools\" and \"without_autotools\"."
-VALID_EPICS_STR="Valid values are: \"with_epics\" and \"without_epics\"."
+VALID_AUTOTOOLS_CFG_STR="Valid values are: \"with_autotools\" and \"without_autotools\"."
+VALID_EPICS_CFG_STR="Valid values are: \"with_epics\" and \"without_epics\"."
 
 function usage {
     echo "Usage: $0 <ROLE> <BOARD> <AUTOTOOLS_CFG> <EPICS_CFG>"
@@ -62,17 +62,6 @@ if [ "$AUTOTOOLS_CFG" != "with_autotools" ] && [ "$AUTOTOOLS_CFG" != "without_au
     exit 1
 fi
 
-# Check if we want to install autotools
-if [ "$AUTOTOOLS_CFG" == "with_autotools" ]; then
-    ./get-autotools.sh
-
-    # Check last command return status
-    if [ $? -ne 0 ]; then
-        echo "Could not compile/install project autotools." >&2
-        exit 1
-    fi
-fi
-
 # Select if we want epics or not. Options are: with_epics or without_epics
 EPICS_CFG=$4
 
@@ -88,6 +77,22 @@ if [ "$EPICS_CFG" != "with_epics" ] && [ "$EPICS_CFG" != "without_epics" ]; then
     exit 1
 fi
 
+# Check for uninitialized variables
+set -u
+
+########################### Dependencies Installation ##########################
+
+# Check if we want to install autotools
+if [ "$AUTOTOOLS_CFG" == "with_autotools" ]; then
+    ./get-autotools.sh
+
+    # Check last command return status
+    if [ $? -ne 0 ]; then
+        echo "Could not compile/install project autotools." >&2
+        exit 1
+    fi
+fi
+
 # Check if we want to install epics
 if [ "$EPICS_CFG" == "with_epics" ]; then
     ./get-epics.sh
@@ -98,9 +103,6 @@ if [ "$EPICS_CFG" == "with_epics" ]; then
         exit 1
     fi
 fi
-
-# Check for uninitialized variables
-set -u
 
 ################################## BPM SW #####################################
 
