@@ -93,7 +93,7 @@ tar xvzf ${TOP_DIR}/procServ-${PROCSERV_VERSION}.tar.gz
 cd ${EPICS_PROCSERV}
 ./configure
 make
-make install
+sudo make install
 
 ########################### EPICS synApps modules ##############################
 
