@@ -58,7 +58,7 @@ ln -s baseR${EPICS_BASE_VERSION} base
 
 # Update ldconfig with EPICS libs
 sudo touch ${LDCONF_DIR}/epics.conf
-sudo echo "${EPICS_BASE}/lib/${EPICS_HOST_ARCH}" > /etc/ld.so.conf.d/epics.conf
+echo "${EPICS_BASE}/lib/${EPICS_HOST_ARCH}" | sudo tee /etc/ld.so.conf.d/epics.conf
 
 # Compile EPICS base
 cd ${EPICS_BASE}
