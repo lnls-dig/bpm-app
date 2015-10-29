@@ -5,6 +5,8 @@ set -u
 # Exit on error
 set -e
 
+echo "Installing Autotools"
+
 # Install compatible autotools version not available in some
 # distributions
 
@@ -40,4 +42,4 @@ for project in m4-${M4_VERSION} autoconf-${AUTOCONF_VERSION} \
     fi
 done
 
-echo "Autotools installation completed"
+echo "Autotools installation successfully completed"
