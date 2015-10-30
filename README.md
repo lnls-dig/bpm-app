@@ -1,5 +1,5 @@
 [![Build
-Status](https://travis-ci.org/lnls-dig/bpm-sw-app.svg)](https://travis-ci.org/lnls-dig/bpm-sw-app)
+Status](https://travis-ci.org/lnls-dig/bpm-app.svg)](https://travis-ci.org/lnls-dig/bpm-app)
 
 # Beam Position Monitor Application Software/Gateware
 
