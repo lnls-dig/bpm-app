@@ -10,6 +10,26 @@ GetVersionFromFile()
     VERSION=`cat $1 | tr "\n" ' ' | sed s/.*VERSION.*=\ // `
 }
 
+DIST_ONLY=0
+
+# Get command line options
+while getopts ":d" opt; do
+    case $opt in
+        d)
+            DIST_ONLY=1
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Check some OSes and Distro
 if [ "${OS}" = "SunOS" ] ; then
     OS=Solaris
     ARCH=`uname -p` 
@@ -46,7 +66,11 @@ elif [ "${OS}" = "Linux" ] ; then
         DIST="${DIST}[`cat /etc/UnitedLinux-release | tr "\n" ' ' | sed s/VERSION.*//`]"
     fi
 
-    OSSTR="${OS} ${DIST} ${REV}(${PSUEDONAME} ${KERNEL} ${MACH})"
+    if [ "$DIST_ONLY" = 1 ] ; then
+        OSSTR=${DIST}
+    else
+        OSSTR="${OS} ${DIST} ${REV}(${PSUEDONAME} ${KERNEL} ${MACH})"
+    fi
 fi
 
 echo ${OSSTR}
