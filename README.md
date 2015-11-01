@@ -8,20 +8,6 @@ Software, as well as Gateware and client applications.
 
 ## Instructions
 
-### Dependencies
-
-Ubuntu/Debian
-
-    libglib2.0 libglib2.0-dev uuid-dev
-
-    sudo apt-get install libglib2.0 libglib2.0-dev uuid-dev
-
-Fedora/SL/RHEL
-
-    libglib2.0 libglib2.0-devel uuid-devel
-
-    sudo yum install libglib2.0 libglib2.0-dev uuid-dev
-
 ### Server
 
 For server installation with AFCv3 boards, typically a CPU within a microTCA.4
