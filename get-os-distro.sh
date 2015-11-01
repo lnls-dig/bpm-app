@@ -49,10 +49,6 @@ elif [ "${OS}" = "Linux" ] ; then
     elif [ -f /etc/SUSE-release ] ; then
         DIST=`cat /etc/SUSE-release | tr "\n" ' '| sed s/VERSION.*//`
         REV=`cat /etc/SUSE-release | tr "\n" ' ' | sed s/.*=\ //`
-    elif [ -f /etc/mandrake-release ] ; then
-        DIST='Mandrake'
-        PSUEDONAME=`cat /etc/mandrake-release | sed s/.*\(// | sed s/\)//`
-        REV=`cat /etc/mandrake-release | sed s/.*release\ // | sed s/\ .*//`
     elif [ -f /etc/lsb-release ] ; then
         DIST='Ubuntu'
         PSUEDONAME=`cat /etc/lsb-release | grep "DISTRIB_CODENAME=.*" | sed 's/DISTRIB_CODENAME=\(.*\)/\1/'`
@@ -60,10 +56,6 @@ elif [ "${OS}" = "Linux" ] ; then
     elif [ -f /etc/debian_version ] ; then
         DIST="Debian `cat /etc/debian_version`"
         REV=""
-    fi
-
-    if [ -f /etc/UnitedLinux-release ] ; then
-        DIST="${DIST}[`cat /etc/UnitedLinux-release | tr "\n" ' ' | sed s/VERSION.*//`]"
     fi
 
     if [ "$DIST_ONLY" = 1 ] ; then
