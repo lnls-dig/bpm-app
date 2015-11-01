@@ -35,7 +35,7 @@ esac
 
 # Update repos
 sudo ${PKG_MANAGER} ${PKG_UPDT_COMMAND}
-sudo ${PKG_MANAGER} ${PKG_COMMAND} ${DEPS}
+sudo ${PKG_MANAGER} ${PKG_INSTALL_COMMAND} ${DEPS}
 
 # Add GLIB pkg0config file (*.pc) to pkg-config path, so
 # a possible update on pkg-config works
