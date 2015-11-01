@@ -80,6 +80,9 @@ fi
 # Check for uninitialized variables
 set -u
 
+######################## System Dependencies Installation ######################
+./get-system-deps.sh
+
 ########################### Dependencies Installation ##########################
 
 # Check if we want to install autotools
