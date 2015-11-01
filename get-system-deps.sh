@@ -39,7 +39,7 @@ sudo ${PKG_MANAGER} ${PKG_INSTALL_COMMAND} ${DEPS}
 
 # Add GLIB pkg0config file (*.pc) to pkg-config path, so
 # a possible update on pkg-config works
-GLIB_PKG_CONFIG_PATH=$(find /usr/ -iname "glib-2.0.pc)
+GLIB_PKG_CONFIG_PATH=$(find /usr/ -iname "glib-2.0.pc")
 export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${GLIB_PKG_CONFIG_PATH}
 
 echo "System dependencies installation completed"
