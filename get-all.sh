@@ -14,65 +14,64 @@ VALID_AUTOTOOLS_CFG_STR="Valid values are: \"with_autotools\" and \"without_auto
 VALID_EPICS_CFG_STR="Valid values are: \"with_epics\" and \"without_epics\"."
 
 function usage {
-    echo "Usage: $0 <ROLE> <BOARD> <AUTOTOOLS_CFG> <EPICS_CFG>"
+    echo "Usage: $0 -r <role = [server|client|gateware]> -b <board =[ml605|afcv3]> -a <install autotools> -e <install EPICS tools> "
 }
 
 # Select if we are deploying in server or client: server or client
-ROLE=$1
+ROLE=
+# Select board in which we will work. Options are: ml605 or afcv3
+BOARD=
+# Select if we want autotools or not. Options are: yes or no
+AUTOTOOLS_CFG="no"
+# Select if we want epics or not. Options are: with_epics or without_epics
+EPICS_CFG="no"
+
+# Get command line options
+while getopts ":r:b:ae" opt; do
+    case $opt in
+        r)
+            ROLE=$OPTARG
+            ;;
+        b)
+            BOARD=$OPTARG
+            ;;
+        a)
+            AUTOTOOLS_CFG="yes"
+            ;;
+        e)
+            EPICS_CFG="yes"
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            exit 1
+            ;;
+    esac
+done
 
 if [ -z "$ROLE" ]; then
-    echo "\"ROLE\" variable unset. "$VALID_ROLES_STR
+    echo "Option \"-r\" unset. "$VALID_ROLES_STR
     usage
     exit 1
 fi
 
 if [ "$ROLE" != "server" ] && [ "$ROLE" != "client" ] && [ "$ROLE" != "gateware" ]; then
-    echo "Unsupported role. "$VALID_ROLES_STR
+    echo "Option \"-r\" has unsupported role. "$VALID_ROLES_STR
     usage
     exit 1
 fi
 
-# Select board in which we will work. Options are: ml605 or afcv3
-BOARD=$2
-
 if [ -z "$BOARD" ] && [ "$ROLE" != "gateware" ]; then
-    echo "\"BOARD\" variable unset. "$VALID_BOARDS_STR
+    echo "Option \"-b\" unset. "$VALID_BOARDS_STR
     usage
     exit 1
 fi
 
 if [ "$BOARD" != "afcv3" ] && [ "$BOARD" != "ml605" ] && [ "$ROLE" != "gateware" ]; then
-    echo "Unsupported board. "$VALID_BOARDS_STR
-    usage
-    exit 1
-fi
-
-# Select if we want autotools or not. Options are: with_autotools or without_autotools
-AUTOTOOLS_CFG=$3
-
-if [ -z "$AUTOTOOLS_CFG" ]; then
-    echo "\"AUTOTOOLS_CFG\" variable unset. "$VALID_AUTOTOOLS_CFG_STR
-    usage
-    exit 1
-fi
-
-if [ "$AUTOTOOLS_CFG" != "with_autotools" ] && [ "$AUTOTOOLS_CFG" != "without_autotools" ]; then
-    echo "Unsupported option. "$VALID_AUTOTOOLS_CFG_STR
-    usage
-    exit 1
-fi
-
-# Select if we want epics or not. Options are: with_epics or without_epics
-EPICS_CFG=$4
-
-if [ -z "$EPICS_CFG" ]; then
-    echo "\"EPICS_CFG\" variable unset. "$VALID_EPICS_CFG_STR
-    usage
-    exit 1
-fi
-
-if [ "$EPICS_CFG" != "with_epics" ] && [ "$EPICS_CFG" != "without_epics" ]; then
-    echo "Unsupported option. "$VALID_EPICS_CFG_STR
+    echo "Option \"-b\" has unspported board. "$VALID_BOARDS_STR
     usage
     exit 1
 fi
