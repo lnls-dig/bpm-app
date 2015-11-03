@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Detects which OS and if it is Linux then it will detect which Linux Distribution.
 
 OS=`uname -s`
@@ -32,7 +32,7 @@ done
 # Check some OSes and Distro
 if [ "${OS}" = "SunOS" ] ; then
     OS=Solaris
-    ARCH=`uname -p` 
+    ARCH=`uname -p`
     OSSTR="${OS} ${REV}(${ARCH} `uname -v`)"
 elif [ "${OS}" = "AIX" ] ; then
     OSSTR="${OS} `oslevel` (`oslevel -r`)"
