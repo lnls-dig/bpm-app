@@ -6,9 +6,11 @@ set -u
 set -e
 
 # Dependency list
-GEN_DEPS="binutils build-essential git re2c libreadline6 perl5" 
-DEB_UBU_DEPS="glib2.0 libglib2.0 libglib2.0-dev uuid-dev libreadline6-dev"
-FED_RED_SUS_DEPS="glib2.0 libglib2.0 libglib2.0-devel uuid-devel libreadline6-devel"
+GEN_DEPS="binutils build-essential git re2c libreadline6 perl5 g++"
+DEB_UBU_DEPS="glib2.0 libglib2.0 libglib2.0-dev uuid-dev libreadline6-dev \
+    libusb-dev bzip2-dev libxml2-dev"
+FED_RED_SUS_DEPS="glib2.0 libglib2.0 libglib2.0-devel uuid-devel libreadline6-devel \
+    libusb-devel bzip2-devel libxml2-devel"
 
 echo "Installing system dependencies"
 
