@@ -23,10 +23,19 @@ case $distro in
         PKG_INSTALL_COMMAND="install -y"
         DEPS="${GEN_DEPS} ${DEB_UBU_DEPS}"
         ;;
-    "Fedora" | "Redhat" | "SUSE" | "Scientific")
+    "Fedora" | "Redhat" | "Scientific")
         PKG_MANAGER="yum"
         PKG_UPDT_COMMAND="update"
         PKG_INSTALL_COMMAND="install -y"
+        DEPS="${GEN_DEPS} ${FED_RED_SUS_DEPS}"
+        ;;
+    "SUSE")
+        PKG_MANAGER="zypper"
+        PKG_UPDT_COMMAND="update"
+        # Not sure if this will assume "yes"" for every package, but zypper does
+        # not seem to have an equivalent -y option
+        PKG_INSTALL_COMMAND="--non-interactive --no-gpg-checks --quiet install \
+            --auto-agree-with-licenses"
         DEPS="${GEN_DEPS} ${FED_RED_SUS_DEPS}"
         ;;
     *)
