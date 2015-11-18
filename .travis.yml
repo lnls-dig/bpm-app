@@ -5,7 +5,7 @@ compiler:
 - clang
 - gcc
 
-sudo: false
+sudo: required
 
 env:
 - ROLE=client BOARD=ml605 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
