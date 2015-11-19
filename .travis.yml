@@ -8,10 +8,10 @@ compiler:
 sudo: required
 
 env:
-- ROLE=client BOARD=ml605 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
-- ROLE=client BOARD=afcv3 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
-- ROLE=server BOARD=ml605 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
-- ROLE=server BOARD=afcv3 AUTOTOOLS_CFG=with_autotools EPICS_CFG=with_epics
+- ROLE=client BOARD=ml605
+- ROLE=client BOARD=afcv3
+- ROLE=server BOARD=ml605
+- ROLE=server BOARD=afcv3
 - ROLE=gateware
 
 addons:
