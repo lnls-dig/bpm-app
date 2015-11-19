@@ -20,6 +20,10 @@ addons:
     - uuid-dev
 
 before_install:
+- $CC --version
+- which $CC
+# workaround clang not system wide, fail on sudo make install
+- export CC=`which $CC`
 - git submodule update --init --recursive
 
 #   Build and check this project
