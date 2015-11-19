@@ -85,7 +85,7 @@ set -u
 ########################### Dependencies Installation ##########################
 
 # Check if we want to install autotools
-if [ "$AUTOTOOLS_CFG" == "with_autotools" ]; then
+if [ "$AUTOTOOLS_CFG" == "yes" ]; then
     ./get-autotools.sh
 
     # Check last command return status
@@ -96,7 +96,7 @@ if [ "$AUTOTOOLS_CFG" == "with_autotools" ]; then
 fi
 
 # Check if we want to install epics
-if [ "$EPICS_CFG" == "with_epics" ]; then
+if [ "$EPICS_CFG" == "yes" ]; then
     ./get-epics.sh
 
     # Check last command return status
