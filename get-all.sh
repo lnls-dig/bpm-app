@@ -177,7 +177,7 @@ if [ "$ROLE" == "client" ]; then
 
         # Compile an install dynamic libraries needed by client
         # applications
-        for lib in liberrhand libconvc libhutils libdisptable libllio libbpmclient; do
+        for lib in deps liberrhand libconvc libhutils libdisptable libllio libbpmclient; do
             COMMAND="make \
                 ERRHAND_DBG=${ERRHAND_DBG_VAL} \
                 ERRHAND_MIN_LEVEL=${ERRHAND_MIN_LEVEL_VAL} \
