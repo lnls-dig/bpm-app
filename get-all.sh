@@ -139,7 +139,8 @@ fi
 # Server
 if [ "$ROLE" == "server" ]; then
     # BPM Software
-    git clone --branch=v0.1 git://github.com/lnls-dig/bpm-sw.git
+#    git clone --branch=v0.1 git://github.com/lnls-dig/bpm-sw.git
+    git clone --branch=devel git://github.com/lnls-dig/bpm-sw.git
 
     # Configure and Install
     for project in bpm-sw; do
@@ -166,7 +167,8 @@ ERRHAND_SUBSYS_ON_VAL='"(DBG_DEV_MNGR | DBG_DEV_IO | DBG_SM_IO | DBG_LIB_CLIENT 
 # Client
 if [ "$ROLE" == "client" ]; then
     # BPM libbpmclient
-    git clone --branch=v0.1 git://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
+#    git clone --branch=v0.1 git://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
+    git clone --branch=devel git://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
 
     # Configure and Install
     for project in .bpm-sw-libs; do
@@ -196,7 +198,8 @@ if [ "$ROLE" == "client" ]; then
     done
 
     # BPM Client Software
-    git clone --branch=v0.1.2 git://github.com/lnls-dig/bpm-sw-cli.git
+#    git clone --branch=v0.1.2 git://github.com/lnls-dig/bpm-sw-cli.git
+    git clone --branch=master git://github.com/lnls-dig/bpm-sw-cli.git
 
     # Configure and Install
     for project in bpm-sw-cli; do
