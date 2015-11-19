@@ -115,7 +115,6 @@ if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
     git clone --branch=master git://github.com/zeromq/libzmq.git
     git clone --branch=v3.0.2 git://github.com/zeromq/czmq.git
     git clone --branch=v0.1.1 git://github.com/lnls-dig/malamute.git
-    git clone --branch=master git://github.com/lnls-dig/bpm-epics-ioc.git
 
     # Configure and Install
     for project in libsodium libzmq czmq malamute; do
@@ -126,21 +125,6 @@ if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
         make && \
         sudo make install && \
         sudo ldconfig && \
-        cd ..
-
-        # Check last command return status
-        if [ $? -ne 0 ]; then
-            echo "Could not compile/install project $project." >&2
-            echo "Try executing the script with root access." >&2
-            exit 1
-        fi
-    done
-
-    # Configure and Install IOC BPM
-    for project in bpm-epics-ioc; do
-        cd $project && \
-        git submodule update --init --recursive && \
-        make && make install && \
         cd ..
 
         # Check last command return status
@@ -219,6 +203,27 @@ if [ "$ROLE" == "client" ]; then
         cd $project && \
         git submodule update --init --recursive && \
         sudo ./compile.sh ${BPM_SW_CLI_PREFIX} && \
+        cd ..
+
+        # Check last command return status
+        if [ $? -ne 0 ]; then
+            echo "Could not compile/install project $project." >&2
+            echo "Try executing the script with root access." >&2
+            exit 1
+        fi
+    done
+fi
+
+# Both server and client needs EPICS, but only after BPM-sw is installed
+if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
+    git clone --branch=master git://github.com/lnls-dig/bpm-epics-ioc.git
+
+    # Configure and Install IOC BPM
+    for project in bpm-epics-ioc; do
+        cd $project && \
+        git submodule update --init --recursive && \
+        make && \
+        make install && \
         cd ..
 
         # Check last command return status
