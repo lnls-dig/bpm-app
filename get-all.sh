@@ -123,6 +123,7 @@ if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
         ./autogen.sh && \
         ./configure &&
         make check && \
+        make && \
         sudo make install && \
         sudo ldconfig && \
         cd ..

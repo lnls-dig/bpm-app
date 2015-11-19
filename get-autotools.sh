@@ -31,6 +31,7 @@ for project in pkg-config-${PKG_CONFIG_VERSION} \
     tar xzvf ${project}.tar.gz && \
         cd $project && \
         ./configure &&
+        make &&
         sudo make install && \
         sudo ldconfig && \
         cd ..
