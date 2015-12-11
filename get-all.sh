@@ -112,7 +112,7 @@ fi
 if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
     # ZEROmq libraries
     git clone --branch=1.0.3 git://github.com/jedisct1/libsodium.git
-    git clone --branch=master git://github.com/zeromq/libzmq.git
+    git clone --branch=v4.2.0-pre git://github.com/lnls-dig/libzmq.git
     git clone --branch=v3.0.2 git://github.com/zeromq/czmq.git
     git clone --branch=v0.1.1 git://github.com/lnls-dig/malamute.git
 
