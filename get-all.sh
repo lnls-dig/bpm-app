@@ -111,10 +111,10 @@ fi
 # Both server and client needs these libraries
 if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
     # ZEROmq libraries
-    git clone --branch=1.0.3 git://github.com/jedisct1/libsodium.git
+    git clone --branch=1.0.8 git://github.com/jedisct1/libsodium.git
     git clone --branch=v4.2.0-pre git://github.com/lnls-dig/libzmq.git
     git clone --branch=v3.0.2 git://github.com/zeromq/czmq.git
-    git clone --branch=v0.1.2 git://github.com/lnls-dig/malamute.git
+    git clone --branch=v1.0 git://github.com/lnls-dig/malamute.git
 
     # Configure and Install
     for project in libsodium libzmq czmq malamute; do
