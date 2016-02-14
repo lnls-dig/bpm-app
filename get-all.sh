@@ -4,17 +4,19 @@
 set -e
 
 # Our options
-BPM_SW_BOARD=afcv3
-BPM_SW_WITH_EXAMPLES="with_examples"
+BPM_SW_BOARD="afcv3"
+BPM_SW_APPS="ebpm"
+BPM_SW_WITH_LIBS_LINK="no"
+BPM_SW_WITH_EXAMPLES="yes"
 BPM_SW_CLI_PREFIX=/usr/local
 
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
-VALID_BOARDS_STR="Valid values are: \"ml605\" and \"afcv3\"."
+VALID_BOARDS_STR="Valid values are: \"ml605\", \"afcv3\" or \"afcv3_1\""
 VALID_AUTOTOOLS_CFG_STR="Valid values are: \"with_autotools\" and \"without_autotools\"."
 VALID_EPICS_CFG_STR="Valid values are: \"with_epics\" and \"without_epics\"."
 
 function usage {
-    echo "Usage: $0 -r <role = [server|client|gateware]> -b <board =[ml605|afcv3]> -a <install autotools> -e <install EPICS tools> "
+    echo "Usage: $0 -r <role = [server|client|gateware]> -b <board =[ml605|afcv3|afcv3_1]> -a <install autotools> -e <install EPICS tools> "
 }
 
 # Select if we are deploying in server or client: server or client
@@ -70,7 +72,7 @@ if [ -z "$BOARD" ] && [ "$ROLE" != "gateware" ]; then
     exit 1
 fi
 
-if [ "$BOARD" != "afcv3" ] && [ "$BOARD" != "ml605" ] && [ "$ROLE" != "gateware" ]; then
+if [ "$BOARD" != "afcv3" ] && [ "$BOARD" != "afcv3_1" ] && [ "$BOARD" != "ml605" ] && [ "$ROLE" != "gateware" ]; then
     echo "Option \"-b\" has unspported board. "$VALID_BOARDS_STR
     usage
     exit 1
@@ -146,7 +148,7 @@ if [ "$ROLE" == "server" ]; then
     for project in bpm-sw; do
         cd $project && \
         git submodule update --init --recursive && \
-        sudo ./compile.sh ${BPM_SW_BOARD} ${BPM_SW_WITH_EXAMPLES} && \
+        sudo ./compile.sh -b ${BOARD} -a ${BPM_SW_APPS} -e ${BPM_SW_WITH_EXAMPLES} -l ${BPM_SW_WITH_LIBS_LINK} && \
         cd ..
 
         # Check last command return status
