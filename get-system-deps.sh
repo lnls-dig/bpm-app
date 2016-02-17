@@ -23,7 +23,7 @@ case $distro in
         PKG_INSTALL_COMMAND="install -y"
         DEPS="${GEN_DEPS} ${DEB_UBU_DEPS}"
         ;;
-    "Fedora" | "Redhat" | "Scientific")
+    "Fedora" | "RedHat" | "Scientific")
         PKG_MANAGER="yum"
         PKG_UPDT_COMMAND="update"
         PKG_INSTALL_COMMAND="install -y"
