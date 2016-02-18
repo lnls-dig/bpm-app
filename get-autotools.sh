@@ -7,6 +7,11 @@ set -e
 
 echo "Installing Autotools"
 
+# Source environment variables
+. ./env-vars.sh
+
+echo "$PKG_CONFIG_PATH"
+
 # Install compatible autotools version not available in some
 # distributions
 

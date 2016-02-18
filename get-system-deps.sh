@@ -48,16 +48,4 @@ esac
 sudo ${PKG_MANAGER} ${PKG_UPDT_COMMAND}
 sudo ${PKG_MANAGER} ${PKG_INSTALL_COMMAND} ${DEPS}
 
-# Add GLIB pkg0config file (*.pc) to pkg-config path, so
-# a possible update on pkg-config works.
-#
-# Skip unreadable directories and do not show these errors
-GLIB_PKG_CONFIG_PATH=$(find /usr/ ! -readable -prune -iname "glib-2.0.pc")
-
-# Don't care if PKG_CONFIG_PATH is unbounded here, as we might not have
-# this previously set
-set +u
-export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${GLIB_PKG_CONFIG_PATH}
-set -u
-
 echo "System dependencies installation completed"
