@@ -25,7 +25,7 @@ case $distro in
         ;;
     "Fedora" | "RedHat" | "Scientific")
         PKG_MANAGER="yum"
-        PKG_UPDT_COMMAND="update"
+        PKG_UPDT_COMMAND="makecache"
         PKG_INSTALL_COMMAND="install -y"
         DEPS="${GEN_DEPS} ${FED_RED_SUS_DEPS}"
         ;;
