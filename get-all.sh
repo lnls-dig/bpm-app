@@ -20,7 +20,6 @@ VALID_BOARDS_STR="Valid values are: \"ml605\", \"afcv3\" or \"afcv3_1\""
 VALID_AUTOTOOLS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_EPICS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
-VALID_INSTALL_STR="Valid values are: \"yes\" and \"no\"."
 
 # Source repo versions
 . ./repo-versions.sh
@@ -32,7 +31,8 @@ function usage {
     echo "    -a <install autotools = [yes|no]>"
     echo "    -e <install EPICS tools = [yes|no]>"
     echo "    -s <install system dependencies = [yes|no]>"
-    echo "    -o <don't download, only install = [yes|no]>"
+    echo "    -i <install the pacakges = [yes|no]>"
+    echo "    -o <download the pacakges = [yes|no]>"
 }
 
 # Select if we are deploying in server or client: server or client
