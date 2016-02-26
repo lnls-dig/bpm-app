@@ -20,7 +20,7 @@ BPM_SW_LIBS_VER=devel
 BPM_SW_CLI_VER=master
 BPM_EPICS_IOC_VER=master
 BPM_GW_VER=v0.1
-BPM_IPMI_VER=v0.1
+BPM_IPMI_VER=master
 
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
 VALID_BOARDS_STR="Valid values are: \"ml605\", \"afcv3\" or \"afcv3_1\""
@@ -273,7 +273,7 @@ if [ "$ROLE" == "gateware" ]; then
     # BPM Gateware
     git clone --branch=${BPM_GW_VER} git://github.com/lnls-dig/bpm-gw.git
     # BPM IPMI
-    git clone --branch=${BPM_IPMI_VER} git://github.com/lnls-dig/bpm-ipmi.git
+    git clone --branch=${BPM_IPMI_VER} git://github.com/lnls-dig/afcipm.git
 
     # Configure and Install
     for project in bpm-gw bpm-ipmi; do
