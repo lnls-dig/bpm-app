@@ -10,16 +10,29 @@ BPM_SW_WITH_LIBS_LINK="no"
 BPM_SW_WITH_EXAMPLES="yes"
 BPM_SW_CLI_PREFIX=/usr/local
 
+# BPM client lib flags
+ERRHAND_DBG=y
+ERRHAND_MIN_LEVEL=DBG_LVL_INFO
+ERRHAND_SUBSYS_ON='"(DBG_DEV_MNGR | DBG_DEV_IO | DBG_SM_IO | DBG_LIB_CLIENT | DBG_SM_PR | DBG_SM_CH | DBG_LL_IO | DBG_HAL_UTILS)"'
+
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
 VALID_BOARDS_STR="Valid values are: \"ml605\", \"afcv3\" or \"afcv3_1\""
-VALID_AUTOTOOLS_CFG_STR="Valid values are: \"with_autotools\" and \"without_autotools\"."
-VALID_EPICS_CFG_STR="Valid values are: \"with_epics\" and \"without_epics\"."
+VALID_AUTOTOOLS_CFG_STR="Valid values are: \"yes\" and \"no\"."
+VALID_EPICS_CFG_STR="Valid values are: \"yes\" and \"no\"."
+VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
+VALID_ONLY_INSTALLS_STR="Valid values are: \"yes\" and \"no\"."
 
 # Source repo versions
 . ./repo-versions.sh
 
 function usage {
-    echo "Usage: $0 -r <role = [server|client|gateware]> -b <board =[ml605|afcv3|afcv3_1]> -a <install autotools> -e <install EPICS tools> "
+    echo "Usage: $0 "
+    echo "    -r <role = [server|client|gateware]>"
+    echo "    -b <board = [ml605|afcv3|afcv3_1]>"
+    echo "    -a <install autotools = [yes|no]>"
+    echo "    -e <install EPICS tools = [yes|no]>"
+    echo "    -s <install system dependencies = [yes|no]>"
+    echo "    -o <don't download, only install = [yes|no]>"
 }
 
 # Select if we are deploying in server or client: server or client
@@ -28,11 +41,15 @@ ROLE=
 BOARD=
 # Select if we want autotools or not. Options are: yes or no
 AUTOTOOLS_CFG="no"
-# Select if we want epics or not. Options are: with_epics or without_epics
+# Select if we want epics or not. Options are: yes or no
 EPICS_CFG="no"
+# Select if we want to install system dependencies or not. Options are: yes or no
+SYSTEM_DEPS_CFG="no"
+# Select if we want to install the packages first or use the local ones. Options are: yes or no
+ONLY_INSTALL="no"
 
 # Get command line options
-while getopts ":r:b:ae" opt; do
+while getopts ":r:b:a:e:s:o:" opt; do
     case $opt in
         r)
             ROLE=$OPTARG
@@ -41,10 +58,16 @@ while getopts ":r:b:ae" opt; do
             BOARD=$OPTARG
             ;;
         a)
-            AUTOTOOLS_CFG="yes"
+            AUTOTOOLS_CFG=$OPTARG
             ;;
         e)
-            EPICS_CFG="yes"
+            EPICS_CFG=$OPTARG
+            ;;
+        s)
+            SYSTEM_DEPS_CFG=$OPTARG
+            ;;
+        o)
+            ONLY_INSTALL=$OPTARG
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -81,13 +104,82 @@ if [ "$BOARD" != "afcv3" ] && [ "$BOARD" != "afcv3_1" ] && [ "$BOARD" != "ml605"
     exit 1
 fi
 
+if [ -z "$AUTOTOOLS_CFG" ]; then
+    echo "Option \"-a\" unset. "$VALID_AUTOTOOLS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ "$AUTOTOOLS_CFG" != "yes" ] && [ "$AUTOTOOLS_CFG" != "no" ]; then
+    echo "Option \"-a\" has unsupported option. "$VALID_AUTOTOOLS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ -z "$EPICS_CFG" ]; then
+    echo "Option \"-e\" unset. "$VALID_EPICS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ "$EPICS_CFG" != "yes" ] && [ "$EPICS_CFG" != "no" ]; then
+    echo "Option \"-e\" has unsupported option. "$VALID_EPICS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ -z "$SYSTEM_DEPS_CFG" ]; then
+    echo "Option \"-s\" unset. "$VALID_SYSTEM_DEPS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ "$SYSTEM_DEPS_CFG" != "yes" ] && [ "$SYSTEM_DEPS_CFG" != "no" ]; then
+    echo "Option \"-s\" has unsupported option. "$VALID_SYSTEM_DEPS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ -z "$ONLY_INSTALL" ]; then
+    echo "Option \"-o\" unset. "$VALID_ONLY_INSTALLS_STR
+    usage
+    exit 1
+fi
+
+if [ "$ONLY_INSTALL" != "yes" ] && [ "$ONLY_INSTALL" != "no" ]; then
+    echo "Option \"-o\" has unsupported option. "$VALID_ONLY_INSTALLS_STR
+    usage
+    exit 1
+fi
+
 # Check for uninitialized variables
 set -u
 
-######################## System Dependencies Installation ######################
-./get-system-deps.sh
+# Export children variables
+export ONLY_INSTALL
+export BOARD
+export BPM_SW_BOARD
+export BPM_SW_APPS
+export BPM_SW_WITH_LIBS_LINK
+export BPM_SW_WITH_EXAMPLES
+export BPM_SW_CLI_PREFIX
+export ERRHAND_DBG
+export ERRHAND_MIN_LEVEL
+export ERRHAND_SUBSYS_ON
 
-########################### Dependencies Installation ##########################
+######################## System Dependencies Installation ######################
+
+if [ "$SYSTEM_DEPS_CFG" == "yes" ]; then
+    ./get-system-deps.sh
+
+    # Check last command return status
+    if [ $? -ne 0 ]; then
+        echo "Could not compile/install system dependencies." >&2
+        exit 1
+    fi
+fi
+
+############################ Autotools Installation ############################
 
 # Check if we want to install autotools
 if [ "$AUTOTOOLS_CFG" == "yes" ]; then
@@ -100,6 +192,8 @@ if [ "$AUTOTOOLS_CFG" == "yes" ]; then
     fi
 fi
 
+############################## EPICS Installation ##############################
+
 # Check if we want to install epics
 if [ "$EPICS_CFG" == "yes" ]; then
     ./get-epics.sh
@@ -111,174 +205,69 @@ if [ "$EPICS_CFG" == "yes" ]; then
     fi
 fi
 
-################################## BPM SW #####################################
+########################### BPM-SW Installation ################################
 
 # Both server and client needs these libraries
 if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
-    # ZEROmq libraries
-    git clone --branch=${LIBSODIUM_VERSION} https://github.com/jedisct1/libsodium.git
-    git clone --branch=${LIBZMQ_VERSION} https://github.com/lnls-dig/libzmq.git
-    git clone --branch=${CZMQ_VERSION} https://github.com/zeromq/czmq.git
-    git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git
+    ./get-bpm-deps.sh
 
-    # Configure and Install
-    for project in libsodium libzmq czmq; do
-        cd $project && \
-        ./autogen.sh && \
-        ./configure &&
-        make check && \
-        make && \
-        sudo make install && \
-        sudo ldconfig && \
-        cd ..
-
-        # Check last command return status
-        if [ $? -ne 0 ]; then
-            echo "Could not compile/install project $project." >&2
-            echo "Try executing the script with root access." >&2
-            exit 1
-        fi
-    done
-
-    # Configure and Install
-    for project in malamute; do
-        cd $project && \
-        ./autogen.sh && \
-        ./configure --with-systemd-units &&
-        make check && \
-        make && \
-        sudo make install && \
-        sudo ldconfig && \
-        cd ..
-
-        # Check last command return status
-        if [ $? -ne 0 ]; then
-            echo "Could not compile/install project $project." >&2
-            echo "Try executing the script with root access." >&2
-            exit 1
-        fi
-    done
+    # Check last command return status
+    if [ $? -ne 0 ]; then
+        echo "Could not compile/install BPM dependencies." >&2
+        exit 1
+    fi
 fi
 
 # Server
 if [ "$ROLE" == "server" ]; then
-    # BPM Software
-    git clone --branch=${BPM_SW_VERSION} https://github.com/lnls-dig/bpm-sw.git
+    ./get-bpm-server.sh
 
-    # Configure and Install
-    for project in bpm-sw; do
-        cd $project && \
-        git submodule update --init --recursive && \
-        sudo ./compile.sh -b ${BOARD} -a ${BPM_SW_APPS} -e ${BPM_SW_WITH_EXAMPLES} -l ${BPM_SW_WITH_LIBS_LINK} && \
-        cd ..
-
-        # Check last command return status
-        if [ $? -ne 0 ]; then
-            echo "Could not compile/install project $project." >&2
-            echo "Try executing the script with root access." >&2
-            exit 1
-        fi
-    done
+   # Check last command return status
+   if [ $? -ne 0 ]; then
+       echo "Could not compile/install BPM server." >&2
+       exit 1
+   fi
 fi
-
-# BPM client lib flags
-BOARD_VAL=${BOARD}
-ERRHAND_DBG_VAL=y
-ERRHAND_MIN_LEVEL_VAL=DBG_LVL_INFO
-ERRHAND_SUBSYS_ON_VAL='"(DBG_DEV_MNGR | DBG_DEV_IO | DBG_SM_IO | DBG_LIB_CLIENT | DBG_SM_PR | DBG_SM_CH | DBG_LL_IO | DBG_HAL_UTILS)"'
 
 # Client
 if [ "$ROLE" == "client" ]; then
-    # BPM libbpmclient
-    git clone --branch=${BPM_SW_LIBS_VERSION} https://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
+    ./get-bpm-cli-libs.sh
 
-    # Configure and Install
-    for project in .bpm-sw-libs; do
-        cd $project && \
-        git submodule update --init --recursive
+   # Check last command return status
+   if [ $? -ne 0 ]; then
+       echo "Could not compile/install BPM client dependencies." >&2
+       exit 1
+   fi
 
-        # Compile an install dynamic libraries needed by client
-        # applications
-        for lib in deps liberrhand libconvc libhutils libdisptable libllio libbpmclient; do
-            COMMAND="make \
-                ERRHAND_DBG=${ERRHAND_DBG_VAL} \
-                ERRHAND_MIN_LEVEL=${ERRHAND_MIN_LEVEL_VAL} \
-                ERRHAND_SUBSYS_ON='"${ERRHAND_SUBSYS_ON_VAL}"' \
-                BOARD=${BOARD_VAL} $lib && \
-                sudo make ${lib}_install"
-            eval $COMMAND
+    ./get-bpm-client.sh
 
-            # Check last command return status
-            if [ $? -ne 0 ]; then
-                echo "Could not compile/install project $project." >&2
-                echo "Try executing the script with root access." >&2
-                exit 1
-            fi
-        done
-
-        cd ..
-    done
-
-    # BPM Client Software
-    git clone --branch=${BPM_SW_CLI_VERSION} https://github.com/lnls-dig/bpm-sw-cli.git
-
-    # Configure and Install
-    for project in bpm-sw-cli; do
-        cd $project && \
-        git submodule update --init --recursive && \
-        sudo ./compile.sh ${BPM_SW_CLI_PREFIX} && \
-        cd ..
-
-        # Check last command return status
-        if [ $? -ne 0 ]; then
-            echo "Could not compile/install project $project." >&2
-            echo "Try executing the script with root access." >&2
-            exit 1
-        fi
-    done
+   # Check last command return status
+   if [ $? -ne 0 ]; then
+       echo "Could not compile/install BPM client." >&2
+       exit 1
+   fi
 fi
 
 # Both server and client needs EPICS, but only after BPM-sw is installed
 if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
-    git clone --branch=${BPM_EPICS_IOC_VERSION} https://github.com/lnls-dig/bpm-epics-ioc.git
+    ./get-bpm-epics.sh
 
-    # Configure and Install IOC BPM
-    for project in bpm-epics-ioc; do
-        cd $project && \
-        git submodule update --init --recursive && \
-        make && \
-        make install && \
-        cd ..
-
-        # Check last command return status
-        if [ $? -ne 0 ]; then
-            echo "Could not compile/install project $project." >&2
-            echo "Try executing the script with root access." >&2
-            exit 1
-        fi
-    done
+   # Check last command return status
+   if [ $? -ne 0 ]; then
+       echo "Could not compile/install BPM EPICS IOC." >&2
+       exit 1
+   fi
 fi
 
 # Gateware
 if [ "$ROLE" == "gateware" ]; then
-    # BPM Gateware
-    git clone --branch=${BPM_GW_VERSION} https://github.com/lnls-dig/bpm-gw.git
-    # BPM IPMI
-    git clone --branch=${BPM_IPMI_VERSION} https://github.com/lnls-dig/afcipm.git
+    ./get-bpm-gateware.sh
 
-    # Configure and Install
-    for project in bpm-gw bpm-ipmi; do
-        cd $project && \
-        git submodule update --init --recursive && \
-        cd ..
-
-        # Check last command return status
-        if [ $? -ne 0 ]; then
-            echo "Could not compile/install project $project." >&2
-            echo "Try executing the script with root access." >&2
-            exit 1
-        fi
-    done
+   # Check last command return status
+   if [ $? -ne 0 ]; then
+       echo "Could not compile/install BPM Gatware." >&2
+       exit 1
+   fi
 fi
 
 echo "BPM software installation completed"
