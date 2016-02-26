@@ -8,11 +8,19 @@ set -u
 # Source repo versions
 . ./repo-versions.sh
 
-# ZEROmq libraries
-git clone --branch=${LIBSODIUM_VERSION} https://github.com/jedisct1/libsodium.git
-git clone --branch=${LIBZMQ_VERSION} https://github.com/lnls-dig/libzmq.git
-git clone --branch=${CZMQ_VERSION} https://github.com/zeromq/czmq.git
-git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git
+if [ "$DOWNLOAD" == "yes" ]; then
+    # ZEROmq libraries
+    git clone --branch=${LIBSODIUM_VERSION} https://github.com/jedisct1/libsodium.git
+    git clone --branch=${LIBZMQ_VERSION} https://github.com/lnls-dig/libzmq.git
+    git clone --branch=${CZMQ_VERSION} https://github.com/zeromq/czmq.git
+    git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git
+fi
+
+if [ "$INSTALL" == "no" ]; then
+    # Good for debug
+    echo "Not installing BPM dependencies per user request (-i flag not set)"
+    exit 0
+fi
 
 # Configure and Install
 for project in libsodium libzmq czmq; do

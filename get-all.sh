@@ -20,7 +20,7 @@ VALID_BOARDS_STR="Valid values are: \"ml605\", \"afcv3\" or \"afcv3_1\""
 VALID_AUTOTOOLS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_EPICS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
-VALID_ONLY_INSTALLS_STR="Valid values are: \"yes\" and \"no\"."
+VALID_INSTALL_STR="Valid values are: \"yes\" and \"no\"."
 
 # Source repo versions
 . ./repo-versions.sh
@@ -45,11 +45,13 @@ AUTOTOOLS_CFG="no"
 EPICS_CFG="no"
 # Select if we want to install system dependencies or not. Options are: yes or no
 SYSTEM_DEPS_CFG="no"
-# Select if we want to install the packages first or use the local ones. Options are: yes or no
-ONLY_INSTALL="no"
+# Select if we want to install the packages or not. Options are: yes or no
+INSTALL="no"
+# Select if we want to download the packages or not. Options are: yes or no
+DOWNLOAD="no"
 
 # Get command line options
-while getopts ":r:b:a:e:s:o:" opt; do
+while getopts ":r:b:a:e:s:io" opt; do
     case $opt in
         r)
             ROLE=$OPTARG
@@ -66,8 +68,11 @@ while getopts ":r:b:a:e:s:o:" opt; do
         s)
             SYSTEM_DEPS_CFG=$OPTARG
             ;;
+        i)
+            INSTALL="yes"
+            ;;
         o)
-            ONLY_INSTALL=$OPTARG
+            DOWNLOAD="yes"
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -140,23 +145,12 @@ if [ "$SYSTEM_DEPS_CFG" != "yes" ] && [ "$SYSTEM_DEPS_CFG" != "no" ]; then
     exit 1
 fi
 
-if [ -z "$ONLY_INSTALL" ]; then
-    echo "Option \"-o\" unset. "$VALID_ONLY_INSTALLS_STR
-    usage
-    exit 1
-fi
-
-if [ "$ONLY_INSTALL" != "yes" ] && [ "$ONLY_INSTALL" != "no" ]; then
-    echo "Option \"-o\" has unsupported option. "$VALID_ONLY_INSTALLS_STR
-    usage
-    exit 1
-fi
-
 # Check for uninitialized variables
 set -u
 
 # Export children variables
-export ONLY_INSTALL
+export INSTALL
+export DOWNLOAD
 export BOARD
 export BPM_SW_BOARD
 export BPM_SW_APPS

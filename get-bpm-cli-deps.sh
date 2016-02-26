@@ -8,8 +8,16 @@ set -u
 # Source repo versions
 . ./repo-versions.sh
 
-# BPM libs
-git clone --branch=${BPM_SW_LIBS_VERSION} https://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
+if [ "$DOWNLOAD" == "yes" ]; then
+    # BPM libs
+    git clone --branch=${BPM_SW_LIBS_VERSION} https://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
+fi
+
+if [ "$INSTALL" == "no" ]; then
+    # Good for debug
+    echo "Not installing BPM client dependencies per user request (-i flag not set)"
+    exit 0
+fi
 
 # Configure and Install
 for project in .bpm-sw-libs; do

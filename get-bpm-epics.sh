@@ -8,7 +8,15 @@ set -u
 # Source repo versions
 . ./repo-versions.sh
 
-git clone --branch=${BPM_EPICS_IOC_VERSION} https://github.com/lnls-dig/bpm-epics-ioc.git
+if [ "$DOWNLOAD" == "yes" ]; then
+    git clone --branch=${BPM_EPICS_IOC_VERSION} https://github.com/lnls-dig/bpm-epics-ioc.git
+fi
+
+if [ "$INSTALL" == "no" ]; then
+    # Good for debug
+    echo "Not installing BPM EPICS IOC per user request (-i flag not set)"
+    exit 0
+fi
 
 # Configure and Install IOC BPM
 for project in bpm-epics-ioc; do

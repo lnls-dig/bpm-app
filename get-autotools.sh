@@ -18,11 +18,19 @@ echo "$PKG_CONFIG_PATH"
 # Source repo versions
 . ./repo-versions.sh
 
-wget http://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VERSION}.tar.gz
-wget http://ftp.gnu.org/gnu/m4/m4-${M4_VERSION}.tar.gz
-wget http://ftp.gnu.org/gnu/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz
-wget http://ftp.gnu.org/gnu/automake/automake-${AUTOMAKE_VERSION}.tar.gz
-wget http://ftp.gnu.org/gnu/libtool/libtool-${LIBTOOL_VERSION}.tar.gz
+if [ "$DOWNLOAD" == "yes" ]; then
+    wget http://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VERSION}.tar.gz
+    wget http://ftp.gnu.org/gnu/m4/m4-${M4_VERSION}.tar.gz
+    wget http://ftp.gnu.org/gnu/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz
+    wget http://ftp.gnu.org/gnu/automake/automake-${AUTOMAKE_VERSION}.tar.gz
+    wget http://ftp.gnu.org/gnu/libtool/libtool-${LIBTOOL_VERSION}.tar.gz
+fi
+
+if [ "$INSTALL" == "no" ]; then
+    # Good for debug
+    echo "Not installing Autotools per user request (-i flag not set)"
+    exit 0
+fi
 
 # Configure and Install libraries
 for project in pkg-config-${PKG_CONFIG_VERSION} \
