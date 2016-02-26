@@ -10,22 +10,13 @@ BPM_SW_WITH_LIBS_LINK="no"
 BPM_SW_WITH_EXAMPLES="yes"
 BPM_SW_CLI_PREFIX=/usr/local
 
-# Repo versions
-LIBSODIUM_VER=1.0.8
-LIBZMQ_VER=v4.2.0-pre
-CZMQ_VER=v3.0.2
-MALAMUTE_VER=v1.1
-BPM_SW_VER=devel
-BPM_SW_LIBS_VER=devel
-BPM_SW_CLI_VER=master
-BPM_EPICS_IOC_VER=master
-BPM_GW_VER=v0.2
-BPM_IPMI_VER=master
-
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
 VALID_BOARDS_STR="Valid values are: \"ml605\", \"afcv3\" or \"afcv3_1\""
 VALID_AUTOTOOLS_CFG_STR="Valid values are: \"with_autotools\" and \"without_autotools\"."
 VALID_EPICS_CFG_STR="Valid values are: \"with_epics\" and \"without_epics\"."
+
+# Source repo versions
+. ./repo-versions.sh
 
 function usage {
     echo "Usage: $0 -r <role = [server|client|gateware]> -b <board =[ml605|afcv3|afcv3_1]> -a <install autotools> -e <install EPICS tools> "
@@ -125,10 +116,10 @@ fi
 # Both server and client needs these libraries
 if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
     # ZEROmq libraries
-    git clone --branch=${LIBSODIUM_VER} https://github.com/jedisct1/libsodium.git
-    git clone --branch=${LIBZMQ_VER} https://github.com/lnls-dig/libzmq.git
-    git clone --branch=${CZMQ_VER} https://github.com/zeromq/czmq.git
-    git clone --branch=${MALAMUTE_VER} https://github.com/lnls-dig/malamute.git
+    git clone --branch=${LIBSODIUM_VERSION} https://github.com/jedisct1/libsodium.git
+    git clone --branch=${LIBZMQ_VERSION} https://github.com/lnls-dig/libzmq.git
+    git clone --branch=${CZMQ_VERSION} https://github.com/zeromq/czmq.git
+    git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git
 
     # Configure and Install
     for project in libsodium libzmq czmq; do
@@ -172,7 +163,7 @@ fi
 # Server
 if [ "$ROLE" == "server" ]; then
     # BPM Software
-    git clone --branch=${BPM_SW_VER} https://github.com/lnls-dig/bpm-sw.git
+    git clone --branch=${BPM_SW_VERSION} https://github.com/lnls-dig/bpm-sw.git
 
     # Configure and Install
     for project in bpm-sw; do
@@ -199,7 +190,7 @@ ERRHAND_SUBSYS_ON_VAL='"(DBG_DEV_MNGR | DBG_DEV_IO | DBG_SM_IO | DBG_LIB_CLIENT 
 # Client
 if [ "$ROLE" == "client" ]; then
     # BPM libbpmclient
-    git clone --branch=${BPM_SW_LIBS_VER} https://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
+    git clone --branch=${BPM_SW_LIBS_VERSION} https://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
 
     # Configure and Install
     for project in .bpm-sw-libs; do
@@ -229,7 +220,7 @@ if [ "$ROLE" == "client" ]; then
     done
 
     # BPM Client Software
-    git clone --branch=${BPM_SW_CLI_VER} https://github.com/lnls-dig/bpm-sw-cli.git
+    git clone --branch=${BPM_SW_CLI_VERSION} https://github.com/lnls-dig/bpm-sw-cli.git
 
     # Configure and Install
     for project in bpm-sw-cli; do
@@ -249,7 +240,7 @@ fi
 
 # Both server and client needs EPICS, but only after BPM-sw is installed
 if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
-    git clone --branch=${BPM_EPICS_IOC_VER} https://github.com/lnls-dig/bpm-epics-ioc.git
+    git clone --branch=${BPM_EPICS_IOC_VERSION} https://github.com/lnls-dig/bpm-epics-ioc.git
 
     # Configure and Install IOC BPM
     for project in bpm-epics-ioc; do
@@ -271,9 +262,9 @@ fi
 # Gateware
 if [ "$ROLE" == "gateware" ]; then
     # BPM Gateware
-    git clone --branch=${BPM_GW_VER} https://github.com/lnls-dig/bpm-gw.git
+    git clone --branch=${BPM_GW_VERSION} https://github.com/lnls-dig/bpm-gw.git
     # BPM IPMI
-    git clone --branch=${BPM_IPMI_VER} https://github.com/lnls-dig/afcipm.git
+    git clone --branch=${BPM_IPMI_VERSION} https://github.com/lnls-dig/afcipm.git
 
     # Configure and Install
     for project in bpm-gw bpm-ipmi; do

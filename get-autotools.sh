@@ -15,11 +15,8 @@ echo "$PKG_CONFIG_PATH"
 # Install compatible autotools version not available in some
 # distributions
 
-PKG_CONFIG_VERSION=0.26
-M4_VERSION=1.4.17
-AUTOCONF_VERSION=2.69
-AUTOMAKE_VERSION=1.14.1
-LIBTOOL_VERSION=2.4.2
+# Source repo versions
+. ./repo-versions.sh
 
 wget http://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VERSION}.tar.gz
 wget http://ftp.gnu.org/gnu/m4/m4-${M4_VERSION}.tar.gz
