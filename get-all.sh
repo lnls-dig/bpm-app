@@ -19,7 +19,7 @@ BPM_SW_VER=devel
 BPM_SW_LIBS_VER=devel
 BPM_SW_CLI_VER=master
 BPM_EPICS_IOC_VER=master
-BPM_GW_VER=v0.1
+BPM_GW_VER=v0.2
 BPM_IPMI_VER=master
 
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
