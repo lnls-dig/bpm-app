@@ -31,8 +31,8 @@ function usage {
     echo "    -a <install autotools = [yes|no]>"
     echo "    -e <install EPICS tools = [yes|no]>"
     echo "    -s <install system dependencies = [yes|no]>"
-    echo "    -i <install the pacakges = [yes|no]>"
-    echo "    -o <download the pacakges = [yes|no]>"
+    echo "    -i <install the packages>"
+    echo "    -o <download the packages>"
 }
 
 # Select if we are deploying in server or client: server or client
