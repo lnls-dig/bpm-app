@@ -44,8 +44,10 @@ case $distro in
         ;;
 esac
 
-# Update repos
-sudo ${PKG_MANAGER} ${PKG_UPDT_COMMAND}
-sudo ${PKG_MANAGER} ${PKG_INSTALL_COMMAND} ${DEPS}
+if [ "$DOWNLOAD" == "yes" ]; then
+    # Update repos
+    sudo ${PKG_MANAGER} ${PKG_UPDT_COMMAND}
+    sudo ${PKG_MANAGER} ${PKG_INSTALL_COMMAND} ${DEPS}
+fi
 
 echo "System dependencies installation completed"
