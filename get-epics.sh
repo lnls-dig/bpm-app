@@ -25,11 +25,6 @@ EPICS_MSI=${EPICS_EXTENSIONS_SRC}/msi${MSI_VERSION}
 EPICS_PROCSERV=${EPICS_EXTENSIONS_SRC}/procServ-${PROCSERV_VERSION}
 EPICS_SYNAPPS=${EPICS_FOLDER}/synApps_${SYNAPPS_VERSION}/support
 
-if [ $(id -u) -eq 0 ]; then
-    echo "This should not be intended to run as root"
-    exit 1
-fi
-
 if [ "$DOWNLOAD" == "yes" ]; then
     wget http://www.aps.anl.gov/epics/download/base/baseR${EPICS_BASE_VERSION}.tar.gz
     wget http://www.aps.anl.gov/epics/download/extensions/extensionsTop_${EXTERNSIONS_VERSION}.tar.gz
