@@ -10,8 +10,10 @@ sudo: required
 env:
 - ROLE=client BOARD=ml605
 - ROLE=client BOARD=afcv3
+- ROLE=client BOARD=afcv3_1
 - ROLE=server BOARD=ml605
 - ROLE=server BOARD=afcv3
+- ROLE=server BOARD=afcv3_1
 - ROLE=gateware
 
 addons:
