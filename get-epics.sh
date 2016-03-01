@@ -7,6 +7,9 @@ set -e
 
 echo "Installing EPICS"
 
+# Source environment variables
+. ./env-vars.sh
+
 # Source EPICS variables
 . ./epics.sh
 

@@ -5,6 +5,9 @@ set -e
 # Check for uninitialized variables
 set -u
 
+# Source environment variables
+. ./env-vars.sh
+
 # Source repo versions
 . ./repo-versions.sh
 

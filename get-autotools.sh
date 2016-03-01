@@ -4,7 +4,6 @@
 set -u
 # Exit on error
 set -e
-set -x
 
 echo "Installing Autotools"
 
