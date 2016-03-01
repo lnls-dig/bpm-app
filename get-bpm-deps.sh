@@ -8,7 +8,7 @@ set -u
 # Source repo versions
 . ./repo-versions.sh
 
-if [ "$DOWNLOAD" == "yes" ]; then
+if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # ZEROmq libraries
     git clone --branch=${LIBSODIUM_VERSION} https://github.com/jedisct1/libsodium.git
     git clone --branch=${LIBZMQ_VERSION} https://github.com/lnls-dig/libzmq.git
@@ -16,7 +16,7 @@ if [ "$DOWNLOAD" == "yes" ]; then
     git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git
 fi
 
-if [ "$INSTALL" == "no" ]; then
+if [ "${INSTALL_APP}" == "no" ]; then
     # Good for debug
     echo "Not installing BPM dependencies per user request (-i flag not set)"
     exit 0

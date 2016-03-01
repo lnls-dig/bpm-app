@@ -8,12 +8,12 @@ set -u
 # Source repo versions
 . ./repo-versions.sh
 
-if [ "$DOWNLOAD" == "yes" ]; then
+if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # BPM libs
     git clone --branch=${BPM_SW_LIBS_VERSION} https://github.com/lnls-dig/bpm-sw.git .bpm-sw-libs
 fi
 
-if [ "$INSTALL" == "no" ]; then
+if [ "${INSTALL_APP}" == "no" ]; then
     # Good for debug
     echo "Not installing BPM client dependencies per user request (-i flag not set)"
     exit 0

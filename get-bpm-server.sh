@@ -8,12 +8,12 @@ set -u
 # Source repo versions
 . ./repo-versions.sh
 
-if [ "$DOWNLOAD" == "yes" ]; then
+if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # BPM Software
     git clone --branch=${BPM_SW_VERSION} https://github.com/lnls-dig/bpm-sw.git
 fi
 
-if [ "$INSTALL" == "no" ]; then
+if [ "${INSTALL_APP}" == "no" ]; then
     # Good for debug
     echo "Not installing BPM server per user request (-i flag not set)"
     exit 0

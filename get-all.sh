@@ -2,6 +2,7 @@
 
 # Exit on error
 set -e
+set -x
 
 # Our options
 BPM_SW_BOARD="afcv3"
@@ -46,9 +47,9 @@ EPICS_CFG="no"
 # Select if we want to install system dependencies or not. Options are: yes or no
 SYSTEM_DEPS_CFG="no"
 # Select if we want to install the packages or not. Options are: yes or no
-INSTALL="no"
+INSTALL_APP="no"
 # Select if we want to download the packages or not. Options are: yes or no
-DOWNLOAD="no"
+DOWNLOAD_APP="no"
 
 # Get command line options
 while getopts ":r:b:a:e:s:io" opt; do
@@ -69,10 +70,10 @@ while getopts ":r:b:a:e:s:io" opt; do
             SYSTEM_DEPS_CFG=$OPTARG
             ;;
         i)
-            INSTALL="yes"
+            INSTALL_APP="yes"
             ;;
         o)
-            DOWNLOAD="yes"
+            DOWNLOAD_APP="yes"
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -149,8 +150,8 @@ fi
 set -u
 
 # Export children variables
-export INSTALL
-export DOWNLOAD
+export INSTALL_APP
+export DOWNLOAD_APP
 export BOARD
 export BPM_SW_BOARD
 export BPM_SW_APPS

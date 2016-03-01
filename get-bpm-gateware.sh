@@ -8,14 +8,14 @@ set -u
 # Source repo versions
 . ./repo-versions.sh
 
-if [ "$DOWNLOAD" == "yes" ]; then
+if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # BPM Gateware
     git clone --branch=${BPM_GW_VERSION} https://github.com/lnls-dig/bpm-gw.git
     # BPM IPMI
     git clone --branch=${BPM_IPMI_VERSION} https://github.com/lnls-dig/afcipm.git
 fi
 
-if [ "$INSTALL" == "no" ]; then
+if [ "${INSTALL_APP}" == "no" ]; then
     # Good for debug
     echo "Not installing BPM gateware per user request (-i flag not set)"
     exit 0

@@ -25,7 +25,7 @@ EPICS_MSI=${EPICS_EXTENSIONS_SRC}/msi${MSI_VERSION}
 EPICS_PROCSERV=${EPICS_EXTENSIONS_SRC}/procServ-${PROCSERV_VERSION}
 EPICS_SYNAPPS=${EPICS_FOLDER}/synApps_${SYNAPPS_VERSION}/support
 
-if [ "$DOWNLOAD" == "yes" ]; then
+if [ "${DOWNLOAD_APP}" == "yes" ]; then
     wget http://www.aps.anl.gov/epics/download/base/baseR${EPICS_BASE_VERSION}.tar.gz
     wget http://www.aps.anl.gov/epics/download/extensions/extensionsTop_${EXTERNSIONS_VERSION}.tar.gz
     wget http://www.aps.anl.gov/epics/download/extensions/msi${MSI_VERSION}.tar.gz
@@ -35,7 +35,7 @@ fi
 
 ############################## EPICS Base #####################################
 
-if [ "$INSTALL" == "no" ]; then
+if [ "${INSTALL_APP}" == "no" ]; then
     # Good for debug
     echo "Not installing EPICS per user request (-i flag not set)"
     exit 0

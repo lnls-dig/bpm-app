@@ -4,6 +4,7 @@
 set -u
 # Exit on error
 set -e
+set -x
 
 echo "Installing Autotools"
 
@@ -18,7 +19,7 @@ echo "$PKG_CONFIG_PATH"
 # Source repo versions
 . ./repo-versions.sh
 
-if [ "$DOWNLOAD" == "yes" ]; then
+if [ "${DOWNLOAD_APP}" == "yes" ]; then
     wget http://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VERSION}.tar.gz
     wget http://ftp.gnu.org/gnu/m4/m4-${M4_VERSION}.tar.gz
     wget http://ftp.gnu.org/gnu/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz
@@ -26,7 +27,7 @@ if [ "$DOWNLOAD" == "yes" ]; then
     wget http://ftp.gnu.org/gnu/libtool/libtool-${LIBTOOL_VERSION}.tar.gz
 fi
 
-if [ "$INSTALL" == "no" ]; then
+if [ "${INSTALL_APP}" == "no" ]; then
     # Good for debug
     echo "Not installing Autotools per user request (-i flag not set)"
     exit 0

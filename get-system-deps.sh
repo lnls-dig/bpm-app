@@ -44,7 +44,7 @@ case $distro in
         ;;
 esac
 
-if [ "$DOWNLOAD" == "yes" ]; then
+if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # Update repos
     sudo ${PKG_MANAGER} ${PKG_UPDT_COMMAND}
     sudo ${PKG_MANAGER} ${PKG_INSTALL_COMMAND} ${DEPS}
