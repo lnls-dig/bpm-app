@@ -1,0 +1,41 @@
+From 55f5687ee9e25733bb5a107cc33887ea77e3a89b Mon Sep 17 00:00:00 2001
+From: Pieter Hintjens <ph@imatix.com>
+Date: Sun, 10 Jan 2016 08:56:04 +0100
+Subject: [PATCH] Problem: zauth sometimes hangs in self test
+
+Analysis: test code was wrongly assuming it was always safe to send
+on a socket after 'connect'. In fact if the connect fails due to an
+authentication failure, there is a small window between calling the
+'connect' and the peer rejecting the connection. In this window, a
+send will work. After the window, it will hang forever.
+
+Solution: set send timeout on test socket.
+---
+ src/zauth.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/zauth.c b/src/zauth.c
+index bcb51b4..2ea699e 100644
+--- a/src/zauth.c
++++ b/src/zauth.c
+@@ -461,11 +461,16 @@ s_can_connect (zsock_t **server, zsock_t **client)
+     assert (port_nbr > 0);
+     int rc = zsock_connect (*client, "tcp://127.0.0.1:%d", port_nbr);
+     assert (rc == 0);
++    //  Give the connection time to fail if that's the plan
++    zclock_sleep (200);
+ 
++    //  By default PUSH sockets block if there's no peer
++    zsock_set_sndtimeo (*server, 200);
+     zstr_send (*server, "Hello, World");
++
+     zpoller_t *poller = zpoller_new (*client, NULL);
+     assert (poller);
+-    bool success = (zpoller_wait (poller, 200) == *client);
++    bool success = (zpoller_wait (poller, 400) == *client);
+     zpoller_destroy (&poller);
+     zsock_destroy (client);
+     zsock_destroy (server);
+-- 
+1.8.3.1
+
