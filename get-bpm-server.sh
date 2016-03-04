@@ -10,7 +10,7 @@ set -u
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # BPM Software
-    git clone --branch=${BPM_SW_VERSION} https://github.com/lnls-dig/bpm-sw.git
+    git clone --recursive --branch=${BPM_SW_VERSION} https://github.com/lnls-dig/bpm-sw.git
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then
