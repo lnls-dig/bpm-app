@@ -19,6 +19,17 @@ if [ "${DOWNLOAD_APP}" == "yes" ]; then
     git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git
 fi
 
+# Patch repos
+if [ "${DOWNLOAD_APP}" == "yes" ]; then
+    # Patch czmq repository, if version is less than 3.0.2
+    if [ "${CZMQ_VERSION}" \< "v3.0.2" ] || [ "${CZMQ_VERSION}" == "v3.0.2" ]; then
+        echo "CZMQ version ${CZMQ_VERSION} will be patched"
+        cd czmq
+        git am ../patches/czmq/*
+        cd ../
+    fi
+fi
+
 if [ "${INSTALL_APP}" == "no" ]; then
     # Good for debug
     echo "Not installing BPM dependencies per user request (-i flag not set)"
