@@ -2,7 +2,8 @@
 
 # Exit on error
 set -e
-set -x
+# Check for uninitialized variables
+set -u
 
 # Our options
 BPM_SW_BOARD="afcv3"
