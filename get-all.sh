@@ -227,7 +227,7 @@ fi
 
 # Client
 if [ "$ROLE" == "client" ]; then
-    ./get-bpm-cli-libs.sh
+    ./get-bpm-cli-deps.sh
 
    # Check last command return status
    if [ $? -ne 0 ]; then
