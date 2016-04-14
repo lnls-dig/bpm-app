@@ -23,7 +23,8 @@ fi
 for project in bpm-sw; do
     cd $project && \
     git submodule update --init --recursive && \
-    sudo ./compile.sh -b ${BOARD} -a ${BPM_SW_APPS} -e ${BPM_SW_WITH_EXAMPLES} -l ${BPM_SW_WITH_SYSTEM_INTEGRATION} && \
+    sudo ./compile.sh -b ${BOARD} -a ${BPM_SW_APPS} -e ${BPM_SW_WITH_EXAMPLES} \
+        -l ${BPM_SW_WITH_SYSTEM_INTEGRATION} -d ${BPM_SW_WITH_DRIVER} && \
     cd ..
 
     # Check last command return status
