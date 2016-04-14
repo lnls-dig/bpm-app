@@ -59,7 +59,7 @@ done
 for project in malamute; do
     cd $project && \
     ./autogen.sh && \
-    ./configure --with-systemd-units &&
+    ./configure --with-systemd-units --sysconfdir=/usr/etc --prefix=/usr &&
     make check && \
     make && \
     sudo make install && \
