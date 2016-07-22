@@ -13,7 +13,17 @@ Software, as well as Gateware and client applications.
 For server installation with AFCv3 boards, typically a CPU within a microTCA.4
 crate, do the following command:
 
-    sudo ./get-all.sh server afcv3
+    sudo ./get-all.sh -r server -b afcv3_1 -a yes -e yes -s yes -i -o
+
+The meaning of the options are:
+
+    -r <role = [server|client|gateware]>
+    -b <board = [ml605|afcv3|afcv3_1]>
+    -a <install autotools = [yes|no]>
+    -e <install EPICS tools = [yes|no]>
+    -s <install system dependencies = [yes|no]>
+    -i <install the packages>
+    -o <download the packages>
 
 This will download/compile/install all the dependencies needed, as well as the
 BPM-SW application, which takes care of initializing and controlling the AFCv3
@@ -76,7 +86,7 @@ And the following naming convention for DEV_MNGRs:
 
 For client installation with AFCv3 boards, do the following command:
 
-    sudo ./get-all.sh client afcv3
+    sudo ./get-all.sh -r client -b afcv3_1 -a yes -e yes -s yes -i -o
 
 This will download/compile/install all the dependencies needed, as well as the
 BPM-SW-CLI application, which is a command-line interface (CLI) to the BPM-SW
