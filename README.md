@@ -41,7 +41,7 @@ for Linux x86 64-bits. If you ahve, for instance, a Linux x86 32-bits,
 change the line above to
 
 ```
-for export EPICS_HOST_ARCH=linux-x86
+export EPICS_HOST_ARCH=linux-x86
 ```
 
 For other architectures, see the official EPICS 3.14.12 documentation:
