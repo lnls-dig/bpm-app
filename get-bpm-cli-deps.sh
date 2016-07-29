@@ -35,7 +35,8 @@ for project in .bpm-sw-libs; do
             ERRHAND_MIN_LEVEL=${ERRHAND_MIN_LEVEL} \
             ERRHAND_SUBSYS_ON='"${ERRHAND_SUBSYS_ON}"' \
             BOARD=${BOARD} $lib && \
-            sudo make ${lib}_install"
+            sudo make ${lib}_install && \
+            sudo ldconfig"
         eval $COMMAND
 
         # Check last command return status
