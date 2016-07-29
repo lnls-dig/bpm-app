@@ -8,7 +8,7 @@ set -e
 # Dependency list
 GEN_DEPS="binutils git re2c"
 DEB_UBU_DEPS="build-essential g++ glib2.0 libglib2.0 libglib2.0-dev uuid-dev libreadline6 libreadline6-dev \
-    libusb-dev bzip2 libbz2-dev libxml2-dev perl5"
+    libusb-dev bzip2 libbz2-dev libxml2-dev perl"
 FED_RED_SUS_DEPS="gcc-c++ glib2 glib2-devel uuid-devel readline readline-devel \
     libusb-devel bzip2-devel libxml2-devel perl"
 
