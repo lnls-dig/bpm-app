@@ -15,7 +15,7 @@ BPM_SW_CLI_PREFIX=/usr/local
 
 # BPM client lib flags
 ERRHAND_DBG=y
-ERRHAND_MIN_LEVEL=DBG_LVL_INFO
+ERRHAND_MIN_LEVEL=DBG_LVL_WARN
 ERRHAND_SUBSYS_ON='"(DBG_DEV_MNGR | DBG_DEV_IO | DBG_SM_IO | DBG_LIB_CLIENT | DBG_SM_PR | DBG_SM_CH | DBG_LL_IO | DBG_HAL_UTILS)"'
 
 VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
