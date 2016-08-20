@@ -9,22 +9,22 @@ set -u
 . ./repo-versions.sh
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
-    # BPM Software
-    git clone --recursive --branch=${BPM_SW_VERSION} https://github.com/lnls-dig/bpm-sw.git
+    # HALCS Software
+    git clone --recursive --branch=${HALCS_VERSION} https://github.com/lnls-dig/halcs.git
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then
     # Good for debug
-    echo "Not installing BPM server per user request (-i flag not set)"
+    echo "Not installing HALCS server per user request (-i flag not set)"
     exit 0
 fi
 
 # Configure and Install
-for project in bpm-sw; do
+for project in halcs; do
     cd $project && \
     git submodule update --init --recursive && \
-    sudo ./compile.sh -b ${BOARD} -a ${BPM_SW_APPS} -e ${BPM_SW_WITH_EXAMPLES} \
-        -l ${BPM_SW_WITH_SYSTEM_INTEGRATION} -d ${BPM_SW_WITH_DRIVER} && \
+    sudo ./compile.sh -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
+        -l ${HALCS_WITH_SYSTEM_INTEGRATION} -d ${HALCS_WITH_DRIVER} && \
     cd ..
 
     # Check last command return status
