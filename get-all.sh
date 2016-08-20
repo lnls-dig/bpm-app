@@ -175,6 +175,14 @@ if [ "$SYSTEM_DEPS_CFG" == "yes" ]; then
         echo "Could not compile/install system dependencies." >&2
         exit 1
     fi
+
+    ./fix-system-deps.sh
+
+    # Check last command return status
+    if [ $? -ne 0 ]; then
+        echo "Could not fix system dependencies." >&2
+        exit 1
+    fi
 fi
 
 ############################ Autotools Installation ############################
