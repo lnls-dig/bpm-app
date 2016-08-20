@@ -16,7 +16,7 @@ case $distro in
         ;;
     "Fedora" | "RedHat" | "Scientific")
         # EPICS expects xsubpp in a different directory than shipped with fedora (24 at least)
-        sudo ln -s ${distro_xsubpp} ${epics_xsubpp}
+        sudo ln -sf ${distro_xsubpp} ${epics_xsubpp}
         ;;
     "SUSE")
         ;;
