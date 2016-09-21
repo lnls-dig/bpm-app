@@ -23,7 +23,7 @@ fi
 for project in bpm-sw-cli; do
     cd $project && \
     git submodule update --init --recursive && \
-    sudo ./compile.sh ${BPM_SW_CLI_PREFIX} && \
+    sudo ./compile.sh ${HALCS_CLI_PREFIX} && \
     cd ..
 
     # Check last command return status
