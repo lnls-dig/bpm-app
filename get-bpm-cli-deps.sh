@@ -29,7 +29,7 @@ for project in .halcs-libs; do
 
     # Compile an install dynamic libraries needed by client
     # applications
-    for lib in deps liberrhand libconvc libhutils libdisptable libllio libhalcsclient; do
+    for lib in deps liberrhand libconvc libhutils libdisptable libllio libhalcsclient examples; do
         COMMAND="make \
             ERRHAND_DBG=${ERRHAND_DBG} \
             ERRHAND_MIN_LEVEL=${ERRHAND_MIN_LEVEL} \
