@@ -6,11 +6,50 @@ set -u
 set -e
 
 # Dependency list
-GEN_DEPS="binutils git re2c linux-headers-`uname -r`"
-DEB_UBU_DEPS="build-essential g++ glib2.0 libglib2.0 libglib2.0-dev uuid-dev libreadline6 libreadline6-dev \
-        libusb-dev bzip2 libbz2-dev libxml2-dev perl libextutils*"
-FED_RED_SUS_DEPS="gcc-c++ glib2 glib2-devel uuid-devel readline readline-devel \
-    libusb-devel bzip2-devel libxml2-devel perl perl-ExtUtils*"
+GEN_DEPS="\
+    binutils \
+    git \
+    re2c \
+    linux-headers-`uname -r`
+"
+DEB_UBU_PERL_DEPS="\
+    libextutils-cchecker-perl \
+    libextutils-f77-perl \
+    libextutils-libbuilder-perl \
+    libextutils-pkgconfig-perl \
+    libextutils-xsbuilder-perl \
+    libextutils-xspp-perl
+"
+DEB_UBU_GEN_DEPS="\
+    build-essential \
+    g++ \
+    glib2.0 \
+    libglib2.0 \
+    libglib2.0-dev \
+    uuid-dev \
+    libreadline6 \
+    libreadline6-dev \
+    libusb-dev \
+    bzip2 \
+    libbz2-dev \
+    libxml2-dev \
+    perl
+"
+DEB_UBU_DEPS="${DEB_UBU_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
+
+FED_RED_SUS_DEPS="\
+    gcc-c++ \
+    glib2 \
+    glib2-devel \
+    uuid-devel \
+    readline \
+    readline-devel \
+    libusb-devel \
+    bzip2-devel \
+    libxml2-devel \
+    perl \
+    perl-ExtUtils*
+"
 
 echo "Installing system dependencies"
 
