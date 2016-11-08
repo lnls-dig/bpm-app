@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Detects which OS and if it is Linux then it will detect which Linux Distribution.
 
+set -a
+set -e
+set -u
+
 OS=`uname -s`
 REV=`uname -r`
 MACH=`uname -m`
@@ -11,12 +15,16 @@ GetVersionFromFile()
 }
 
 DIST_ONLY=0
+REV_ONLY=0
 
 # Get command line options
-while getopts ":d" opt; do
+while getopts ":dr" opt; do
     case $opt in
         d)
             DIST_ONLY=1
+            ;;
+        r)
+            REV_ONLY=1
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -60,6 +68,8 @@ elif [ "${OS}" = "Linux" ] ; then
 
     if [ "$DIST_ONLY" = 1 ] ; then
         OSSTR=${DIST}
+    elif [ "$REV_ONLY" = 1 ]; then
+        OSSTR=${REV}
     else
         OSSTR="${OS} ${DIST} ${REV}(${PSUEDONAME} ${KERNEL} ${MACH})"
     fi
