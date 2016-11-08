@@ -7,21 +7,29 @@ set -e
 
 # Dependency list
 GEN_DEPS="binutils git re2c kernel-headers-`uname -r` kernel-devel-`uname -r`"
+GEN_DEPS_UBU_14_04_GREATER="binutils git re2c linux-headers-`uname -r`"
 DEB_UBU_DEPS="build-essential g++ glib2.0 libglib2.0 libglib2.0-dev uuid-dev libreadline6 libreadline6-dev \
     libusb-dev bzip2 libbz2-dev libxml2-dev perl perl-ExtUtils*"
+DEB_UBU_14_04_GREATER_DEPS="build-essential g++ glib2.0 libglib2.0 libglib2.0-dev uuid-dev libreadline6 libreadline6-dev \
+        libusb-dev bzip2 libbz2-dev libxml2-dev perl libextutils*"
 FED_RED_SUS_DEPS="gcc-c++ glib2 glib2-devel uuid-devel readline readline-devel \
     libusb-devel bzip2-devel libxml2-devel perl perl-ExtUtils*"
 
 echo "Installing system dependencies"
 
 distro=$(./get-os-distro.sh -d)
+rev=$(./get-os-distro.sh -r)
 
 case $distro in
     "Ubuntu" | "Debian")
         PKG_MANAGER="apt-get"
         PKG_UPDT_COMMAND="update"
         PKG_INSTALL_COMMAND="install -y"
-        DEPS="${GEN_DEPS} ${DEB_UBU_DEPS}"
+        if [ "${rev}" \> "14.04" ] || [ "${rev}" == "14.04" ]; then
+            DEPS="${GEN_DEPS_UBU_14_04_GREATER} ${DEB_UBU_14_04_GREATER_DEPS}"
+        else
+            DEPS="${GEN_DEPS} ${DEB_UBU_DEPS}"
+        fi
         ;;
     "Fedora" | "RedHat" | "Scientific")
         PKG_MANAGER="yum"
