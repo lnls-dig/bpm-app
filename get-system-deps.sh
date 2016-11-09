@@ -33,7 +33,11 @@ DEB_UBU_GEN_DEPS="\
     bzip2 \
     libbz2-dev \
     libxml2-dev \
-    perl
+    perl \
+    libpng12-dev \
+    libX11-dev \
+    libXext-dev \
+    libfreetype6
 "
 DEB_UBU_DEPS="${DEB_UBU_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
 
@@ -48,7 +52,11 @@ FED_RED_SUS_DEPS="\
     bzip2-devel \
     libxml2-devel \
     perl \
-    perl-ExtUtils*
+    perl-ExtUtils* \
+    libpng-devel \
+    libX11-devel \
+    libXext-devel \
+    freetype-devel
 "
 
 echo "Installing system dependencies"
