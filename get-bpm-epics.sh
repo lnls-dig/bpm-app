@@ -23,7 +23,7 @@ for project in bpm-epics-ioc; do
     cd $project && \
     git submodule update --init --recursive && \
     make && \
-    make install && \
+    sudo make install && \
     cd ..
 
     # Check last command return status
