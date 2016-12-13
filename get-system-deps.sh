@@ -10,7 +10,11 @@ GEN_DEPS="\
     binutils \
     git \
     re2c \
-    linux-headers-`uname -r`
+    linux-headers-`uname -r` \
+    automake \
+    autoconf \
+    make \
+    libtool
 "
 DEB_UBU_PERL_DEPS="\
     libextutils-cchecker-perl \
