@@ -62,8 +62,8 @@ elif [ "${OS}" = "Linux" ] ; then
         PSUEDONAME=`cat /etc/lsb-release | grep "DISTRIB_CODENAME=.*" | sed 's/DISTRIB_CODENAME=\(.*\)/\1/'`
         REV=`cat /etc/lsb-release | grep "DISTRIB_RELEASE=.*" | sed 's/DISTRIB_RELEASE=\(.*\)/\1/'`
     elif [ -f /etc/debian_version ] ; then
-        DIST="Debian `cat /etc/debian_version`"
-        REV=""
+        DIST='Debian'
+        REV="`cat /etc/debian_version`"
     fi
 
     if [ "$DIST_ONLY" = 1 ] ; then
