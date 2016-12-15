@@ -265,7 +265,8 @@ if [ "$ROLE" == "client" ]; then
 fi
 
 # Both server and client needs EPICS, but only after BPM-sw is installed
-if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
+if [ "$EPICS_CFG" == "yes" ] && ( [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ] ); then
+    echo "Installing EPICS"
     ./get-bpm-epics.sh
 
    # Check last command return status
