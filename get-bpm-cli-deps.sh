@@ -13,7 +13,7 @@ set -u
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # HALCS libs
-    git clone --recursive --branch=${HALCS_LIBS_VERSION} https://github.com/lnls-dig/halcs.git .halcs-libs
+    git clone --recursive --branch=${HALCS_LIBS_VERSION} https://github.com/lnls-dig/halcs.git halcs
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then
@@ -23,7 +23,7 @@ if [ "${INSTALL_APP}" == "no" ]; then
 fi
 
 # Configure and Install
-for project in .halcs-libs; do
+for project in halcs; do
     cd $project && \
     git submodule update --init --recursive
 
