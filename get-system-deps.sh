@@ -41,7 +41,8 @@ DEB_UBU_GEN_DEPS="\
     libpng12-dev \
     libX11-dev \
     libXext-dev \
-    libfreetype6
+    libfreetype6 \
+    libhdf5-dev
 "
 UBU_16_GEN_DEPS="\
     build-essential \
@@ -60,7 +61,8 @@ UBU_16_GEN_DEPS="\
     libpng12-dev \
     libx11-dev \
     libxext-dev \
-    libfreetype6
+    libfreetype6 \
+    libhdf5-dev
 "
 DEB_UBU_DEPS="${DEB_UBU_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
 UBU_16_DEPS="${UBU_16_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
