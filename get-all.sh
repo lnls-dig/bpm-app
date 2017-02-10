@@ -23,6 +23,7 @@ VALID_BOARDS_STR="Valid values are: \"ml605\", \"afcv3\" or \"afcv3_1\""
 VALID_AUTOTOOLS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_EPICS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
+VALID_BPM_CFG_STR="Valid values are: \"yes\" and \"no\"."
 
 # Source repo versions
 . ./repo-versions.sh
@@ -34,6 +35,7 @@ function usage {
     echo "    -a <install autotools = [yes|no]>"
     echo "    -e <install EPICS tools = [yes|no]>"
     echo "    -s <install system dependencies = [yes|no]>"
+    echo "    -c <install BPM related packages = [yes|no]>"
     echo "    -i <install the packages>"
     echo "    -o <download the packages>"
 }
@@ -52,9 +54,12 @@ SYSTEM_DEPS_CFG="no"
 INSTALL_APP="no"
 # Select if we want to download the packages or not. Options are: yes or no
 DOWNLOAD_APP="no"
+# Select if we want to install BPM related stugg or not. Options are: yes or no.
+# Default is yes to keep old behavior
+BPM_CFG="yes"
 
 # Get command line options
-while getopts ":r:b:a:e:s:io" opt; do
+while getopts ":r:b:a:e:s:c:io" opt; do
     case $opt in
         r)
             ROLE=$OPTARG
@@ -76,6 +81,9 @@ while getopts ":r:b:a:e:s:io" opt; do
             ;;
         o)
             DOWNLOAD_APP="yes"
+            ;;
+        c)
+            BPM_CFG="yes"
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -148,6 +156,18 @@ if [ "$SYSTEM_DEPS_CFG" != "yes" ] && [ "$SYSTEM_DEPS_CFG" != "no" ]; then
     exit 1
 fi
 
+if [ -z "$BPM_CFG" ]; then
+    echo "Option \"-a\" unset. "$VALID_BPM_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ "$BPM_CFG" != "yes" ] && [ "$BPM_CFG" != "no" ]; then
+    echo "Option \"-a\" has unsupported option. "$VALID_BPM_CFG_STR
+    usage
+    exit 1
+fi
+
 # Check for uninitialized variables
 set -u
 
@@ -214,77 +234,87 @@ fi
 ########################### BPM-SW Installation ################################
 
 # Both server and client needs these libraries
-if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
-    ./get-bpm-deps.sh
-
-    # Check last command return status
-    if [ $? -ne 0 ]; then
-        echo "Could not compile/install BPM dependencies." >&2
-        exit 1
+if [ "$BPM_CFG" == "yes" ]; then
+    if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
+        ./get-bpm-deps.sh
+    
+        # Check last command return status
+        if [ $? -ne 0 ]; then
+            echo "Could not compile/install BPM dependencies." >&2
+            exit 1
+        fi
     fi
 fi
 
 # Server
-if [ "$ROLE" == "server" ]; then
-   ./get-bpm-server.sh
-
-   # Check last command return status
-   if [ $? -ne 0 ]; then
-       echo "Could not compile/install BPM server." >&2
-       exit 1
-   fi
-
-   # Also install client application on server
-
-   ./get-bpm-client.sh
-
-   # Check last command return status
-   if [ $? -ne 0 ]; then
-       echo "Could not compile/install BPM client." >&2
-       exit 1
-   fi
+if [ "$BPM_CFG" == "yes" ]; then
+    if [ "$ROLE" == "server" ]; then
+       ./get-bpm-server.sh
+    
+       # Check last command return status
+       if [ $? -ne 0 ]; then
+           echo "Could not compile/install BPM server." >&2
+           exit 1
+       fi
+    
+       # Also install client application on server
+    
+       ./get-bpm-client.sh
+    
+       # Check last command return status
+       if [ $? -ne 0 ]; then
+           echo "Could not compile/install BPM client." >&2
+           exit 1
+       fi
+    fi
 fi
 
 # Client
-if [ "$ROLE" == "client" ]; then
-    ./get-bpm-cli-deps.sh
-
-   # Check last command return status
-   if [ $? -ne 0 ]; then
-       echo "Could not compile/install BPM client dependencies." >&2
-       exit 1
-   fi
-
-    ./get-bpm-client.sh
-
-   # Check last command return status
-   if [ $? -ne 0 ]; then
-       echo "Could not compile/install BPM client." >&2
-       exit 1
-   fi
+if [ "$BPM_CFG" == "yes" ]; then
+    if [ "$ROLE" == "client" ]; then
+        ./get-bpm-cli-deps.sh
+    
+       # Check last command return status
+       if [ $? -ne 0 ]; then
+           echo "Could not compile/install BPM client dependencies." >&2
+           exit 1
+       fi
+    
+        ./get-bpm-client.sh
+    
+       # Check last command return status
+       if [ $? -ne 0 ]; then
+           echo "Could not compile/install BPM client." >&2
+           exit 1
+       fi
+    fi
 fi
 
 # Both server and client needs EPICS, but only after BPM-sw is installed
-if [ "$EPICS_CFG" == "yes" ] && ( [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ] ); then
-    echo "Installing EPICS"
-    ./get-bpm-epics.sh
-
-   # Check last command return status
-   if [ $? -ne 0 ]; then
-       echo "Could not compile/install BPM EPICS IOC." >&2
-       exit 1
-   fi
+if [ "$BPM_CFG" == "yes" ]; then
+    if [ "$EPICS_CFG" == "yes" ] && ( [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ] ); then
+        echo "Installing EPICS"
+        ./get-bpm-epics.sh
+    
+       # Check last command return status
+       if [ $? -ne 0 ]; then
+           echo "Could not compile/install BPM EPICS IOC." >&2
+           exit 1
+       fi
+    fi
 fi
 
 # Gateware
-if [ "$ROLE" == "gateware" ]; then
-    ./get-bpm-gateware.sh
-
-   # Check last command return status
-   if [ $? -ne 0 ]; then
-       echo "Could not compile/install BPM Gatware." >&2
-       exit 1
-   fi
+if [ "$BPM_CFG" == "yes" ]; then
+    if [ "$ROLE" == "gateware" ]; then
+        ./get-bpm-gateware.sh
+    
+       # Check last command return status
+       if [ $? -ne 0 ]; then
+           echo "Could not compile/install BPM Gatware." >&2
+           exit 1
+       fi
+    fi
 fi
 
 echo "BPM software installation completed"
