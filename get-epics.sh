@@ -111,6 +111,10 @@ cd ${EPICS_SYNAPPS}
 sed -i -e "s|SUPPORT=.*|SUPPORT=${EPICS_SYNAPPS}|g" \
     -e "s|EPICS_BASE=.*|EPICS_BASE=${EPICS_BASE}|g" configure/RELEASE
 
+# EPICS synApps R5_8 does not search hdf5 headers in /usr/include/hdf5/serial,
+# which is where Ubuntu 16.04 installs them. Symlink them to /usr/include
+sudo ln -s /usr/include/hdf5/serial/*.h /usr/include/
+
 make release
 make
 
