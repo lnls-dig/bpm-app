@@ -57,6 +57,8 @@ sudo cp ${TOP_DIR}/epics.sh ${EPICS_ENV_DIR}
 cd ${EPICS_FOLDER}
 tar xvzf ${TOP_DIR}/baseR${EPICS_BASE_VERSION}.tar.gz
 
+# Remove possible existing symlink
+rm -f base
 # Symlink to EPICS base
 ln -sf base-${EPICS_BASE_VERSION} base
 
