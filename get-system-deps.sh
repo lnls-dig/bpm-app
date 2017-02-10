@@ -64,8 +64,29 @@ UBU_16_GEN_DEPS="\
     libfreetype6 \
     libhdf5-dev
 "
+UBU_12_GEN_DEPS="\
+    build-essential \
+    g++ \
+    glib2.0 \
+    libglib2.0 \
+    libglib2.0-dev \
+    uuid-dev \
+    libreadline6 \
+    libreadline6-dev \
+    libusb-dev \
+    bzip2 \
+    libbz2-dev \
+    libxml2-dev \
+    perl \
+    libpng12-dev \
+    libx11-dev \
+    libxext-dev \
+    libfreetype6 \
+    libhdf5-serial-dev
+"
 DEB_UBU_DEPS="${DEB_UBU_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
 UBU_16_DEPS="${UBU_16_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
+UBU_12_DEPS="${UBU_12_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
 
 FED_RED_SUS_DEPS="\
     gcc-c++ \
@@ -93,15 +114,13 @@ rev=$(./get-os-distro.sh -r)
 case $distro in
     "Ubuntu" | "Debian")
         # Ubuntu 16 changed some package names
-        case $rev in
-           "16.04")
-               DEPS="${GEN_DEPS} ${UBU_16_DEPS}"
-           ;;
-           # Assume earlier versions
-           *)
-               DEPS="${GEN_DEPS} ${DEB_UBU_DEPS}"
-           ;;
-        esac
+        if [ "$rev" \< "12.04" ] || [ "$rev" == "12.04" ]; then
+            DEPS="${GEN_DEPS} ${UBU_12_DEPS}"
+        elif [ "$rev" == "16.04" ]; then
+            DEPS="${GEN_DEPS} ${UBU_16_DEPS}"
+        else
+            DEPS="${GEN_DEPS} ${DEB_UBU_DEPS}"
+        fi
 
         PKG_MANAGER="apt-get"
         PKG_UPDT_COMMAND="update"
