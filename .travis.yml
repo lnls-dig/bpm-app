@@ -1,5 +1,7 @@
 # Travis CI script
 
+dist: trusty
+
 language: c
 compiler:
 - clang
