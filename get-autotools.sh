@@ -19,11 +19,11 @@ echo "$PKG_CONFIG_PATH"
 . ./repo-versions.sh
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
-    wget http://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VERSION}.tar.gz
-    wget http://ftp.gnu.org/gnu/m4/m4-${M4_VERSION}.tar.gz
-    wget http://ftp.gnu.org/gnu/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz
-    wget http://ftp.gnu.org/gnu/automake/automake-${AUTOMAKE_VERSION}.tar.gz
-    wget http://ftp.gnu.org/gnu/libtool/libtool-${LIBTOOL_VERSION}.tar.gz
+    wget -nc http://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VERSION}.tar.gz
+    wget -nc http://ftp.gnu.org/gnu/m4/m4-${M4_VERSION}.tar.gz
+    wget -nc http://ftp.gnu.org/gnu/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz
+    wget -nc http://ftp.gnu.org/gnu/automake/automake-${AUTOMAKE_VERSION}.tar.gz
+    wget -nc http://ftp.gnu.org/gnu/libtool/libtool-${LIBTOOL_VERSION}.tar.gz
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then
