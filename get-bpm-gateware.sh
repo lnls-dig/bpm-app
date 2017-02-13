@@ -12,7 +12,7 @@ if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # BPM Gateware
     [[ -d bpm-gw ]] || git clone --branch=${BPM_GW_VERSION} https://github.com/lnls-dig/bpm-gw.git bpm-gw
     # BPM IPMI
-    [[ -d afcipm ]] || git clone --branch=${BPM_IPMI_VERSION} https://github.com/lnls-dig/afcipm.git afcipm
+    [[ -d openMMC ]] || git clone --branch=${BPM_IPMI_VERSION} https://github.com/lnls-dig/openMMC openMMC
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then
@@ -22,7 +22,7 @@ if [ "${INSTALL_APP}" == "no" ]; then
 fi
 
 # Configure and Install
-for project in bpm-gw bpm-ipmi; do
+for project in bpm-gw openMMC; do
     cd $project && \
     git submodule update --init --recursive && \
     cd ..
