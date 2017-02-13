@@ -115,6 +115,16 @@ sed -i -e "s|SUPPORT=.*|SUPPORT=${EPICS_SYNAPPS}|g" \
 # which is where Ubuntu 16.04 installs them. Symlink them to /usr/include
 sudo ln -s /usr/include/hdf5/serial/*.h /usr/include/
 
+# Debug/Info stuff
+echo "======= configure/RELEASE.local ========================================="
+cat configure/RELEASE.local
+
+echo "======= configure/RELEASE ==============================================="
+cat configure/RELEASE
+
+echo "======= configure/CONFIG_SITE.linux-x86_64.Common ======================="
+cat configure/CONFIG_SITE.linux-x86_64.Common
+
 make release
 make
 
