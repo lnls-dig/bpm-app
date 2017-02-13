@@ -103,7 +103,9 @@ FED_RED_SUS_DEPS="\
     libpng-devel \
     libX11-devel \
     libXext-devel \
-    freetype-devel
+    freetype-devel \
+    hdf5 \
+    hdf5-devel
 "
 
 echo "Installing system dependencies"
