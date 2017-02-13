@@ -142,7 +142,7 @@ echo "======= configure/RELEASE ==============================================="
 cat configure/RELEASE
 
 echo "======= configure/CONFIG_SITE.linux-x86_64.Common ======================="
-cat configure/CONFIG_SITE.linux-x86_64.Common
+cat configure/CONFIG_SITE.linux-x86_64.Common || /bin/true
 
 make release
 make
