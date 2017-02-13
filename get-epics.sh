@@ -117,7 +117,7 @@ sudo ln -s /usr/include/hdf5/serial/*.h /usr/include/
 
 # Debug/Info stuff
 echo "======= configure/RELEASE.local ========================================="
-cat configure/RELEASE.local
+cat configure/RELEASE.local || /bin/true
 
 echo "======= configure/RELEASE ==============================================="
 cat configure/RELEASE
