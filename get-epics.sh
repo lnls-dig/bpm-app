@@ -117,6 +117,19 @@ cd ${EPICS_SYNAPPS}
 sed -i -e "s|SUPPORT=.*|SUPPORT=${EPICS_SYNAPPS}|g" \
     -e "s|EPICS_BASE=.*|EPICS_BASE=${EPICS_BASE}|g" configure/RELEASE
 
+# Fix ADCore paths
+sed -i \
+    -e "s|HDF5\( *\)=.*|HDF5\1= /lib64|g" \
+    -e "s|HDF5_LIB\( *\)=.*|HDF5_LIB\1= /lib64|g" \
+    -e "s|HDF5_INCLUDE\( *\)=.*|HDF5_INCLUDE\1= -I/usr/include|g" \
+    -e "s|SZIP\( *\)=.*|SZIP\1= /usr/lib64|g" \
+    -e "s|SZIP_LIB\( *\)=.*|SZIP_LIB\1= /usr/lib64|g" \
+    -e "s|SZIP_INCLUDE\( *\)=.*|SZIP_INCLUDE\1= -I/usr/include|g" \
+    -e "s|GRAPHICS_MAGICK\( *\)=.*|GRAPHICS_MAGICK\1= /usr/lib|g" \
+    -e "s|GRAPHICS_MAGICK_LIB\( *\)=.*|GRAPHICS_MAGICK_LIB\1= /usr/lib|g" \
+    -e "s|GRAPHICS_MAGICK_INCLUDE\( *\)=.*|GRAPHICS_MAGICK_INCLUDE\1= -I/usr/include/ImageMagick/magick|g" \
+    areaDetector-R2-0/configure/CONFIG_SITE.local.linux-x86_64
+
 # EPICS synApps R5_8 does not search hdf5 headers in /usr/include/hdf5/serial,
 # which is where Ubuntu 16.04 installs them. Symlink them to /usr/include
 sudo ln -s /usr/include/hdf5/serial/*.h /usr/include/
