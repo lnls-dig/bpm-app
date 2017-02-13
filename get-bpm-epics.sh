@@ -9,7 +9,7 @@ set -u
 . ./repo-versions.sh
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
-    git clone --branch=${BPM_EPICS_IOC_VERSION} https://github.com/lnls-dig/bpm-epics-ioc.git
+    [[ -d bpm-epics-ioc ]] || git clone --branch=${BPM_EPICS_IOC_VERSION} https://github.com/lnls-dig/bpm-epics-ioc.git bpm-epics-ioc
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then

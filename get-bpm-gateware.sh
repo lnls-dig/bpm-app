@@ -10,9 +10,9 @@ set -u
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # BPM Gateware
-    git clone --branch=${BPM_GW_VERSION} https://github.com/lnls-dig/bpm-gw.git
+    [[ -d bpm-gw ]] || git clone --branch=${BPM_GW_VERSION} https://github.com/lnls-dig/bpm-gw.git bpm-gw
     # BPM IPMI
-    git clone --branch=${BPM_IPMI_VERSION} https://github.com/lnls-dig/afcipm.git
+    [[ -d afcipm ]] || git clone --branch=${BPM_IPMI_VERSION} https://github.com/lnls-dig/afcipm.git afcipm
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then

@@ -13,7 +13,7 @@ set -u
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # HALCS libs
-    git clone --recursive --branch=${HALCS_LIBS_VERSION} https://github.com/lnls-dig/halcs.git halcs
+    [[ -d halcs ]] || git clone --recursive --branch=${HALCS_LIBS_VERSION} https://github.com/lnls-dig/halcs.git halcs
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then

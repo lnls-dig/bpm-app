@@ -13,10 +13,10 @@ set -u
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # ZEROmq libraries
-    git clone --branch=${LIBSODIUM_VERSION} https://github.com/jedisct1/libsodium.git
-    git clone --branch=${LIBZMQ_VERSION} https://github.com/zeromq/libzmq.git
-    git clone --branch=${CZMQ_VERSION} https://github.com/zeromq/czmq.git
-    git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git
+    [[ -d libsodium ]] || git clone --branch=${LIBSODIUM_VERSION} https://github.com/jedisct1/libsodium.git libsodium
+    [[ -d libzmq    ]] || git clone --branch=${LIBZMQ_VERSION} https://github.com/zeromq/libzmq.git libzmq
+    [[ -d czmq      ]] || git clone --branch=${CZMQ_VERSION} https://github.com/zeromq/czmq.git czmq
+    [[ -d malamute  ]] || git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git malamute
 fi
 
 # Patch repos
