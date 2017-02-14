@@ -160,7 +160,7 @@ if [ "${DOWNLOAD_APP}" == "yes" ]; then
     sudo ${PKG_MANAGER} ${PKG_INSTALL_COMMAND} ${DEPS}
 
     # Install missing dependencies not available on repos
-    ./install-szip
+    ./install-szip.sh
 fi
 
 echo "System dependencies installation completed"
