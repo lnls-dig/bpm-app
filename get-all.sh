@@ -188,6 +188,12 @@ export ERRHAND_DBG
 export ERRHAND_MIN_LEVEL
 export ERRHAND_SUBSYS_ON
 
+############################# MANIFEST  Installation ##########################
+
+# Write MANIFEST file header
+rm -f ${MANIFEST}
+cat repo-versions.sh | sed -n '1!p' | tee -a ${MANIFEST}
+
 ######################## System Dependencies Installation ######################
 
 if [ "$SYSTEM_DEPS_CFG" == "yes" ]; then
@@ -319,9 +325,5 @@ if [ "$BPM_CFG" == "yes" ]; then
        fi
     fi
 fi
-
-# Write MANIFEST file header
-rm -f ${MANIFEST}
-cat repo-versions.sh | sed -n '1!p' | tee -a ${MANIFEST}
 
 echo "BPM software installation completed"
