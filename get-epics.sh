@@ -118,8 +118,8 @@ sed -i -e "s|SUPPORT=.*|SUPPORT=${EPICS_SYNAPPS}|g" \
     -e "s|EPICS_BASE=.*|EPICS_BASE=${EPICS_BASE}|g" configure/RELEASE
 
 # Depending on OS we need to change ADCore paths this differently
-distro=$(./get-os-distro.sh -d)
-rev=$(./get-os-distro.sh -r)
+distro=$(${TOP_DIR}/get-os-distro.sh -d)
+rev=$(${TOP_DIR}/get-os-distro.sh -r)
 
 HDF5_BASE=/lib64
 HDF5_LIB=/lib64
