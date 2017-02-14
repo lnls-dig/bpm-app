@@ -117,18 +117,90 @@ cd ${EPICS_SYNAPPS}
 sed -i -e "s|SUPPORT=.*|SUPPORT=${EPICS_SYNAPPS}|g" \
     -e "s|EPICS_BASE=.*|EPICS_BASE=${EPICS_BASE}|g" configure/RELEASE
 
+# Depending on OS we need to change ADCore paths this differently
+distro=$(./get-os-distro.sh -d)
+rev=$(./get-os-distro.sh -r)
+
+HDF5_BASE=/lib64
+HDF5_LIB=/lib64
+HDF5_INCLUDE=/usr/include
+SZIP_BASE=/usr/lib64
+SZIP_LIB=/usr/lib64
+SZIP_INCLUDE=/usr/include
+GRAPHICS_MAGICK_BASE=/usr/lib64
+GRAPHICS_MAGICK_LIB=/usr/lib64
+GRAPHICS_MAGICK_INCLUDE=/usr/include/ImageMagick/magick
+
+case $distro in
+    "Ubuntu" | "Debian")
+        #if [ "$rev" \< "12.04" ] || [ "$rev" == "12.04" ]; then
+        #elif [ "$rev" == "16.04" ]; then
+        #else
+        #fi
+
+        HDF5_BASE=/usr/lib/x86_64-linux-gnu
+        HDF5_LIB=/usr/lib/x86_64-linux-gnu
+        HDF5_INCLUDE=/usr/include
+        SZIP_BASE=/usr/lib64
+        SZIP_LIB=/usr/lib64
+        SZIP_INCLUDE=/usr/include
+        GRAPHICS_MAGICK_BASE=/usr/lib/x86_64-linux-gnu
+        GRAPHICS_MAGICK_LIB=/usr/lib/x86_64-linux-gnu
+        GRAPHICS_MAGICK_INCLUDE=/usr/include/ImageMagick/magick
+        ;;
+    "Fedora" | "RedHat" | "Scientific")
+        HDF5_BASE=/lib64
+        HDF5_LIB=/lib64
+        HDF5_INCLUDE=/usr/include
+        SZIP_BASE=/usr/lib64
+        SZIP_LIB=/usr/lib64
+        SZIP_INCLUDE=/usr/include
+        GRAPHICS_MAGICK_BASE=/usr/lib64
+        GRAPHICS_MAGICK_LIB=/usr/lib64
+        GRAPHICS_MAGICK_INCLUDE=/usr/include/ImageMagick/magick
+        ;;
+    "SUSE")
+        HDF5_BASE=/lib64
+        HDF5_LIB=/lib64
+        HDF5_INCLUDE=/usr/include
+        SZIP_BASE=/usr/lib64
+        SZIP_LIB=/usr/lib64
+        SZIP_INCLUDE=/usr/include
+        GRAPHICS_MAGICK_BASE=/usr/lib64
+        GRAPHICS_MAGICK_LIB=/usr/lib64
+        GRAPHICS_MAGICK_INCLUDE=/usr/include/ImageMagick/magick
+        ;;
+    *)
+        echo "Unsupported distribution: $distro" >&2
+        exit 1
+        ;;
+esac
+
 # Fix ADCore paths
 sed -i \
-    -e "s|HDF5\( *\)=.*|HDF5\1= /lib64|g" \
-    -e "s|HDF5_LIB\( *\)=.*|HDF5_LIB\1= /lib64|g" \
-    -e "s|HDF5_INCLUDE\( *\)=.*|HDF5_INCLUDE\1= -I/usr/include|g" \
-    -e "s|SZIP\( *\)=.*|SZIP\1= /usr/lib64|g" \
-    -e "s|SZIP_LIB\( *\)=.*|SZIP_LIB\1= /usr/lib64|g" \
-    -e "s|SZIP_INCLUDE\( *\)=.*|SZIP_INCLUDE\1= -I/usr/include|g" \
-    -e "s|GRAPHICS_MAGICK\( *\)=.*|GRAPHICS_MAGICK\1= /usr/lib|g" \
-    -e "s|GRAPHICS_MAGICK_LIB\( *\)=.*|GRAPHICS_MAGICK_LIB\1= /usr/lib|g" \
-    -e "s|GRAPHICS_MAGICK_INCLUDE\( *\)=.*|GRAPHICS_MAGICK_INCLUDE\1= -I/usr/include/ImageMagick/magick|g" \
+    -e "s|HDF5\( *\)=.*|HDF5\1= ${HDF5_BASE}|g" \
+    -e "s|HDF5_LIB\( *\)=.*|HDF5_LIB\1= ${HDF5_LIB}|g" \
+    -e "s|HDF5_INCLUDE\( *\)=.*|HDF5_INCLUDE\1= -I${HDF5_INCLUDE}|g" \
+    -e "s|SZIP\( *\)=.*|SZIP\1= ${SZIP_BASE}|g" \
+    -e "s|SZIP_LIB\( *\)=.*|SZIP_LIB\1= ${SZIP_LIB}|g" \
+    -e "s|SZIP_INCLUDE\( *\)=.*|SZIP_INCLUDE\1= -I${SZIP_INCLUDE}|g" \
+    -e "s|GRAPHICS_MAGICK\( *\)=.*|GRAPHICS_MAGICK\1= ${GRAPHICS_MAGICK_BASE}|g" \
+    -e "s|GRAPHICS_MAGICK_LIB\( *\)=.*|GRAPHICS_MAGICK_LIB\1= ${GRAPHICS_MAGICK_LIB}|g" \
+    -e "s|GRAPHICS_MAGICK_INCLUDE\( *\)=.*|GRAPHICS_MAGICK_INCLUDE\1= -I${GRAPHICS_MAGICK_INCLUDE}|g" \
     areaDetector-R2-0/configure/CONFIG_SITE.local.linux-x86_64
+
+# Change some modules to dynamic link to libhdf5 and libsz.
+# For some reason, we don't have the static versions of them
+# and the compilation fails with:
+# /bin/ld: cannot find -lhdf5
+# /bin/ld: cannot find -lsz
+sed -i \
+    -e "s|STATIC_BUILD=YES|STATIC_BUILD=NO|g" \
+    quadEM-5-0/configure/CONFIG_SITE
+
+sed -i \
+    -e "s|STATIC_BUILD=YES|STATIC_BUILD=NO|g" \
+    dxp-3-4/configure/CONFIG_SITE
 
 # EPICS synApps R5_8 does not search hdf5 headers in /usr/include/hdf5/serial,
 # which is where Ubuntu 16.04 installs them. Symlink them to /usr/include
