@@ -25,6 +25,9 @@ VALID_EPICS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_BPM_CFG_STR="Valid values are: \"yes\" and \"no\"."
 
+# Source environment variables
+. ./env-vars.sh
+
 # Source repo versions
 . ./repo-versions.sh
 
