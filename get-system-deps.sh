@@ -42,7 +42,8 @@ DEB_UBU_GEN_DEPS="\
     libX11-dev \
     libXext-dev \
     libfreetype6 \
-    libhdf5-dev
+    libhdf5-dev \
+    ImageMagick
 "
 UBU_16_GEN_DEPS="\
     build-essential \
@@ -62,7 +63,8 @@ UBU_16_GEN_DEPS="\
     libx11-dev \
     libxext-dev \
     libfreetype6 \
-    libhdf5-dev
+    libhdf5-dev \
+    ImageMagick
 "
 UBU_12_GEN_DEPS="\
     build-essential \
@@ -82,7 +84,8 @@ UBU_12_GEN_DEPS="\
     libx11-dev \
     libxext-dev \
     libfreetype6 \
-    libhdf5-serial-dev
+    libhdf5-serial-dev \
+    ImageMagick
 "
 DEB_UBU_DEPS="${DEB_UBU_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
 UBU_16_DEPS="${UBU_16_GEN_DEPS} ${DEB_UBU_PERL_DEPS}"
@@ -105,7 +108,9 @@ FED_RED_SUS_DEPS="\
     libXext-devel \
     freetype-devel \
     hdf5 \
-    hdf5-devel
+    hdf5-devel \
+    ImageMagick \
+    ImageMagick-devel
 "
 
 echo "Installing system dependencies"
@@ -153,6 +158,9 @@ if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # Update repos
     sudo ${PKG_MANAGER} ${PKG_UPDT_COMMAND}
     sudo ${PKG_MANAGER} ${PKG_INSTALL_COMMAND} ${DEPS}
+
+    # Install missing dependencies not available on repos
+    ./install-szip
 fi
 
 echo "System dependencies installation completed"
