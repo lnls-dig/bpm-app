@@ -10,7 +10,8 @@ set -u
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # BPM Client Software
-    [[ -d bpm-sw-cli ]] || git clone --recursive --branch=${BPM_SW_CLI_VERSION} https://github.com/lnls-dig/bpm-sw-cli.git bpm-sw-cli
+    [[ -d bpm-sw-cli ]] || ./get-repo-and-description.sh -b ${BPM_SW_CLI_VERSION} -r \
+        https://github.com/lnls-dig/bpm-sw-cli.git -d bpm-sw-cli -m ${MANIFEST}
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then

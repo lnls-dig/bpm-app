@@ -13,10 +13,14 @@ set -u
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # ZEROmq libraries
-    [[ -d libsodium ]] || git clone --branch=${LIBSODIUM_VERSION} https://github.com/jedisct1/libsodium.git libsodium
-    [[ -d libzmq    ]] || git clone --branch=${LIBZMQ_VERSION} https://github.com/zeromq/libzmq.git libzmq
-    [[ -d czmq      ]] || git clone --branch=${CZMQ_VERSION} https://github.com/zeromq/czmq.git czmq
-    [[ -d malamute  ]] || git clone --branch=${MALAMUTE_VERSION} https://github.com/lnls-dig/malamute.git malamute
+    [[ -d libsodium ]] || ./get-repo-and-description.sh -b ${LIBSODIUM_VERSION} -r \
+        https://github.com/jedisct1/libsodium.git -d libsodium -m ${MANIFEST}
+    [[ -d libzmq    ]] || ./get-repo-and-description.sh -b ${LIBZMQ_VERSION} -r \
+        https://github.com/zeromq/libzmq.git -d libzmq -m ${MANIFEST}
+    [[ -d czmq      ]] || ./get-repo-and-description.sh -b ${CZMQ_VERSION} -r \
+        https://github.com/zeromq/czmq.git -d czmq -m ${MANIFEST}
+    [[ -d malamute  ]] || ./get-repo-and-description.sh -b ${MALAMUTE_VERSION} -r \
+        https://github.com/lnls-dig/malamute.git -d malamute -m ${MANIFEST}
 fi
 
 # Patch repos

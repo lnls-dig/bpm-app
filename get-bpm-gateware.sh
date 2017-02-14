@@ -10,9 +10,11 @@ set -u
 
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # BPM Gateware
-    [[ -d bpm-gw ]] || git clone --branch=${BPM_GW_VERSION} https://github.com/lnls-dig/bpm-gw.git bpm-gw
+    [[ -d bpm-gw ]] || ./get-repo-and-description.sh -b ${BPM_GW_VERSION} -r \
+        https://github.com/lnls-dig/bpm-gw.git -d bpm-gw -m ${MANIFEST}
     # BPM IPMI
-    [[ -d openMMC ]] || git clone --branch=${BPM_IPMI_VERSION} https://github.com/lnls-dig/openMMC openMMC
+    [[ -d openMMC ]] || ./get-repo-and-description.sh -b ${BPM_IPMI_VERSION} -r \
+        https://github.com/lnls-dig/openMMC -d openMMC -m ${MANIFEST}
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then

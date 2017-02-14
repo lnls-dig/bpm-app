@@ -237,7 +237,7 @@ fi
 if [ "$BPM_CFG" == "yes" ]; then
     if [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ]; then
         ./get-bpm-deps.sh
-    
+
         # Check last command return status
         if [ $? -ne 0 ]; then
             echo "Could not compile/install BPM dependencies." >&2
@@ -250,17 +250,17 @@ fi
 if [ "$BPM_CFG" == "yes" ]; then
     if [ "$ROLE" == "server" ]; then
        ./get-bpm-server.sh
-    
+
        # Check last command return status
        if [ $? -ne 0 ]; then
            echo "Could not compile/install BPM server." >&2
            exit 1
        fi
-    
+
        # Also install client application on server
-    
+
        ./get-bpm-client.sh
-    
+
        # Check last command return status
        if [ $? -ne 0 ]; then
            echo "Could not compile/install BPM client." >&2
@@ -273,15 +273,15 @@ fi
 if [ "$BPM_CFG" == "yes" ]; then
     if [ "$ROLE" == "client" ]; then
         ./get-bpm-cli-deps.sh
-    
+
        # Check last command return status
        if [ $? -ne 0 ]; then
            echo "Could not compile/install BPM client dependencies." >&2
            exit 1
        fi
-    
+
         ./get-bpm-client.sh
-    
+
        # Check last command return status
        if [ $? -ne 0 ]; then
            echo "Could not compile/install BPM client." >&2
@@ -295,7 +295,7 @@ if [ "$BPM_CFG" == "yes" ]; then
     if [ "$EPICS_CFG" == "yes" ] && ( [ "$ROLE" == "server" ] || [ "$ROLE" == "client" ] ); then
         echo "Installing EPICS"
         ./get-bpm-epics.sh
-    
+
        # Check last command return status
        if [ $? -ne 0 ]; then
            echo "Could not compile/install BPM EPICS IOC." >&2
@@ -308,7 +308,7 @@ fi
 if [ "$BPM_CFG" == "yes" ]; then
     if [ "$ROLE" == "gateware" ]; then
         ./get-bpm-gateware.sh
-    
+
        # Check last command return status
        if [ $? -ne 0 ]; then
            echo "Could not compile/install BPM Gatware." >&2
@@ -316,5 +316,9 @@ if [ "$BPM_CFG" == "yes" ]; then
        fi
     fi
 fi
+
+# Write MANIFEST file header
+rm -f ${MANIFEST}
+cat repo-versions.sh | sed -n '1!p' | tee -a ${MANIFEST}
 
 echo "BPM software installation completed"
