@@ -65,7 +65,7 @@ ln -sf base-${EPICS_BASE_VERSION} base
 # Update ldconfig with EPICS libs
 sudo touch ${LDCONF_DIR}/epics.conf
 echo "${EPICS_BASE}/lib/${EPICS_HOST_ARCH}" | sudo tee -a /etc/ld.so.conf.d/epics.conf
-echo "/usr/lib64" | sudo -a tee /etc/ld.so.conf.d/epics.conf
+echo "/usr/lib64" | sudo tee -a /etc/ld.so.conf.d/epics.conf
 echo "/lib64" | sudo tee -a /etc/ld.so.conf.d/epics.conf
 echo "/usr/lib" | sudo tee -a /etc/ld.so.conf.d/epics.conf
 
