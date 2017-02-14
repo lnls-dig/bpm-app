@@ -145,11 +145,7 @@ sed -i \
 
 # EPICS synApps R5_8 does not search hdf5 headers in /usr/include/hdf5/serial,
 # which is where Ubuntu 16.04 installs them. Symlink them to /usr/include
-sudo ln -sf /usr/include/hdf5/serial/*.h /usr/include/
-
-# FIXME
-# Add symlink to libsz.so.2 to libsz.so. This shouldn't be here
-sudo ln -sf /usr/lib64/libsz.so.2 /usr/lib64/libsz.so
+sudo ln -sf /usr/include/hdf5/serial/*.h /usr/include/ || /bin/true
 
 # Debug/Info stuff
 echo "======= configure/RELEASE.local ========================================="
