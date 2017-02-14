@@ -206,6 +206,10 @@ sed -i \
 # which is where Ubuntu 16.04 installs them. Symlink them to /usr/include
 sudo ln -sf /usr/include/hdf5/serial/*.h /usr/include/
 
+# FIXME
+# Add symlink to libsz.so.2 to libsz.so. This shouldn't be here
+sudo ln -sf /usr/lib64/libsz.so.2 /usr/lib64/libsz.so
+
 # Debug/Info stuff
 echo "======= configure/RELEASE.local ========================================="
 cat configure/RELEASE.local || /bin/true
