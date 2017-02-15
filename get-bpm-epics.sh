@@ -25,7 +25,22 @@ fi
 # Configure and Install IOC BPM
 for project in bpm-epics-ioc; do
     cd $project && \
-    git submodule update --init --recursive && \
+    git submodule update --init --recursive
+
+    # Fix ADCore library paths
+    sed -i \
+        -e "s|HDF5\( *\)=.*|HDF5\1= ${HDF5_BASE}|g" \
+        -e "s|HDF5_LIB\( *\)=.*|HDF5_LIB\1= ${HDF5_LIB}|g" \
+        -e "s|HDF5_INCLUDE\( *\)=.*|HDF5_INCLUDE\1= -I${HDF5_INCLUDE}|g" \
+        -e "s|SZIP\( *\)=.*|SZIP\1= ${SZIP_BASE}|g" \
+        -e "s|SZIP_LIB\( *\)=.*|SZIP_LIB\1= ${SZIP_LIB}|g" \
+        -e "s|SZIP_INCLUDE\( *\)=.*|SZIP_INCLUDE\1= -I${SZIP_INCLUDE}|g" \
+        -e "s|GRAPHICS_MAGICK\( *\)=.*|GRAPHICS_MAGICK\1= ${GRAPHICS_MAGICK_BASE}|g" \
+        -e "s|GRAPHICS_MAGICK_LIB\( *\)=.*|GRAPHICS_MAGICK_LIB\1= ${GRAPHICS_MAGICK_LIB}|g" \
+        -e "s|GRAPHICS_MAGICK_INCLUDE\( *\)=.*|GRAPHICS_MAGICK_INCLUDE\1= -I${GRAPHICS_MAGICK_INCLUDE}|g" \
+        configure/CONFIG_SITE
+
+    # Install it
     make && \
     sudo make install && \
     cd ..
