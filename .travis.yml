@@ -13,9 +13,9 @@ env:
 - ROLE=client BOARD=ml605
 - ROLE=client BOARD=afcv3
 - ROLE=client BOARD=afcv3_1
-- ROLE=server BOARD=ml605
-- ROLE=server BOARD=afcv3
-- ROLE=server BOARD=afcv3_1
+- ROLE=server HALCS_KERNEL_DIR=/lib/modules/$(uname -r)/build HALCS_DRIVER_INSTALL_DIR=/lib/modules/$(uname -r)/extra BOARD=ml605
+- ROLE=server HALCS_KERNEL_DIR=/lib/modules/$(uname -r)/build HALCS_DRIVER_INSTALL_DIR=/lib/modules/$(uname -r)/extra BOARD=afcv3
+- ROLE=server HALCS_KERNEL_DIR=/lib/modules/$(uname -r)/build HALCS_DRIVER_INSTALL_DIR=/lib/modules/$(uname -r)/extra BOARD=afcv3_1
 - ROLE=gateware
 
 addons:
