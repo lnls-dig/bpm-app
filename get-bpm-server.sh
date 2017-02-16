@@ -40,6 +40,7 @@ if [ -z "$HALCS_DRIVER_INSTALL_DIR" ]; then
 fi
 set -u
 
+HALCS_EXTRA_FLAGS=("")
 # Configure and Install
 for project in halcs; do
     cd $project && \
@@ -47,18 +48,19 @@ for project in halcs; do
 
     # Use passed kernel variables
     if [ "$HALCS_KERNEL_DIR_SET" -eq "1" ] && [ "$HALCS_DRIVER_INSTALL_DIR_SET" -eq "1" ]; then
-        HALCS_EXTRA_FLAGS="KERNELDIR=${HALCS_KERNEL_DIR} INSTALLDIR=${HALCS_DRIVER_INSTALL_DIR}"
+        HALCS_EXTRA_FLAGS+=("KERNELDIR=${HALCS_KERNEL_DIR}")
+        HALCS_EXTRA_FLAGS+=("INSTALLDIR=${HALCS_DRIVER_INSTALL_DIR}")
     elif [ "$HALCS_KERNEL_DIR_SET" -eq "1" ]; then
-        HALCS_EXTRA_FLAGS="KERNELDIR=${HALCS_KERNEL_DIR}"
+        HALCS_EXTRA_FLAGS+=("KERNELDIR=${HALCS_KERNEL_DIR}")
     elif [ "$HALCS_DRIVER_INSTALL_DIR_SET" -eq "1" ]; then
-        HALCS_EXTRA_FLAGS="INSTALLDIR=${HALCS_DRIVER_INSTALL_DIR}"
+        HALCS_EXTRA_FLAGS+=("INSTALLDIR=${HALCS_DRIVER_INSTALL_DIR}")
     else
-        HALCS_EXTRA_FLAGS=
+        HALCS_EXTRA_FLAGS=("")
     fi
 
     sudo ./compile.sh -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
         -l ${HALCS_WITH_SYSTEM_INTEGRATION} -d ${HALCS_WITH_DRIVER} -x \
-        '"${HALCS_EXTRA_FLAGS}"' && \
+       "${HALCS_EXTRA_FLAGS[*]}" && \
     cd ..
 
     # Check last command return status
