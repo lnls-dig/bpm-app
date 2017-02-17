@@ -26,6 +26,7 @@ fi
 # Kernel dirs must be set. Otherwise we will get empty values
 HALCS_KERNEL_DIR_SET=1
 HALCS_DRIVER_INSTALL_DIR_SET=1
+HALCS_KERNEL_VERSION_SET=1
 
 # We allow these variables to be uninitialized
 set +u
@@ -38,6 +39,11 @@ if [ -z "$HALCS_DRIVER_INSTALL_DIR" ]; then
     echo "Environment variable HALCS_DRIVER_INSTALL_DIR unset. Using default /lib/module/$(uname -r)/extra"
     HALCS_DRIVER_INSTALL_DIR_SET=0
 fi
+
+if [ -z "$HALCS_KERNEL_VERSION" ]; then
+    echo "Environment variable HALCS_KERNEL_VERSION unset. Using default $(uname -r)"
+    HALCS_KERNEL_VERSION_SET=0
+fi
 set -u
 
 HALCS_EXTRA_FLAGS=("")
@@ -47,15 +53,16 @@ for project in halcs; do
     git submodule update --init --recursive && \
 
     # Use passed kernel variables
-    if [ "$HALCS_KERNEL_DIR_SET" -eq "1" ] && [ "$HALCS_DRIVER_INSTALL_DIR_SET" -eq "1" ]; then
+    if [ "$HALCS_KERNEL_DIR_SET" -eq "1" ]; then
         HALCS_EXTRA_FLAGS+=("KERNELDIR=${HALCS_KERNEL_DIR}")
+    fi
+
+    if [ "$HALCS_DRIVER_INSTALL_DIR_SET" -eq "1" ]; then
         HALCS_EXTRA_FLAGS+=("INSTALLDIR=${HALCS_DRIVER_INSTALL_DIR}")
-    elif [ "$HALCS_KERNEL_DIR_SET" -eq "1" ]; then
-        HALCS_EXTRA_FLAGS+=("KERNELDIR=${HALCS_KERNEL_DIR}")
-    elif [ "$HALCS_DRIVER_INSTALL_DIR_SET" -eq "1" ]; then
-        HALCS_EXTRA_FLAGS+=("INSTALLDIR=${HALCS_DRIVER_INSTALL_DIR}")
-    else
-        HALCS_EXTRA_FLAGS=("")
+    fi
+
+    if [ "$HALCS_KERNEL_VERSION_SET" -eq "1" ]; then
+        HALCS_EXTRA_FLAGS+=("KERNEL_VERSION=${HALCS_KERNEL_VERSION}")
     fi
 
     sudo ./compile.sh -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
