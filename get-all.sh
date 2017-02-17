@@ -8,7 +8,6 @@ set -u
 # Our options
 HALCS_BOARD="afcv3"
 HALCS_APPS="halcsd"
-HALCS_WITH_SYSTEM_INTEGRATION="no"
 HALCS_WITH_EXAMPLES="yes"
 HALCS_WITH_DRIVER="yes"
 HALCS_CLI_PREFIX=/usr/local
@@ -24,6 +23,7 @@ VALID_AUTOTOOLS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_EPICS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_BPM_CFG_STR="Valid values are: \"yes\" and \"no\"."
+VALID_HALCS_WITH_SYSTEM_INTEGRATION_STR="Valid values are: \"yes\" and \"no\"."
 
 # Source environment variables
 . ./env-vars.sh
@@ -39,6 +39,7 @@ function usage {
     echo "    -e <install EPICS tools = [yes|no]>"
     echo "    -s <install system dependencies = [yes|no]>"
     echo "    -c <install BPM related packages = [yes|no]>"
+    echo "    -l <install HALCS system integration scripts = [yes|no]>"
     echo "    -i <install the packages>"
     echo "    -o <download the packages>"
 }
@@ -60,9 +61,12 @@ DOWNLOAD_APP="no"
 # Select if we want to install BPM related stugg or not. Options are: yes or no.
 # Default is yes to keep old behavior
 BPM_CFG="yes"
+# Select if we want HALCS system integration script or not. Options are: yes or no.
+# Default is yes to keep old behavior
+HALCS_WITH_SYSTEM_INTEGRATION="no"
 
 # Get command line options
-while getopts ":r:b:a:e:s:c:io" opt; do
+while getopts ":r:b:a:e:s:c:l:io" opt; do
     case $opt in
         r)
             ROLE=$OPTARG
@@ -87,6 +91,9 @@ while getopts ":r:b:a:e:s:c:io" opt; do
             ;;
         c)
             BPM_CFG="yes"
+            ;;
+        l)
+            HALCS_WITH_SYSTEM_INTEGRATION=$OPTARG
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -167,6 +174,18 @@ fi
 
 if [ "$BPM_CFG" != "yes" ] && [ "$BPM_CFG" != "no" ]; then
     echo "Option \"-a\" has unsupported option. "$VALID_BPM_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ -z "$HALCS_WITH_SYSTEM_INTEGRATION" ]; then
+    echo "Option \"-l\" unset. "$VALID_HALCS_WITH_SYSTEM_INTEGRATION_STR
+    usage
+    exit 1
+fi
+
+if [ "$HALCS_WITH_SYSTEM_INTEGRATION" != "yes" ] && [ "$HALCS_WITH_SYSTEM_INTEGRATION" != "no" ]; then
+    echo "Option \"-l\" has unsupported option. "$VALID_HALCS_WITH_SYSTEM_INTEGRATION_STR
     usage
     exit 1
 fi
