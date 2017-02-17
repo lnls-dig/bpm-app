@@ -70,6 +70,19 @@ for project in malamute; do
     sudo ldconfig && \
     cd ..
 
+    MALAMUTE_VERBOSE=0
+    MALAMUTE_PLAIN_AUTH=
+    MALAMUTE_AUTH_MECHANISM=null
+    MALAMUTE_ENDPOINT='tcp://*:8978'
+    MALAMUTE_CFG_FILE=/usr/etc/malamute/malamute.cfg
+    # Install our custom Malamute config file
+    sed -i \
+        -e "s|verbose\( *\)=.*|verbose\1= ${MALAMUTE_VERBOSE}|g" \
+        -e "s|plain\( *\)=.*|plain\1= ${MALAMUTE_PLAIN_AUTH}|g" \
+        -e "s|mechanism\( *\)=.*|mechanism\1= ${MALAMUTE_AUTH_MECHANISM}|g" \
+        -e "s|tcp://\*:9999|${MALAMUTE_ENDPOINT}|g" \
+        ${MALAMUTE_CFG_FILE}
+
     # Check last command return status
     if [ $? -ne 0 ]; then
         echo "Could not compile/install project $project." >&2
