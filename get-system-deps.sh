@@ -64,7 +64,7 @@ UBU_16_GEN_DEPS="\
     libxext-dev \
     libfreetype6 \
     libhdf5-dev \
-    ImageMagick
+    imagemagick
 "
 UBU_12_GEN_DEPS="\
     build-essential \
