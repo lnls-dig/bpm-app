@@ -38,14 +38,20 @@ GRAPHICS_MAGICK_INCLUDE=/usr/include/ImageMagick/magick
 
 case $distro in
     "Ubuntu" | "Debian")
-        #if [ "$rev" \< "12.04" ] || [ "$rev" == "12.04" ]; then
-        #elif [ "$rev" == "16.04" ]; then
-        #else
-        #fi
+        if [ "$rev" \< "14.04" ] || [ "$rev" == "14.04" ]; then
+            HDF5_BASE=/usr/lib/x86_64-linux-gnu
+            HDF5_LIB=/usr/lib/x86_64-linux-gnu
+            HDF5_INCLUDE=/usr/include
+        elif [ "$rev" == "16.04" ]; then
+            HDF5_BASE=/usr/lib/x86_64-linux-gnu/hdf5/serial
+            HDF5_LIB=/usr/lib/x86_64-linux-gnu/hdf5/serial
+            HDF5_INCLUDE=/usr/include/hdf5/serial
+        else
+            HDF5_BASE=/usr/lib/x86_64-linux-gnu
+            HDF5_LIB=/usr/lib/x86_64-linux-gnu
+            HDF5_INCLUDE=/usr/include
+        fi
 
-        HDF5_BASE=/usr/lib/x86_64-linux-gnu/hdf5/serial
-        HDF5_LIB=/usr/lib/x86_64-linux-gnu/hdf5/serial
-        HDF5_INCLUDE=/usr/include/hdf5/serial
         SZIP_BASE=/usr/lib
         SZIP_LIB=/usr/lib
         SZIP_INCLUDE=/usr/include
