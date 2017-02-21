@@ -65,7 +65,7 @@ for project in halcs; do
         HALCS_EXTRA_FLAGS+=("KERNEL_VERSION=${HALCS_KERNEL_VERSION}")
     fi
 
-    sudo ./compile.sh -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
+    sudo ./gradle_compile.sh -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
         -l ${HALCS_WITH_SYSTEM_INTEGRATION} -d ${HALCS_WITH_DRIVER} -x \
        "${HALCS_EXTRA_FLAGS[*]}" && \
     cd ..
