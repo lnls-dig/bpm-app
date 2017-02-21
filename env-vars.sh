@@ -43,9 +43,9 @@ case $distro in
         #else
         #fi
 
-        HDF5_BASE=/usr/lib/x86_64-linux-gnu
-        HDF5_LIB=/usr/lib/x86_64-linux-gnu
-        HDF5_INCLUDE=/usr/include
+        HDF5_BASE=/usr/lib/x86_64-linux-gnu/hdf5/serial
+        HDF5_LIB=/usr/lib/x86_64-linux-gnu/hdf5/serial
+        HDF5_INCLUDE=/usr/include/hdf5/serial
         SZIP_BASE=/usr/lib
         SZIP_LIB=/usr/lib
         SZIP_INCLUDE=/usr/include
