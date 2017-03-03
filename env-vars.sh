@@ -22,6 +22,10 @@ set -u
 # Manifest filename
 MANIFEST=MANIFEST
 
+# BPM numbers
+BPM_FIRST_ID=1
+BPM_LAST_ID=24
+
 # Depending on OS we need to change ADCore paths this differently
 distro=$(./get-os-distro.sh -d)
 rev=$(./get-os-distro.sh -r)
