@@ -45,6 +45,12 @@ for project in bpm-epics-ioc; do
     sudo make install && \
     cd ..
 
+   # Enable all possible instances
+   for i in `seq ${BPM_FIRST_ID} ${BPM_LAST_ID}`; do
+       systemctl enable halcs-be-ioc@${i}
+       systemctl enable halcs-fe-ioc@${i}
+   done
+
     # Check last command return status
     if [ $? -ne 0 ]; then
         echo "Could not compile/install project $project." >&2
