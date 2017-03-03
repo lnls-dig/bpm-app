@@ -11,9 +11,6 @@ set -u
 # Source repo versions
 . ./repo-versions.sh
 
-BPM_FIRST_ID=1
-BPM_LAST_ID=24
-
 if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # HALCS Software
     [[ -d halcs ]] || ./get-repo-and-description.sh -b ${HALCS_VERSION} -r \
@@ -84,7 +81,5 @@ for project in halcs; do
    for i in `seq ${BPM_FIRST_ID} ${BPM_LAST_ID}`; do
        systemctl enable halcs-be@${i}
        systemctl enable halcs-fe@${i}
-       systemctl enable halcs-be-ioc@${i}
-       systemctl enable halcs-fe-ioc@${i}
    done
 done
