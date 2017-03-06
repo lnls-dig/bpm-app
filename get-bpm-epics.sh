@@ -47,8 +47,8 @@ for project in bpm-epics-ioc; do
 
    # Enable all possible instances
    for i in `seq ${BPM_FIRST_ID} ${BPM_LAST_ID}`; do
-       systemctl enable halcs-be-ioc@${i}
-       systemctl enable halcs-fe-ioc@${i}
+       systemctl enable halcs-be-ioc@${i} || /bin/true
+       systemctl enable halcs-fe-ioc@${i} || /bin/true
    done
 
     # Check last command return status
