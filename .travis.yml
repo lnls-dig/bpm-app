@@ -10,12 +10,12 @@ compiler:
 sudo: required
 
 env:
-- ROLE=client BOARD=ml605
-- ROLE=client BOARD=afcv3
-- ROLE=client BOARD=afcv3_1
-- ROLE=server BOARD=ml605
-- ROLE=server BOARD=afcv3
-- ROLE=server BOARD=afcv3_1
+- HALCS_BUILD_SYSTEM=makefile ROLE=client BOARD=ml605
+- HALCS_BUILD_SYSTEM=makefile ROLE=client BOARD=afcv3
+- HALCS_BUILD_SYSTEM=makefile ROLE=client BOARD=afcv3_1
+- HALCS_BUILD_SYSTEM=makefile ROLE=server BOARD=ml605
+- HALCS_BUILD_SYSTEM=makefile ROLE=server BOARD=afcv3
+- HALCS_BUILD_SYSTEM=makefile ROLE=server BOARD=afcv3_1
 - ROLE=gateware
 
 addons:
