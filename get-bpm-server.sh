@@ -4,6 +4,7 @@
 set -e
 # Check for uninitialized variables
 set -u
+set -x
 
 # Source environment variables
 . ./env-vars.sh
@@ -65,10 +66,21 @@ for project in halcs; do
         HALCS_EXTRA_FLAGS+=("KERNEL_VERSION=${HALCS_KERNEL_VERSION}")
     fi
 
-    sudo ./gradle_compile.sh -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
+    set +u
+    COMPILE_COMMAND=""
+    if [ -z "$HALCS_BUILD_SYSTEM" ] || [ "$HALCS_BUILD_SYSTEM" = "gradle" ]; then
+        COMPILE_COMMAND="gradle_compile.sh"
+    elif [ "$HALCS_BUILD_SYSTEM" = "makefile" ]; then
+        COMPILE_COMMAND="compile.sh"
+    else
+        COMPILE_COMMAND="gradle_compile.sh"
+    fi
+    set -u
+
+    sudo ./${COMPILE_COMMAND} -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
         -l ${HALCS_WITH_SYSTEM_INTEGRATION} -d ${HALCS_WITH_DRIVER} -x \
-       "${HALCS_EXTRA_FLAGS[*]}" && \
-    cd ..
+        "${HALCS_EXTRA_FLAGS[*]}" && \
+        cd ..
 
     # Check last command return status
     if [ $? -ne 0 ]; then
@@ -79,7 +91,8 @@ for project in halcs; do
 
    # Enable all possible instances
    for i in `seq ${BPM_FIRST_ID} ${BPM_LAST_ID}`; do
-       systemctl enable halcs-be@${i}
-       systemctl enable halcs-fe@${i}
+       # Avoid errors if we didn't install with systemd
+       systemctl enable halcs-be@${i} || /bin/true
+       systemctl enable halcs-fe@${i} || /bin/true
    done
 done
