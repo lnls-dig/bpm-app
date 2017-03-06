@@ -73,7 +73,7 @@ for project in malamute; do
     MALAMUTE_VERBOSE=0
     MALAMUTE_PLAIN_AUTH=
     MALAMUTE_AUTH_MECHANISM=null
-    MALAMUTE_ENDPOINT='tcp://*:8978'
+    MALAMUTE_ENDPOINT='ipc:///tmp/malamute'
     MALAMUTE_CFG_FILE=/usr/etc/malamute/malamute.cfg
     # Install our custom Malamute config file
     sudo sed -i \
