@@ -83,6 +83,9 @@ for project in malamute; do
         -e "s|tcp://\*:9999|${MALAMUTE_ENDPOINT}|g" \
         ${MALAMUTE_CFG_FILE}
 
+    # Enable service
+    sudo systemctl enable malamute
+
     # Check last command return status
     if [ $? -ne 0 ]; then
         echo "Could not compile/install project $project." >&2
