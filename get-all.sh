@@ -21,6 +21,7 @@ VALID_ROLES_STR="Valid values are: \"server\", \"client\" or \"gateware\"."
 VALID_BOARDS_STR="Valid values are: \"ml605\", \"afcv3\" or \"afcv3_1\""
 VALID_AUTOTOOLS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_EPICS_CFG_STR="Valid values are: \"yes\" and \"no\"."
+VALID_EPICS_V4_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_BPM_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_HALCS_WITH_SYSTEM_INTEGRATION_STR="Valid values are: \"yes\" and \"no\"."
@@ -37,11 +38,13 @@ function usage {
     echo "    -b <board = [ml605|afcv3|afcv3_1]>"
     echo "    -a <install autotools = [yes|no]>"
     echo "    -e <install EPICS tools = [yes|no]>"
+    echo "    -x <install EPICS V4 tools = [yes|no]>"
     echo "    -s <install system dependencies = [yes|no]>"
     echo "    -c <install BPM related packages = [yes|no]>"
     echo "    -l <install HALCS system integration scripts = [yes|no]>"
     echo "    -i <install the packages>"
     echo "    -o <download the packages>"
+    echo "    -u <cleanup packages>"
 }
 
 # Select if we are deploying in server or client: server or client
@@ -52,12 +55,17 @@ BOARD=
 AUTOTOOLS_CFG="no"
 # Select if we want epics or not. Options are: yes or no
 EPICS_CFG="no"
+# Select if we want epics V4 or not. Options are: yes or no
+EPICS_V4_CFG="no"
 # Select if we want to install system dependencies or not. Options are: yes or no
 SYSTEM_DEPS_CFG="no"
 # Select if we want to install the packages or not. Options are: yes or no
 INSTALL_APP="no"
 # Select if we want to download the packages or not. Options are: yes or no
 DOWNLOAD_APP="no"
+# Select if we want to cleanup the packages or not. This only removes intermediate
+# files, that are not needed after the build. Options are: yes or no
+CLEANUP_APP="no"
 # Select if we want to install BPM related stugg or not. Options are: yes or no.
 # Default is yes to keep old behavior
 BPM_CFG="yes"
@@ -66,7 +74,7 @@ BPM_CFG="yes"
 HALCS_WITH_SYSTEM_INTEGRATION="no"
 
 # Get command line options
-while getopts ":r:b:a:e:s:c:l:io" opt; do
+while getopts ":r:b:a:e:x:s:c:l:iou" opt; do
     case $opt in
         r)
             ROLE=$OPTARG
@@ -80,6 +88,9 @@ while getopts ":r:b:a:e:s:c:l:io" opt; do
         e)
             EPICS_CFG=$OPTARG
             ;;
+        x)
+            EPICS_V4_CFG=$OPTARG
+            ;;
         s)
             SYSTEM_DEPS_CFG=$OPTARG
             ;;
@@ -91,6 +102,9 @@ while getopts ":r:b:a:e:s:c:l:io" opt; do
             ;;
         c)
             BPM_CFG="yes"
+            ;;
+        u)
+            CLEANUP_APP="yes"
             ;;
         l)
             HALCS_WITH_SYSTEM_INTEGRATION=$OPTARG
@@ -154,6 +168,18 @@ if [ "$EPICS_CFG" != "yes" ] && [ "$EPICS_CFG" != "no" ]; then
     exit 1
 fi
 
+if [ -z "$EPICS_V4_CFG" ]; then
+    echo "Option \"-x\" unset. "$VALID_EPICS_V4_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ "$EPICS_V4_CFG" != "yes" ] && [ "$EPICS_V4_CFG" != "no" ]; then
+    echo "Option \"-x\" has unsupported option. "$VALID_EPICS_V4_CFG_STR
+    usage
+    exit 1
+fi
+
 if [ -z "$SYSTEM_DEPS_CFG" ]; then
     echo "Option \"-s\" unset. "$VALID_SYSTEM_DEPS_CFG_STR
     usage
@@ -196,6 +222,7 @@ set -u
 # Export children variables
 export INSTALL_APP
 export DOWNLOAD_APP
+export CLEANUP_APP
 export BOARD
 export HALCS_BOARD
 export HALCS_APPS
@@ -213,50 +240,62 @@ export ERRHAND_SUBSYS_ON
 rm -f ${MANIFEST}
 cat repo-versions.sh | sed -n '1!p' | tee -a ${MANIFEST}
 
-######################## System Dependencies Installation ######################
+############## System dependencies and EPICS environment Installation #########
 
-if [ "$SYSTEM_DEPS_CFG" == "yes" ]; then
-    ./get-system-deps.sh
-
-    # Check last command return status
-    if [ $? -ne 0 ]; then
-        echo "Could not compile/install system dependencies." >&2
-        exit 1
-    fi
-
-    ./fix-system-deps.sh
-
-    # Check last command return status
-    if [ $? -ne 0 ]; then
-        echo "Could not fix system dependencies." >&2
-        exit 1
-    fi
-fi
-
-############################ Autotools Installation ############################
+EPICS_DEV_RUN_ALL_OPTS=()
 
 # Check if we want to install autotools
 if [ "$AUTOTOOLS_CFG" == "yes" ]; then
-    ./get-autotools.sh
-
-    # Check last command return status
-    if [ $? -ne 0 ]; then
-        echo "Could not compile/install project autotools." >&2
-        exit 1
-    fi
+    EPICS_DEV_RUN_ALL_OPTS+=("-a yes")
+else
+    EPICS_DEV_RUN_ALL_OPTS+=("-a no")
 fi
-
-############################## EPICS Installation ##############################
 
 # Check if we want to install epics
 if [ "$EPICS_CFG" == "yes" ]; then
-    ./get-epics.sh
+    EPICS_DEV_RUN_ALL_OPTS+=("-e yes")
+else
+    EPICS_DEV_RUN_ALL_OPTS+=("-e no")
+fi
 
-    # Check last command return status
-    if [ $? -ne 0 ]; then
-        echo "Could not compile/install project epics." >&2
-        exit 1
-    fi
+# Check if we want to install epics V4
+if [ "$EPICS_V4_CFG" == "yes" ]; then
+    EPICS_DEV_RUN_ALL_OPTS+=("-x yes")
+else
+    EPICS_DEV_RUN_ALL_OPTS+=("-x no")
+fi
+
+# Check if we want to install system deps
+if [ "$SYSTEM_DEPS_CFG" == "yes" ]; then
+    EPICS_DEV_RUN_ALL_OPTS+=("-s yes")
+else
+    EPICS_DEV_RUN_ALL_OPTS+=("-s no")
+fi
+
+# Check if we want to install packages
+if [ "$INSTALL_APP" == "yes" ]; then
+    EPICS_DEV_RUN_ALL_OPTS+=("-i")
+fi
+# Check if we want to download packages
+if [ "$DOWNLOAD_APP" == "yes" ]; then
+    EPICS_DEV_RUN_ALL_OPTS+=("-o")
+fi
+# Check if we want to download packages
+if [ "$CLEANUP_APP" == "yes" ]; then
+    EPICS_DEV_RUN_ALL_OPTS+=("-c")
+fi
+
+# Do git submodule init/update if not available
+if [ -z "$(ls -A ./foreign/epics-dev)" ]; then
+    git submodule init && git submodule update
+fi
+
+./foreign/epics-dev/run-all.sh ${EPICS_DEV_RUN_ALL_OPTS[*]}
+
+# Check last command return status
+if [ $? -ne 0 ]; then
+    echo "Could not compile/install project epics." >&2
+    exit 1
 fi
 
 ########################### BPM-SW Installation ################################
