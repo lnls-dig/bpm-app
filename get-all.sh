@@ -290,7 +290,10 @@ if [ -z "$(ls -A ./foreign/epics-dev)" ]; then
     git submodule init && git submodule update
 fi
 
-./foreign/epics-dev/run-all.sh ${EPICS_DEV_RUN_ALL_OPTS[*]}
+# Change to directory
+cd foreign/epics-dev
+./run-all.sh ${EPICS_DEV_RUN_ALL_OPTS[*]}
+cd ../../
 
 # Check last command return status
 if [ $? -ne 0 ]; then
