@@ -463,7 +463,7 @@ The BPM project is hosted in various repositories:
 @c --------------------------------------------------------------------------
 
 @table @r
-@item AFCIPM
+@item AFCIPM (DEPRECATED in favor of OpenMMC)
     @itemize @bullet
     @item
         @url{https://github.com/lnls-dig/afcipm}
@@ -477,6 +477,28 @@ The BPM project is hosted in various repositories:
         @url{git://github.com/lnls-dig/afcipm}
     @item
         @url{git@@github.com:lnls-dig/afcipm.git}
+    @end itemize
+
+    Git repository for the AFC IPMI.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item openMMC
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/openMMC}
+    @end itemize
+
+    Top project page for the openMMC software. This contains code that goes in
+    the AFC MicroController for performing IPMI tasks and board managing/housekeeping.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/openMMC}
+    @item
+        @url{git@@github.com:lnls-dig/openMMC.git}
     @end itemize
 
     Git repository for the AFC IPMI.
@@ -533,7 +555,7 @@ The BPM project is hosted in various repositories:
 @c --------------------------------------------------------------------------
 
 @table @r
-@item BPM-SW
+@item BPM-SW (DEPRECATED in favor of HALCS)
     @itemize @bullet
     @item
         @url{https://github.com/lnls-dig/bpm-sw}
@@ -553,6 +575,31 @@ The BPM project is hosted in various repositories:
     @end itemize
 
     Git repository for the BPM Sofware.
+@end table
+
+@c --------------------------------------------------------------------------
+
+@table @r
+@item HALCS
+    @itemize @bullet
+    @item
+        @url{https://github.com/lnls-dig/halcs}
+    @end itemize
+
+    Top project page for the HALCS Sofware. This contains code that goes inside
+    the MicroTCA.4 Crate CPU and performs monitoring tasks, data readout, data
+    acquisition and general control for generic boards, but particularly for 
+    AFC boards. This software can handle an arbitrary number of AFC FPGA boards 
+    connected in the same MicroTCA.4 Crate.
+
+    @itemize @bullet
+    @item
+        @url{git://github.com/lnls-dig/halcs}
+    @item
+        @url{git@@github.com:lnls-dig/halcs.git}
+    @end itemize
+
+    Git repository for the HALCS Sofware.
 @end table
 
 @c --------------------------------------------------------------------------
@@ -819,6 +866,44 @@ there are known to work with each other.
 @item LIBS SW          @tab     MALAMUTE          @tab    MALAMUTE Library  @tab   @math{1.2}
 @end multitable
 @caption{Compatibility table for BPM system v0.3}
+@end float
+
+@float Table,tab:bpm_system_compat_v_0_4
+@multitable @columnfractions .15 .30 .30 .15
+@headitem Subsystem    @tab     Item/Repository   @tab     Description      @tab    Version
+@item INFRA            @tab     MicroTCA.4 Crate  @tab    Schroff ????      @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 MCH    @tab    NAT ????          @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 CPU    @tab    NAT ????          @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 PS     @tab    Schroff ????      @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 FAN    @tab    Schroff ????      @tab   @math{N/A}
+@item INFRA            @tab     MicroTCA.4 Alarm  @tab    Schroff ????      @tab   @math{N/A}
+@item INFRA SW         @tab     MicroTCA.4 Crate Shelf @tab    NAT ????     @tab   @math{x.y.z(TBD)}
+@item INFRA SW         @tab     MicroTCA.4 Crate Carrier @tab    NAT ????   @tab   @math{x.y.z(TBD)}
+@item INFRA SW         @tab     MicroTCA.4 MCH    @tab    NAT ????          @tab   @math{x.y.z(TBD)}
+@item INFRA SW         @tab     MicroTCA.4 CPU    @tab    NAT ????          @tab   @math{x.y.z(TBD)}
+@item INFRA SW         @tab     MicroTCA.4 PS     @tab    NAT ????          @tab   @math{x.y.z(TBD)}
+@item INFRA SW         @tab     MicroTCA.4 FAN    @tab    NAT ????          @tab   @math{x.y.z(TBD)}
+@item INFRA SW         @tab     MicroTCA.4 Alarm  @tab    NAT ????          @tab   @math{N/A}
+@item HW               @tab     RFFE              @tab    RF Front-End      @tab   @math{2.0}
+@item HW               @tab     RFFE Controller   @tab    RF Front-End Controller  @tab   @math{5.1}
+@item HW               @tab     FMC-ADC 130M      @tab    FMC ADC mezzanine @tab   @math{2.0/3.0}
+@item HW               @tab     FMC-ADC 250M      @tab    FMC ADC mezzanine @tab   @math{1.0/2.0/2.1}
+@item HW               @tab     AFC               @tab    AMC FPGA Board    @tab   @math{3.0/3.1}
+@item GW               @tab     BPM-GW            @tab    BPM Gateware      @tab   @math{0.4}
+@item GW               @tab     DSP-CORES         @tab    DSP Cores Gateware @tab   @math{0.5}
+@item SW               @tab     RFFE-FW           @tab    RFFE Firmware     @tab   @math{x.y.z(TBD)}
+@item SW               @tab     BPM-SW            @tab    BPM Software      @tab   @math{deprecated}
+@item SW               @tab     BPM-SW            @tab    HALCS             @tab   @math{0.5}
+@item SW               @tab     BPM-SW-CLI        @tab    BPM CLI Software  @tab   @math{0.2}
+@item SW               @tab     BPM-EPICS-IOC     @tab    BPM Epics IOC     @tab   @math{0.2}
+@item SW               @tab     AFCIPM            @tab    AFC IPMI Software @tab   @math{deprecated}
+@item SW               @tab     openMMC           @tab    MMC Software      @tab   @math{v1.0}
+@item LIBS SW          @tab     LIBSODIUM         @tab    LIBSODIUM Library @tab   @math{1.0.8}
+@item LIBS SW          @tab     LIBZMQ            @tab    LIBZMQ Library    @tab   @math{4.2.1}
+@item LIBS SW          @tab     CZMQ              @tab    CZMQ Library      @tab   @math{4.0.2}
+@item LIBS SW          @tab     MALAMUTE          @tab    MALAMUTE Library  @tab   @math{1.3}
+@end multitable
+@caption{Compatibility table for BPM system v0.4}
 @end float
 
 @c --------------------------------------------------------------------------
