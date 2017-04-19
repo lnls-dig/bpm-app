@@ -94,20 +94,20 @@ while getopts ":r:b:a:e:x:s:c:l:iou" opt; do
         s)
             SYSTEM_DEPS_CFG=$OPTARG
             ;;
+        c)
+            BPM_CFG=$OPTARG
+            ;;
+        l)
+            HALCS_WITH_SYSTEM_INTEGRATION=$OPTARG
+            ;;
         i)
             INSTALL_APP="yes"
             ;;
         o)
             DOWNLOAD_APP="yes"
             ;;
-        c)
-            BPM_CFG="yes"
-            ;;
         u)
             CLEANUP_APP="yes"
-            ;;
-        l)
-            HALCS_WITH_SYSTEM_INTEGRATION=$OPTARG
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
