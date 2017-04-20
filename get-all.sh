@@ -327,9 +327,8 @@ if [ "$BPM_CFG" == "yes" ]; then
            exit 1
        fi
 
-       # Also install client application on server
-
-       ./get-bpm-client.sh
+       # Don't install client application on server, as we don't need it
+       #./get-bpm-client.sh
 
        # Check last command return status
        if [ $? -ne 0 ]; then
