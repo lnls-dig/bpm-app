@@ -29,24 +29,6 @@ This will download/compile/install all the dependencies needed, as well as the
 BPM-SW application, which takes care of initializing and controlling the AFCv3
 boards inside the microTCA.4 crate.
 
-If you are installing EPICS tools (-e yes option), be sure to check the
-file epics.sh and select the correct value for the EPICS_HOST_ARCH variable.
-By default, the value is
-
-```
-export EPICS_HOST_ARCH=linux-x86_64
-```
-
-for Linux x86 64-bits. If you ahve, for instance, a Linux x86 32-bits,
-change the line above to
-
-```
-export EPICS_HOST_ARCH=linux-x86
-```
-
-For other architectures, see the official EPICS 3.14.12 documentation:
-http://www.aps.anl.gov/epics/base/R3-14/12-docs/README.html
-
 #### Configuration files
 
 By default, the LNLS configuration file is installed in the system BPM-SW

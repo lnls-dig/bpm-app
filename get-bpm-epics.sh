@@ -8,6 +8,10 @@ set -u
 # Source environment variables
 . ./env-vars.sh
 
+# Source epics-dev environment variables.
+# This may overwrite some variables
+. ./foreign/epics-dev/env-vars.sh
+
 # Source repo versions
 . ./repo-versions.sh
 
