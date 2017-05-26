@@ -62,6 +62,7 @@ done
 # Configure and Install
 for project in malamute; do
     cd $project && \
+    git am --ignore-whitespace patches/malamute/${MALAMUTE_VERSION}/* && \
     ./autogen.sh && \
     ./configure --with-systemd-units --sysconfdir=/usr/etc --prefix=/usr &&
     make check && \
@@ -82,6 +83,7 @@ for project in malamute; do
         -e "s|mechanism\( *\)=.*|mechanism\1= ${MALAMUTE_AUTH_MECHANISM}|g" \
         -e "s|tcp://\*:9999|${MALAMUTE_ENDPOINT}|g" \
         ${MALAMUTE_CFG_FILE}
+
 
     # Enable service
     sudo systemctl enable malamute
