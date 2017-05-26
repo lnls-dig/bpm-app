@@ -1,0 +1,34 @@
+From b48d7691c33a58668c14f251e32e67986a55bac8 Mon Sep 17 00:00:00 2001
+From: Lucas Russo <lerwys@gmail.com>
+Date: Fri, 26 May 2017 13:55:37 -0300
+Subject: [PATCH] malamute.c: disable logsystem as it can fill it with dummy
+ messages
+
+Often enough, services are expired and
+de-registered. In this case, for each event
+malamute prints this information and sends
+it to syslog, overflowing it with dummy
+messages.
+
+This is generally not suitable for long running
+services that frequently expires.
+---
+ src/malamute.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/malamute.c b/src/malamute.c
+index d112aec..882afee 100644
+--- a/src/malamute.c
++++ b/src/malamute.c
+@@ -56,7 +56,7 @@ int main (int argc, char *argv [])
+     }
+     //  Send logging to system facility as well as stdout
+     zsys_init ();
+-    zsys_set_logsystem (true);
++    zsys_set_logsystem (false);
+     zsys_set_pipehwm (0);
+     zsys_set_sndhwm (0);
+     zsys_set_rcvhwm (0);
+-- 
+1.9.1
+
