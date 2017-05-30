@@ -59,10 +59,12 @@ for project in libsodium libzmq czmq; do
     fi
 done
 
+TOP_DIR=$(pwd)
+
 # Configure and Install
 for project in malamute; do
     cd $project && \
-    git am --ignore-whitespace patches/malamute/${MALAMUTE_VERSION}/* && \
+    git am --ignore-whitespace ${TOP_DIR}/patches/malamute/${MALAMUTE_VERSION}/* && \
     ./autogen.sh && \
     ./configure --with-systemd-units --sysconfdir=/usr/etc --prefix=/usr &&
     make check && \
