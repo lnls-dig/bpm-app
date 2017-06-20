@@ -1,2 +1,0 @@
-export EPICS_HOSTNAME="SIDI-BPM-01"
-export BPM_EPICS_STARTUP=${EPICS_FOLDER}/startup/ioc/bpm-epics-ioc/iocBoot/iocBPM
