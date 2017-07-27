@@ -30,6 +30,11 @@ if [ "${DOWNLOAD_APP}" == "yes" ]; then
         echo "CZMQ version ${CZMQ_VERSION} will be patched"
         cd czmq
         git am ../patches/czmq/*
+    # Patch malamute repository to avoid filling logsystem with dummy messages
+    if [ "${MALAMUTE_VERSION}" \> "v1.0" ] || [ "${MALAMUTE_VERSION}" == "v1.0" ]; then
+        echo "MALAMUTE version ${MALAMUTE_VERSION} will be patched"
+        cd malamute
+        git am --ignore-whitespace ../patches/malamute/*
         cd ../
     fi
 fi
@@ -64,7 +69,6 @@ TOP_DIR=$(pwd)
 # Configure and Install
 for project in malamute; do
     cd $project && \
-    git am --ignore-whitespace ${TOP_DIR}/patches/malamute/${MALAMUTE_VERSION}/* && \
     ./autogen.sh && \
     ./configure --with-systemd-units --sysconfdir=/usr/etc --prefix=/usr &&
     make check && \
