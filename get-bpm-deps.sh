@@ -29,7 +29,10 @@ if [ "${DOWNLOAD_APP}" == "yes" ]; then
     if [ "${CZMQ_VERSION}" \< "v3.0.2" ] || [ "${CZMQ_VERSION}" == "v3.0.2" ]; then
         echo "CZMQ version ${CZMQ_VERSION} will be patched"
         cd czmq
-        git am ../patches/czmq/*
+        git am --ignore-whitespace ../patches/czmq/*
+        cd ../
+    fi
+
     # Patch malamute repository to avoid filling logsystem with dummy messages
     if [ "${MALAMUTE_VERSION}" \> "v1.0" ] || [ "${MALAMUTE_VERSION}" == "v1.0" ]; then
         echo "MALAMUTE version ${MALAMUTE_VERSION} will be patched"
