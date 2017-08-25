@@ -906,7 +906,7 @@ there are known to work with each other.
 @caption{Compatibility table for BPM system v0.4}
 @end float
 
-@float Table,tab:bpm_system_compat_v_1_0_rc1
+@float Table,tab:bpm_system_compat_v_1_0_rcX
 @multitable @columnfractions .15 .30 .30 .15
 @headitem Subsystem    @tab     Item/Repository   @tab     Description      @tab    Version
 @item INFRA            @tab     MicroTCA.4 Crate  @tab    Schroff ????      @tab   @math{N/A}
@@ -927,13 +927,13 @@ there are known to work with each other.
 @item HW               @tab     FMC-ADC 130M      @tab    FMC ADC mezzanine @tab   @math{2.0/3.0}
 @item HW               @tab     FMC-ADC 250M      @tab    FMC ADC mezzanine @tab   @math{1.0/2.0/2.1}
 @item HW               @tab     AFC               @tab    AMC FPGA Board    @tab   @math{3.0/3.1}
-@item GW               @tab     BPM-GW            @tab    BPM Gateware      @tab   @math{v1.0-rc1}
-@item GW               @tab     DSP-CORES         @tab    DSP Cores Gateware @tab   @math{v1.0-rc1}
+@item GW               @tab     BPM-GW            @tab    BPM Gateware      @tab   @math{v1.0-rcX}
+@item GW               @tab     DSP-CORES         @tab    DSP Cores Gateware @tab   @math{v1.0-rcX}
 @item SW               @tab     RFFE-FW           @tab    RFFE Firmware     @tab   @math{05262a2bfe}
 @item SW               @tab     BPM-SW            @tab    BPM Software      @tab   @math{deprecated}
-@item SW               @tab     HALCS             @tab    HALCS             @tab   @math{v1.0-rc1}
+@item SW               @tab     HALCS             @tab    HALCS             @tab   @math{v1.0-rcX}
 @item SW               @tab     BPM-SW-CLI        @tab    BPM CLI Software  @tab   @math{deprecated}
-@item SW               @tab     BPM-EPICS-IOC     @tab    BPM Epics IOC     @tab   @math{v1.0-rc1}
+@item SW               @tab     BPM-EPICS-IOC     @tab    BPM Epics IOC     @tab   @math{v1.0-rcX}
 @item SW               @tab     AFCIPM            @tab    AFC IPMI Software @tab   @math{deprecated}
 @item SW               @tab     openMMC           @tab    MMC Software      @tab   @math{v1.0}
 @item LIBS SW          @tab     LIBSODIUM         @tab    LIBSODIUM Library @tab   @math{1.0.8}
@@ -941,7 +941,7 @@ there are known to work with each other.
 @item LIBS SW          @tab     CZMQ              @tab    CZMQ Library      @tab   @math{4.0.2}
 @item LIBS SW          @tab     MALAMUTE          @tab    MALAMUTE Library  @tab   @math{1.4}
 @end multitable
-@caption{Compatibility table for BPM system v1.0-rc1}
+@caption{Compatibility table for BPM system v1.0-rcX}
 @end float
 
 @c --------------------------------------------------------------------------
