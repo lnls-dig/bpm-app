@@ -234,6 +234,13 @@ export ERRHAND_DBG
 export ERRHAND_MIN_LEVEL
 export ERRHAND_SUBSYS_ON
 
+# Ask sudo password only once and
+# keep updating sudo timestamp to
+# avoid asking again
+sudo -v
+while true; do sudo -n true; sleep 60; kill -0 "$$" || \
+    exit; done 2>/dev/null &
+
 ############################# MANIFEST  Installation ##########################
 
 # Write MANIFEST file header
