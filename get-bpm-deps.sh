@@ -52,7 +52,7 @@ fi
 for project in libsodium libzmq czmq; do
     cd $project && \
     ./autogen.sh && \
-    ./configure &&
+    ./configure PKG_CONFIG_LIBDIR=/usr/local/lib/pkgconfig LDFLAGS="-L/usr/local/lib -Wl,-rpath -Wl,/usr/local/lib" && \
     make check && \
     make && \
     sudo make install && \
@@ -73,7 +73,7 @@ TOP_DIR=$(pwd)
 for project in malamute; do
     cd $project && \
     ./autogen.sh && \
-    ./configure --with-systemd-units --sysconfdir=/usr/etc --prefix=/usr &&
+    ./configure --with-systemd-units --sysconfdir=/usr/etc --prefix=/usr PKG_CONFIG_LIBDIR=/usr/local/lib/pkgconfig LDFLAGS="-L/usr/local/lib -Wl,-rpath -Wl,/usr/local/lib" && \
     make check && \
     make && \
     sudo make install && \
