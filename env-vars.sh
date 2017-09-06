@@ -26,3 +26,8 @@ MANIFEST=MANIFEST
 BPM_FIRST_ID=1
 BPM_LAST_ID=24
 
+# HALCS Build system
+# We use this as to not rely on gradle build system,
+# which requires internet connection in the first time
+# it builds.
+HALCS_BUILD_SYSTEM=makefile
