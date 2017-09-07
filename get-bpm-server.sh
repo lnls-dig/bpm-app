@@ -100,8 +100,7 @@ for project in halcs; do
 
     sudo ./${COMPILE_COMMAND} -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
         -l ${HALCS_WITH_SYSTEM_INTEGRATION} -d ${HALCS_WITH_DRIVER} -f ${HALCS_WITH_HALCS_COMMAND} \
-        -x "${HALCS_EXTRA_FLAGS[*]}" && \
-        cd ..
+        -x "${HALCS_EXTRA_FLAGS[*]}"
 
     # Check last command return status
     if [ $? -ne 0 ]; then
@@ -123,4 +122,6 @@ for project in halcs; do
         systemctl enable halcs-be@${i} || /bin/true
         systemctl enable halcs-fe@${i} || /bin/true
     done
+
+    cd ..
 done
