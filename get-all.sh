@@ -6,7 +6,6 @@ set -e
 set -u
 
 # Our options
-HALCS_BOARD="afcv3"
 HALCS_APPS="halcsd"
 HALCS_WITH_EXAMPLES="yes"
 HALCS_WITH_DRIVER="yes"
@@ -224,7 +223,6 @@ export INSTALL_APP
 export DOWNLOAD_APP
 export CLEANUP_APP
 export BOARD
-export HALCS_BOARD
 export HALCS_APPS
 export HALCS_WITH_SYSTEM_INTEGRATION
 export HALCS_WITH_EXAMPLES
