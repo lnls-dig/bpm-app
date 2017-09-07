@@ -116,10 +116,11 @@ for project in halcs; do
         sudo rpm -i ../halcs-rpm/${BOARD}-*.rpm
         sudo rpm -i ../halcs-rpm/${BOARD}Development-*.rpm
     fi
-   # Enable all possible instances
-   for i in `seq ${BPM_FIRST_ID} ${BPM_LAST_ID}`; do
-       # Avoid errors if we didn't install with systemd
-       systemctl enable halcs-be@${i} || /bin/true
-       systemctl enable halcs-fe@${i} || /bin/true
-   done
+
+    # Enable all possible instances
+    for i in `seq ${BPM_FIRST_ID} ${BPM_LAST_ID}`; do
+        # Avoid errors if we didn't install with systemd
+        systemctl enable halcs-be@${i} || /bin/true
+        systemctl enable halcs-fe@${i} || /bin/true
+    done
 done
