@@ -16,6 +16,16 @@ if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # HALCS Software
     [[ -d halcs ]] || ./get-repo-and-description.sh -b ${HALCS_VERSION} -r \
         https://github.com/lnls-dig/halcs.git -d halcs -m ${MANIFEST}
+
+    # Fetch RPM packages if specified to do so
+    if [ "$HALCS_INSTALL_MODE" = "rpm" ]; then
+        mkdir -p halcs-rpm && cd halcs-rpm
+        wget ${HALCS_GITHUB_RELEASES_PAGE}/${HALCS_VERSION}/${BOARD}.tar.gz
+        wget ${HALCS_GITHUB_RELEASES_PAGE}/${HALCS_VERSION}/${BOARD}Development.tar.gz
+        tar xvf ${BOARD}.tar.gz
+        tar xvf ${BOARD}Development.tar.gz
+        cd ..
+    fi
 fi
 
 if [ "${INSTALL_APP}" == "no" ]; then
@@ -77,9 +87,20 @@ for project in halcs; do
     fi
     set -u
 
+    set +u
+    HALCS_WITH_HALCS_COMMAND=""
+    if [ -z "$HALCS_INSTALL_MODE" ] || [ "$HALCS_INSTALL_MODE" = "source" ]; then
+        HALCS_WITH_HALCS_COMMAND="yes"
+    elif [ "$HALCS_INSTALL_MODE" = "rpm" ]; then
+        HALCS_WITH_HALCS_COMMAND="no"
+    else
+        HALCS_WITH_HALCS_COMMAND="yes"
+    fi
+    set -u
+
     sudo ./${COMPILE_COMMAND} -b ${BOARD} -a ${HALCS_APPS} -e ${HALCS_WITH_EXAMPLES} \
-        -l ${HALCS_WITH_SYSTEM_INTEGRATION} -d ${HALCS_WITH_DRIVER} -x \
-        "${HALCS_EXTRA_FLAGS[*]}" && \
+        -l ${HALCS_WITH_SYSTEM_INTEGRATION} -d ${HALCS_WITH_DRIVER} -f ${HALCS_WITH_HALCS_COMMAND} \
+        -x "${HALCS_EXTRA_FLAGS[*]}" && \
         cd ..
 
     # Check last command return status
@@ -89,6 +110,12 @@ for project in halcs; do
         exit 1
     fi
 
+    # If not installed from source, fetch from github releases
+    if [ "$HALCS_INSTALL_MODE" = "rpm" ]; then
+        # RPMs live in ../halcs-rpm
+        sudo rpm -i ../halcs-rpm/${BOARD}-*.rpm
+        sudo rpm -i ../halcs-rpm/${BOARD}Development-*.rpm
+    fi
    # Enable all possible instances
    for i in `seq ${BPM_FIRST_ID} ${BPM_LAST_ID}`; do
        # Avoid errors if we didn't install with systemd
