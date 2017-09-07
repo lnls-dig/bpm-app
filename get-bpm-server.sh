@@ -112,8 +112,8 @@ for project in halcs; do
     # If not installed from source, fetch from github releases
     if [ "$HALCS_INSTALL_MODE" = "rpm" ]; then
         # RPMs live in ../halcs-rpm
-        sudo rpm -i ../halcs-rpm/${BOARD}-*.rpm
-        sudo rpm -i ../halcs-rpm/${BOARD}Development-*.rpm
+        sudo rpm -Uvh --replacepkgs ../halcs-rpm/${BOARD}-*.rpm
+        sudo rpm -Uvh --replacepkgs ../halcs-rpm/${BOARD}Development-*.rpm
     fi
 
     # Enable all possible instances
