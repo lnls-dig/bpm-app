@@ -24,6 +24,7 @@ VALID_EPICS_V4_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_BPM_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_HALCS_WITH_SYSTEM_INTEGRATION_STR="Valid values are: \"yes\" and \"no\"."
+VALID_HALCS_INSTALL_MODE_STR="Valid values are: \"source\" and \"rpm\"."
 
 # Source environment variables
 . ./env-vars.sh
@@ -41,6 +42,7 @@ function usage {
     echo "    -s <install system dependencies = [yes|no]>"
     echo "    -c <install BPM related packages = [yes|no]>"
     echo "    -l <install HALCS system integration scripts = [yes|no]>"
+    echo "    -f <install HALCS mode = [source|rpm]>"
     echo "    -i <install the packages>"
     echo "    -o <download the packages>"
     echo "    -u <cleanup packages>"
@@ -71,9 +73,12 @@ BPM_CFG="yes"
 # Select if we want HALCS system integration script or not. Options are: yes or no.
 # Default is yes to keep old behavior
 HALCS_WITH_SYSTEM_INTEGRATION="no"
+# Select if we want to install HALCS from source or RPMs. Options are: rpm or source
+# Regardless of the options. The driver is always installed from source
+HALCS_INSTALL_MODE="source"
 
 # Get command line options
-while getopts ":r:b:a:e:x:s:c:l:iou" opt; do
+while getopts ":r:b:a:e:x:s:c:l:f:iou" opt; do
     case $opt in
         r)
             ROLE=$OPTARG
@@ -98,6 +103,9 @@ while getopts ":r:b:a:e:x:s:c:l:iou" opt; do
             ;;
         l)
             HALCS_WITH_SYSTEM_INTEGRATION=$OPTARG
+            ;;
+        f)
+            HALCS_INSTALL_MODE=$OPTARG
             ;;
         i)
             INSTALL_APP="yes"
@@ -215,6 +223,12 @@ if [ "$HALCS_WITH_SYSTEM_INTEGRATION" != "yes" ] && [ "$HALCS_WITH_SYSTEM_INTEGR
     exit 1
 fi
 
+if [ "$HALCS_INSTALL_MODE" != "source" ] && [ "$HALCS_INSTALL_MODE" != "rpm" ]; then
+    echo "Option \"-f\" has unsupported option. "$VALID_HALCS_INSTALL_MODE_STR
+    usage
+    exit 1
+fi
+
 # Check for uninitialized variables
 set -u
 
@@ -228,6 +242,7 @@ export HALCS_WITH_SYSTEM_INTEGRATION
 export HALCS_WITH_EXAMPLES
 export HALCS_WITH_DRIVER
 export HALCS_CLI_PREFIX
+export HALCS_INSTALL_MODE
 export ERRHAND_DBG
 export ERRHAND_MIN_LEVEL
 export ERRHAND_SUBSYS_ON

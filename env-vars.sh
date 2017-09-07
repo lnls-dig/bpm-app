@@ -31,9 +31,5 @@ BPM_LAST_ID=24
 # which requires internet connection in the first time
 # it builds. Options are: gradle, makefile
 HALCS_BUILD_SYSTEM=gradle
-# Set this to install HALCS via RPMS from github
-# or from source. Options are: rpms, source
-# Regardless of the options. The driver is always
-# installed from source
-HALCS_INSTALL_MODE=rpm
+# Github releases page
 HALCS_GITHUB_RELEASES_PAGE="https://github.com/lnls-dig/halcs/releases/download"
