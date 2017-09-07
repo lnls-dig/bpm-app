@@ -114,6 +114,7 @@ for project in halcs; do
         # RPMs live in ../halcs-rpm
         sudo rpm -Uvh --replacepkgs ../halcs-rpm/${BOARD}-*.rpm
         sudo rpm -Uvh --replacepkgs ../halcs-rpm/${BOARD}Development-*.rpm
+        sudo ldconfig
     fi
 
     # Enable all possible instances
