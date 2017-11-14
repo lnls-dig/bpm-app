@@ -20,8 +20,8 @@ if [ "${DOWNLOAD_APP}" == "yes" ]; then
     # Fetch RPM packages if specified to do so
     if [ "$HALCS_INSTALL_MODE" = "rpm" ]; then
         mkdir -p halcs-rpm && cd halcs-rpm
-        wget ${HALCS_GITHUB_RELEASES_PAGE}/${HALCS_VERSION}/${BOARD}.tar.gz
-        wget ${HALCS_GITHUB_RELEASES_PAGE}/${HALCS_VERSION}/${BOARD}Development.tar.gz
+        wget ${HALCS_GITHUB_RELEASES_PAGE}/${HALCS_VERSION}/${BOARD}.tar.gz -O ${BOARD}.tar.gz
+        wget ${HALCS_GITHUB_RELEASES_PAGE}/${HALCS_VERSION}/${BOARD}Development.tar.gz -O ${BOARD}Development.tar.gz
         tar xvf ${BOARD}.tar.gz
         tar xvf ${BOARD}Development.tar.gz
         cd ..
