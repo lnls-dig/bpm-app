@@ -25,6 +25,7 @@ VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_BPM_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_HALCS_WITH_SYSTEM_INTEGRATION_STR="Valid values are: \"yes\" and \"no\"."
 VALID_HALCS_INSTALL_MODE_STR="Valid values are: \"source\" and \"rpm\"."
+VALID_HALCS_GENERIC_UDEV_STR="Valid values are: \"yes\" and \"no\"."
 
 # Source environment variables
 . ./env-vars.sh
@@ -43,6 +44,7 @@ function usage {
     echo "    -c <install BPM related packages = [yes|no]>"
     echo "    -l <install HALCS system integration scripts = [yes|no]>"
     echo "    -f <install HALCS mode = [source|rpm]>"
+    echo "    -p <install HALCS generic UDEV = [yes|no]>"
     echo "    -i <install the packages>"
     echo "    -o <download the packages>"
     echo "    -u <cleanup packages>"
@@ -76,9 +78,11 @@ HALCS_WITH_SYSTEM_INTEGRATION="no"
 # Select if we want to install HALCS from source or RPMs. Options are: rpm or source
 # Regardless of the options. The driver is always installed from source
 HALCS_INSTALL_MODE="source"
+# Select if we want to install HALCS generic UDEV or not. Options are: yes or no
+HALCS_GENERIC_UDEV="yes"
 
 # Get command line options
-while getopts ":r:b:a:e:x:s:c:l:f:iou" opt; do
+while getopts ":r:b:a:e:x:s:c:l:f:p:iou" opt; do
     case $opt in
         r)
             ROLE=$OPTARG
@@ -106,6 +110,9 @@ while getopts ":r:b:a:e:x:s:c:l:f:iou" opt; do
             ;;
         f)
             HALCS_INSTALL_MODE=$OPTARG
+            ;;
+        f)
+            HALCS_GENERIC_UDEV=$OPTARG
             ;;
         i)
             INSTALL_APP="yes"
@@ -229,6 +236,12 @@ if [ "$HALCS_INSTALL_MODE" != "source" ] && [ "$HALCS_INSTALL_MODE" != "rpm" ]; 
     exit 1
 fi
 
+if [ "$HALCS_GENERIC_UDEV" != "yes" ] && [ "$HALCS_GENERIC_UDEV" != "no" ]; then
+    echo "Option \"-p\" has unsupported option. "$VALID_HALCS_GENERIC_UDEV_STR
+    usage
+    exit 1
+fi
+
 # Check for uninitialized variables
 set -u
 
@@ -243,6 +256,7 @@ export HALCS_WITH_EXAMPLES
 export HALCS_WITH_DRIVER
 export HALCS_CLI_PREFIX
 export HALCS_INSTALL_MODE
+export HALCS_GENERIC_UDEV
 export ERRHAND_DBG
 export ERRHAND_MIN_LEVEL
 export ERRHAND_SUBSYS_ON
@@ -355,6 +369,17 @@ if [ "$BPM_CFG" == "yes" ]; then
            echo "Could not compile/install BPM client." >&2
            exit 1
        fi
+    fi
+fi
+
+# HALCS generic UDEV
+if [ "$HALCS_GENERIC_UDEV" == "yes" ]; then
+    ./get-halcs-generic-udev.sh
+
+    # Check last command return status
+    if [ $? -ne 0 ]; then
+        echo "Could not compile/install HALCS generic UDEV." >&2
+        exit 1
     fi
 fi
 
