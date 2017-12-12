@@ -290,9 +290,12 @@ if [ "$EPICS_CFG" == "yes" ]; then
     EPICS_DEV_RUN_ALL_OPTS+=("-e yes")
     # Install synapps, as well
     EPICS_DEV_RUN_ALL_OPTS+=("-n yes")
+    # Install new streamDevice
+    EPICS_DEV_RUN_ALL_OPTS+=("-t yes")
 else
     EPICS_DEV_RUN_ALL_OPTS+=("-e no")
     EPICS_DEV_RUN_ALL_OPTS+=("-n no")
+    EPICS_DEV_RUN_ALL_OPTS+=("-t no")
 fi
 
 # Check if we want to install epics V4
