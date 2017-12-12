@@ -95,7 +95,7 @@ for project in malamute; do
 
 
     # Enable service
-    sudo systemctl enable malamute
+    sudo systemctl enable malamute || /bin/true
 
     # Check last command return status
     if [ $? -ne 0 ]; then
