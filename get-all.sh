@@ -288,8 +288,11 @@ fi
 # Check if we want to install epics
 if [ "$EPICS_CFG" == "yes" ]; then
     EPICS_DEV_RUN_ALL_OPTS+=("-e yes")
+    # Install synapps, as well
+    EPICS_DEV_RUN_ALL_OPTS+=("-n yes")
 else
     EPICS_DEV_RUN_ALL_OPTS+=("-e no")
+    EPICS_DEV_RUN_ALL_OPTS+=("-n no")
 fi
 
 # Check if we want to install epics V4
