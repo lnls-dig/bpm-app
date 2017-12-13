@@ -30,13 +30,13 @@ for project in halcs; do
 
     # Compile an install dynamic libraries needed by client
     # applications
-    for lib in deps liberrhand libconvc libhutils libdisptable libllio libhalcsclient examples; do
+    for target in deps libs examples; do
         COMMAND="make \
             ERRHAND_DBG=${ERRHAND_DBG} \
             ERRHAND_MIN_LEVEL=${ERRHAND_MIN_LEVEL} \
             ERRHAND_SUBSYS_ON='"${ERRHAND_SUBSYS_ON}"' \
-            BOARD=${BOARD} $lib && \
-            sudo make ${lib}_install && \
+            BOARD=${BOARD} ${target} && \
+            sudo make ${target}_install && \
             sudo ldconfig"
         eval $COMMAND
 
