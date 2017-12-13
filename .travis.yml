@@ -23,6 +23,9 @@ addons:
     - uuid-dev
 
 before_install:
+# install headers for FPGA kernel driver
+- sudo apt-get -qq update
+- sudo apt-get install -y linux-headers-$(uname -r)
 - $CC --version
 - which $CC
 # workaround clang not system wide, fail on sudo make install
