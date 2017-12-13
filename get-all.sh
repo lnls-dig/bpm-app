@@ -111,7 +111,7 @@ while getopts ":r:b:a:e:x:s:c:l:f:p:iou" opt; do
         f)
             HALCS_INSTALL_MODE=$OPTARG
             ;;
-        f)
+        p)
             HALCS_GENERIC_UDEV=$OPTARG
             ;;
         i)
