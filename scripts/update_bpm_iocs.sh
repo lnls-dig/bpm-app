@@ -26,19 +26,19 @@ CRATES+=("IA-20RaBPMTL-CO-IOCSrv")
 for crate in "${CRATES[@]}"; do
 
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
-	    set -x && \
-	    cd /root/postinstall/apps/bpm-app/bpm-epics-ioc && \
-	    git fetch --all && \
+        set -x && \
+        cd /root/postinstall/apps/bpm-app/bpm-epics-ioc && \
+        git fetch --all && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
-	    git checkout master && \
-	    git reset --hard origin/master && \
-	    cp /etc/sysconfig/bpm-epics-ioc /home/lnls-bpm/bpm-epics-ioc.temp && \
-	    systemctl stop halcs-be-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24} && \
-	    make clean uninstall && \
-	    make && \
-	    make install && \
-	    mv /home/lnls-bpm/bpm-epics-ioc.temp /etc/sysconfig/bpm-epics-ioc && \
-	    systemctl daemon-reload && \
-	    systemctl start halcs-be-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}"
+        git checkout master && \
+        git reset --hard origin/master && \
+        cp /etc/sysconfig/bpm-epics-ioc /home/lnls-bpm/bpm-epics-ioc.temp && \
+        systemctl stop halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
+        make clean uninstall && \
+        make && \
+        make install && \
+        mv /home/lnls-bpm/bpm-epics-ioc.temp /etc/sysconfig/bpm-epics-ioc && \
+        systemctl daemon-reload && \
+        systemctl start halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target"
 
 done
