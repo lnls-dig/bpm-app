@@ -34,7 +34,7 @@ for crate in "${CRATES[@]}"; do
 	    git reset --hard origin/master && \
 	    cp /etc/sysconfig/tim-rx-epics-ioc /home/lnls-bpm/tim-rx-epics-ioc.temp && \
 	    systemctl stop tim-rx-ioc@{1,2} && \
-	    make clean uninstall && \
+	    make clean && \
 	    make && \
 	    make install && \
 	    mv /home/lnls-bpm/tim-rx-epics-ioc.temp /etc/sysconfig/tim-rx-epics-ioc && \
