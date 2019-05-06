@@ -33,7 +33,7 @@ for crate in "${CRATES[@]}"; do
         git checkout master && \
         git reset --hard origin/master && \
         cp /usr/local/etc/halcs/halcs.cfg /home/lnls-bpm/halcs.cfg.temp && \
-        systemctl stop halcs@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
+        systemctl stop halcs@{1,2,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         cd /root/postinstall/apps/bpm-app/halcs && \
         ./gradle_uninstall.sh && \
         ./gradle_compile.sh -a halcsd -b afcv3_1 -e yes && \
@@ -41,6 +41,7 @@ for crate in "${CRATES[@]}"; do
         systemctl daemon-reload && \
         cd /root/postinstall/apps/bpm-app/halcs-generic-udev && \
         make install &&  \
-        systemctl start halcs@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target"
+        systemctl start halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
+        systemctl start tim-rx-ioc@{1,2}" &
 
 done
