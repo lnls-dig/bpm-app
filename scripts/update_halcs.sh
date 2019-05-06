@@ -38,7 +38,7 @@ for crate in "${CRATES[@]}"; do
         ./gradle_uninstall.sh && \
         ./gradle_compile.sh -a halcsd -b afcv3_1 -e yes && \
         mv /home/lnls-bpm/halcs.cfg.temp /usr/local/etc/halcs/halcs.cfg && \
-	    systemctl daemon-reload && \
+        systemctl daemon-reload && \
         cd /root/postinstall/apps/bpm-app/halcs-generic-udev && \
         make install &&  \
         systemctl start halcs@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target"
