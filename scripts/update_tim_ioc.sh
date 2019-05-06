@@ -39,6 +39,6 @@ for crate in "${CRATES[@]}"; do
         make install && \
         mv /home/lnls-bpm/tim-rx-epics-ioc.temp /etc/sysconfig/tim-rx-epics-ioc && \
         systemctl daemon-reload && \
-        systemctl start tim-rx-ioc@{1,2}"
+        systemctl start tim-rx-ioc@{1,2}" &
 
 done
