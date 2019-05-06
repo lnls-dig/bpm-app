@@ -26,19 +26,19 @@ CRATES+=("IA-20RaBPMTL-CO-IOCSrv")
 for crate in "${CRATES[@]}"; do
 
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
-	    set -x && \
-	    cd /root/postinstall/apps/tim-rx-app/tim-rx-epics-ioc && \
-	    git fetch --all && \
+        set -x && \
+        cd /root/postinstall/apps/tim-rx-app/tim-rx-epics-ioc && \
+        git fetch --all && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
-	    git checkout master && \
-	    git reset --hard origin/master && \
-	    cp /etc/sysconfig/tim-rx-epics-ioc /home/lnls-bpm/tim-rx-epics-ioc.temp && \
-	    systemctl stop tim-rx-ioc@{1,2} && \
-	    make clean && \
-	    make && \
-	    make install && \
-	    mv /home/lnls-bpm/tim-rx-epics-ioc.temp /etc/sysconfig/tim-rx-epics-ioc && \
-	    systemctl daemon-reload && \
-	    systemctl start tim-rx-ioc@{1,2}"
+        git checkout master && \
+        git reset --hard origin/master && \
+        cp /etc/sysconfig/tim-rx-epics-ioc /home/lnls-bpm/tim-rx-epics-ioc.temp && \
+        systemctl stop tim-rx-ioc@{1,2} && \
+        make clean && \
+        make && \
+        make install && \
+        mv /home/lnls-bpm/tim-rx-epics-ioc.temp /etc/sysconfig/tim-rx-epics-ioc && \
+        systemctl daemon-reload && \
+        systemctl start tim-rx-ioc@{1,2}"
 
 done
