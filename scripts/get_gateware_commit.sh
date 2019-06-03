@@ -42,7 +42,7 @@ for crate in "${CRATES[@]}"; do
         for log in "${LOGS[@]}"; do
             if [ -f /var/log/halcs/\${log} ]; then 
                 COMMIT=\$(cat /var/log/halcs/\${log} | grep \"commit-id:\" | head -n 1)
-		[ ! -z \"\${COMMIT}\" ] && (echo -n \"\${log}: \" && echo \${COMMIT});
+		[ ! -z \"\${COMMIT}\" ] && (echo -n \"${crate} \${log}: \" && echo \${COMMIT});
 	    fi
         done"
 done
