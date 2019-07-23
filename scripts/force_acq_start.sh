@@ -6,7 +6,7 @@ while :
 do
     for bpm in "${BPMS[@]}"; do
         status=$(caget -t ${bpm})
-        if [ "${status}" == "Idle" ]; then
+        if [ "${status}" == "Idle" ] || [ "${status}" == "Aborted" ] ; then
             bpm_put=$(echo ${bpm} | awk -F':' '{print $1 ":" $2 ":"}')
             caput ${bpm_put}ACQTriggerEvent-Sel start
         fi
