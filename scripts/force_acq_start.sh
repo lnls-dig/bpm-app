@@ -8,6 +8,8 @@ do
         status=$(caget -t ${bpm})
         if [ "${status}" == "Idle" ] || [ "${status}" == "Aborted" ] ; then
             bpm_put=$(echo ${bpm} | awk -F':' '{print $1 ":" $2 ":"}')
+            now=$(date)
+            echo "Restarting acquisition for BPM:" ${bpm_put} "at" ${now}
             caput ${bpm_put}ACQTriggerEvent-Sel start
         fi
     done
