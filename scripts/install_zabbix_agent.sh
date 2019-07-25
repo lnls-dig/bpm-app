@@ -27,7 +27,7 @@ for crate in "${CRATES[@]}"; do
 
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
         set -x && \
-        sudo rpm -Uvh https://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-1.el7.noarch.rpm && \
+        sudo rpm -Uvh https://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-1.el7.noarch.rpm || /bin/true && \
         sudo yum install -y zabbix-agent || /bin/true && \
         sudo systemctl enable zabbix-agent && \
         cat <<'EOF' > /etc/zabbix/zabbix_agentd.conf
