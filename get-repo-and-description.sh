@@ -81,8 +81,11 @@ cd ${DESTINATION}
 NAME=${DESTINATION}
 URL=$(git config --get remote.origin.url)
 COMMIT=$(git describe --dirty --always --abbrev=10)
+# It's ok to accept errros here
+set +e
 AUTHOR=$(git config --get user.name)
 EMAIL=$(git config --get user.email)
+set -e
 
 cd ..
 
