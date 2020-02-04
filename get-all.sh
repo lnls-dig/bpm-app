@@ -86,7 +86,7 @@ HALCS_INSTALL_MODE="source"
 HALCS_GENERIC_UDEV="yes"
 
 # Get command line options
-while getopts ":r:b:a:e:x:s:c:l:f:p:iou" opt; do
+while getopts ":r:b:a:e:x:s:z:c:l:f:p:iou" opt; do
     case $opt in
         r)
             ROLE=$OPTARG
