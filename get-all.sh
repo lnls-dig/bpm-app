@@ -22,6 +22,7 @@ VALID_AUTOTOOLS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_EPICS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_EPICS_V4_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
+VALID_LOCAL_SYSTEM_DEPS_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_BPM_CFG_STR="Valid values are: \"yes\" and \"no\"."
 VALID_HALCS_WITH_SYSTEM_INTEGRATION_STR="Valid values are: \"yes\" and \"no\"."
 VALID_HALCS_INSTALL_MODE_STR="Valid values are: \"source\" and \"rpm\"."
@@ -41,6 +42,7 @@ function usage {
     echo "    -e <install EPICS tools = [yes|no]>"
     echo "    -x <install EPICS V4 tools = [yes|no]>"
     echo "    -s <install system dependencies = [yes|no]>"
+    echo "    -l <install local system dependencies = [yes|no]>"
     echo "    -c <install BPM related packages = [yes|no]>"
     echo "    -l <install HALCS system integration scripts = [yes|no]>"
     echo "    -f <install HALCS mode = [source|rpm]>"
@@ -62,6 +64,8 @@ EPICS_CFG="no"
 EPICS_V4_CFG="no"
 # Select if we want to install system dependencies or not. Options are: yes or no
 SYSTEM_DEPS_CFG="no"
+# Select if we want to install local system dependencies or not. Options are: yes or no
+LOCAL_SYSTEM_DEPS_CFG="no"
 # Select if we want to install the packages or not. Options are: yes or no
 INSTALL_APP="no"
 # Select if we want to download the packages or not. Options are: yes or no
@@ -101,6 +105,9 @@ while getopts ":r:b:a:e:x:s:c:l:f:p:iou" opt; do
             ;;
         s)
             SYSTEM_DEPS_CFG=$OPTARG
+            ;;
+        z)
+            LOCAL_SYSTEM_DEPS_CFG=$OPTARG
             ;;
         c)
             BPM_CFG=$OPTARG
@@ -202,6 +209,18 @@ fi
 
 if [ "$SYSTEM_DEPS_CFG" != "yes" ] && [ "$SYSTEM_DEPS_CFG" != "no" ]; then
     echo "Option \"-s\" has unsupported option. "$VALID_SYSTEM_DEPS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ -z "$LOCAL_SYSTEM_DEPS_CFG" ]; then
+    echo "Option \"-s\" unset. "$VALID_LOCAL_SYSTEM_DEPS_CFG_STR
+    usage
+    exit 1
+fi
+
+if [ "$LOCAL_SYSTEM_DEPS_CFG" != "yes" ] && [ "$LOCAL_SYSTEM_DEPS_CFG" != "no" ]; then
+    echo "Option \"-s\" has unsupported option. "$VALID_LOCAL_SYSTEM_DEPS_CFG_STR
     usage
     exit 1
 fi
@@ -339,6 +358,18 @@ cd ../../
 if [ $? -ne 0 ]; then
     echo "Could not compile/install project epics." >&2
     exit 1
+fi
+
+###################### System Dependencies Installation ########################
+
+if [ "$LOCAL_SYSTEM_DEPS_CFG" == "yes" ]; then
+    ./get-local-system-deps.sh
+
+    # Check last command return status
+    if [ $? -ne 0 ]; then
+        echo "Could not compile/install local system dependencies." >&2
+        exit 1
+    fi
 fi
 
 ########################### BPM-SW Installation ################################
