@@ -14,7 +14,9 @@ GEN_DEPS="\
     make \
     libtool \
     curl \
-    wget
+    wget \
+    kernel-headers$(uname -r) \
+    kernel-devel-$(uname -r)
 "
 DEB_UBU_PERL_DEPS="\
 "
