@@ -26,7 +26,8 @@ for crate in "${CRATES[@]}"; do
 
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
         set -x && \
-        systemctl stop halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20}.target" &
+        systemctl stop halcs@{5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23}.target && \
+        systemctl start halcs-ioc@{5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23}.target" &
 
 done
 
@@ -37,6 +38,7 @@ for crate in "${CRATES[@]}"; do
 
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
         set -x && \
-        systemctl stop halcs-ioc@{17,18,19,20,21}.target" &
+        systemctl stop halcs@{11,12,13,14,15,16,17,18,19,20,21}.target && \
+        systemctl start halcs-ioc@{11,12,13,14,15,16,17,18,19,20,21}.target" &
 
 done
