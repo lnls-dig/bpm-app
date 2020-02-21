@@ -385,6 +385,16 @@ if [ "$BPM_CFG" == "yes" ]; then
             exit 1
         fi
     fi
+
+    if [ "$ROLE" == "server" ]; then
+        ./get-malamute.sh
+
+        # Check last command return status
+        if [ $? -ne 0 ]; then
+            echo "Could not compile/install Malamute." >&2
+            exit 1
+        fi
+    fi
 fi
 
 # Server
