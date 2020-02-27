@@ -440,14 +440,6 @@ if [ "$BPM_CFG" == "yes" ]; then
            echo "Could not compile/install BPM client dependencies." >&2
            exit 1
        fi
-
-        ./get-bpm-client.sh
-
-       # Check last command return status
-       if [ $? -ne 0 ]; then
-           echo "Could not compile/install BPM client." >&2
-           exit 1
-       fi
     fi
 fi
 
