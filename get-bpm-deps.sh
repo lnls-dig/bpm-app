@@ -40,11 +40,19 @@ fi
 
 # Configure and Install
 for project in libsodium libzmq czmq; do
+
+    CONFIG_OPTS=()
+    CONFIG_OPTS+=("CFLAGS=-Wno-format-truncation")
+    CONFIG_OPTS+=("CPPFLAGS=-Wno-format-truncation")
+    if [ $project == "libzmq" ]; then
+        CONFIG_OPTS+=("--with-libsodium")
+    fi
+
     cd $project && \
     ./autogen.sh && \
-    ./configure &&
+    ./configure "${CONFIG_OPTS[@]}" && \
     make check && \
-    make CFLAGS=-Wno-format-truncation && \
+    make && \
     sudo make install && \
     sudo ldconfig && \
     cd ..
