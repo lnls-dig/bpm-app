@@ -36,9 +36,17 @@ fi
 
 # Configure and Install
 for project in malamute; do
+
+    CONFIG_OPTS=()
+    CONFIG_OPTS+=("--with-systemd-units")
+    CONFIG_OPTS+=("--sysconfdir=/usr/etc")
+    CONFIG_OPTS+=("--prefix=/usr")
+    CONFIG_OPTS+=("CFLAGS=-Wno-format-truncation")
+    CONFIG_OPTS+=("CPPFLAGS=-Wno-format-truncation")
+
     cd $project && \
     ./autogen.sh && \
-    ./configure --with-systemd-units --sysconfdir=/usr/etc --prefix=/usr && \
+    ./configure "${CONFIG_OPTS[@]}" && \
     make check && \
     make && \
     sudo make install && \
