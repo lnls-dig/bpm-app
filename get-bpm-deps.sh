@@ -44,7 +44,7 @@ for project in libsodium libzmq czmq; do
     ./autogen.sh && \
     ./configure &&
     make check && \
-    make && \
+    make CFLAGS=-Wno-format-truncation && \
     sudo make install && \
     sudo ldconfig && \
     cd ..
