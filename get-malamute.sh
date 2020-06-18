@@ -70,6 +70,9 @@ for project in malamute; do
     # Enable service
     sudo systemctl enable malamute || /bin/true
 
+    # add environment variables for malamute
+    sudo bash -c "echo export ZSYS_LOGSYSTEM=false >> /etc/profile.d/malamute.sh"
+
     # Check last command return status
     if [ $? -ne 0 ]; then
         echo "Could not compile/install project $project." >&2
