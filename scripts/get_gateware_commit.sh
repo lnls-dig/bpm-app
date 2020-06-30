@@ -24,6 +24,8 @@ CRATES+=("IA-20RaBPM-CO-IOCSrv")
 CRATES+=("IA-20RaBPMTL-CO-IOCSrv")
 
 LOGS=()
+LOGS+=("halcsd1_be0.log")
+LOGS+=("halcsd3_be0.log")
 LOGS+=("halcsd4_be0.log")
 LOGS+=("halcsd5_be0.log")
 LOGS+=("halcsd6_be0.log")
@@ -41,7 +43,7 @@ for crate in "${CRATES[@]}"; do
         cd && \
         for log in "${LOGS[@]}"; do
             if [ -f /var/log/halcs/\${log} ]; then 
-                COMMIT=\$(cat /var/log/halcs/\${log} | grep \"commit-id:\" | head -n 1)
+                COMMIT=\$(cat /var/log/halcs/\${log} | grep \"commit-id:\" | head -n 2)
 		[ ! -z \"\${COMMIT}\" ] && (echo -n \"${crate} \${log}: \" && echo \${COMMIT});
 	    fi
         done"
