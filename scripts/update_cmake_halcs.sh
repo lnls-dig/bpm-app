@@ -45,6 +45,7 @@ for crate in "${CRATES[@]}"; do
         cpack3 -G \"RPM\" && \
         rpm -e halcsd; \
         rpm -i halcsd-afcv3_1_*_x86_64.rpm && \
+        ldconfig && \
         mv /home/lnls-bpm/halcs.cfg.temp /etc/halcs/halcs.cfg && \
         systemctl daemon-reload && \
         systemctl start halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
