@@ -37,7 +37,7 @@ for crate in "${CRATES[@]}"; do
         systemctl stop halcs@{1,2,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         cd /root/postinstall/apps/bpm-app/halcs && \
         ./gradle_uninstall.sh; \
-        git reset --hard origin/improved-monit-date && \
+        git reset --hard origin/master && \
         git submodule update && \
         mkdir -p build && \
         cd build && \
