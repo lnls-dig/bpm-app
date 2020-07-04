@@ -27,8 +27,8 @@ for crate in "${CRATES[@]}"; do
 
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
         set -x && \
-	yum -y install epel-release centos-release-scl centos-release-scl-rh && \
-	yum -y install cmake3 && \
+        yum -y install epel-release centos-release-scl centos-release-scl-rh && \
+        yum -y install cmake3 && \
         cd /root/postinstall/apps/bpm-app/halcs && \
         git fetch --all && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
@@ -37,13 +37,13 @@ for crate in "${CRATES[@]}"; do
         cd /root/postinstall/apps/bpm-app/halcs && \
         ./gradle_uninstall.sh; \
         git reset --hard origin/improved-monit-date && \
-	git submodule update && \
+        git submodule update && \
         mkdir -p build && \
         cd build && \
-	cmake3 ../ && \
-	cpack3 -G \"RPM\" && \
-	rpm -e halcsd; \
-	rpm -i halcsd-afcv3_1_*_x86_64.rpm && \
+        cmake3 ../ && \
+        cpack3 -G \"RPM\" && \
+        rpm -e halcsd; \
+        rpm -i halcsd-afcv3_1_*_x86_64.rpm && \
         mv /home/lnls-bpm/halcs.cfg.temp /etc/halcs/halcs.cfg && \
         systemctl daemon-reload && \
         systemctl start halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
