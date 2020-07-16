@@ -39,6 +39,7 @@ for crate in "${CRATES[@]}"; do
         ./gradle_uninstall.sh; \
         git reset --hard origin/master && \
         git submodule update && \
+        rm -rf build && \
         mkdir -p build && \
         cd build && \
         cmake3 ../ && \
