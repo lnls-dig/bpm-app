@@ -28,7 +28,7 @@ for crate in "${CRATES[@]}"; do
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
         set -x && \
         yum -y install epel-release centos-release-scl centos-release-scl-rh && \
-        yum -y install cmake3 && \
+        yum -y install cmake3 dkms && \
         cd /root/postinstall/apps/bpm-app/halcs && \
         git fetch --all && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
