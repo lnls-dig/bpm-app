@@ -73,6 +73,12 @@ for project in malamute; do
     # add environment variables for malamute
     sudo bash -c "echo export ZSYS_LOGSYSTEM=false >> /etc/profile.d/malamute.sh"
 
+	mkdir -p /etc/systemd/system/malamute.service.d
+	cat << EOF > /etc/systemd/system/malamute.service.d/override.conf
+[Service]
+Environment=\"ZSYS_LOGSYSTEM=false\"
+EOF
+
     # Check last command return status
     if [ $? -ne 0 ]; then
         echo "Could not compile/install project $project." >&2
