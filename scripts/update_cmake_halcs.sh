@@ -34,7 +34,7 @@ for crate in "${CRATES[@]}"; do
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
         (cp /usr/local/etc/halcs/halcs.cfg /home/lnls-bpm/halcs.cfg.temp || \
         cp /etc/halcs/halcs.cfg /home/lnls-bpm/halcs.cfg.temp) && \
-        systemctl stop halcs@{1,2,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
+        systemctl stop halcs@{1,2,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         cd /root/postinstall/apps/bpm-app/halcs && \
         ./gradle_uninstall.sh; \
         git reset --hard origin/master && \
