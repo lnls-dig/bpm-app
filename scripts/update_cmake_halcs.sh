@@ -45,6 +45,8 @@ for crate in "${CRATES[@]}"; do
         cmake3 ../ && \
         cpack3 -G \"RPM\" && \
         rpm -e halcsd; \
+        rpm -e halcsd-debuginfo; \
+        rpm -i halcsd-debuginfo*; \
         rpm -i halcsd-afcv3_1_*_x86_64.rpm && \
         ldconfig && \
         mv /home/lnls-bpm/halcs.cfg.temp /etc/halcs/halcs.cfg && \
