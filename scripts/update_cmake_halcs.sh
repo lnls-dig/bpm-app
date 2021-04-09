@@ -44,7 +44,7 @@ for crate in "${CRATES[@]}"; do
         cd build && \
         cmake3 -Dcpack_generator_OPT=\"RPM\" -Dcpack_components_grouping_OPT=ONE_PER_GROUP -Dcpack_components_all_OPT=Pciedriver ../ && \
         make package && \
-        cmake3 -Dcpack_generator_OPT=\"RPM\" -Dcpack_components_grouping_OPT=ALL_COMPONENTS_IN_ONE -Dcpack_components_all_OPT=\"Binaries;Libs;Scripts;Tools\" ../ && \
+        cmake3 -Dcpack_generator_OPT=\"RPM\" -Dcpack_components_grouping_OPT=ALL_COMPONENTS_IN_ONE -Dcpack_components_all_OPT='Binaries;Libs;Scripts;Tools' ../ && \
         make package && \
         rpm -e pcieDriver; \
         rpm -e halcsd; \
