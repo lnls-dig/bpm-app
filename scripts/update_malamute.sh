@@ -28,9 +28,9 @@ for crate in "${CRATES[@]}"; do
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
         set -x && \
         cd /root/postinstall/apps/bpm-app/malamute && \
-	systemctl stop malamute && \
+        systemctl stop malamute && \
         git fetch --all && \
-	git clean -fd && \
+        git clean -fd && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
         git checkout master && \
         git reset --hard origin/master && \
