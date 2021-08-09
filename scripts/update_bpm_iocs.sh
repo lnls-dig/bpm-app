@@ -27,8 +27,10 @@ for crate in "${CRATES[@]}"; do
 
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
         set -x && \
-        cd /root/postinstall/apps/bpm-app/bpm-epics-ioc && \
-        git fetch --all && \
+        mkdir -p /opt/epics/ioc && \
+        cd /opt/epics/ioc && \
+        (git clone https://github.com/lnls-dig/bpm-epics-ioc || (cd bpm-epics-ioc && git fetch --all)) && \
+        cd /opt/epics/ioc/bpm-epics-ioc && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
         git checkout master && \
         git reset --hard origin/master && \
@@ -39,10 +41,7 @@ for crate in "${CRATES[@]}"; do
         make install && \
         (chmod 777 /tmp/malamute || :) && \
         mv /home/lnls-bpm/bpm-epics-ioc.temp /etc/sysconfig/bpm-epics-ioc && \
-        sed -i -e 's/User=.*/User=root/g' /etc/systemd/system/halcs-be-ioc@.service && \
-        sed -i -e 's/Group=.*/Group=root/g' /etc/systemd/system/halcs-be-ioc@.service && \
-        sed -i -e 's/User=.*/User=root/g' /etc/systemd/system/halcs-fe-ioc@.service && \
-        sed -i -e 's/Group=.*/Group=root/g' /etc/systemd/system/halcs-fe-ioc@.service && \
+        (cp -r /opt/epics/startup/ioc/bpm-epics-ioc/iocBoot/iocBPM/autosave/* /opt/epics/ioc/bpm-epics-ioc/iocBoot/iocBPM/autosave/) || true && \
         systemctl daemon-reload && \
         systemctl start halcs-ioc@{5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target" &
 
