@@ -51,7 +51,7 @@ for crate in "${CRATES[@]}"; do
         rpm -e halcsd-debuginfo; \
         rpm -i pcieDriver*; \
         rpm -i halcsd-debuginfo*; \
-        rpm -i halcsd-afcv3_1_*_x86_64.rpm && \
+        rpm -i halcsd-*x86_64.rpm && \
         (chmod 777 /tmp/malamute || :) && \
         ldconfig && \
         mv /home/lnls-bpm/halcs.cfg.temp /etc/halcs/halcs.cfg && \
