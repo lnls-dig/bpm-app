@@ -52,12 +52,12 @@ for crate in "${CRATES[@]}"; do
         make package && \
         cmake3 -Dcpack_generator_OPT=\"RPM\" -Dcpack_components_grouping_OPT=ALL_COMPONENTS_IN_ONE -Dcpack_components_all_OPT='Binaries;Libs;Scripts;Tools' ../ && \
         make package && \
-        rpm -e pcieDriver; \
-        rpm -e halcsd; \
-        rpm -e halcsd-debuginfo; \
-        rpm -i pcieDriver*; \
-        rpm -i halcsd-debuginfo*.x86_64.rpm; \
-        rpm -i halcsd_*_x86_64.rpm && \
+        rpm -e pcieDriver && \
+        rpm -e halcsd && \
+        rpm -e halcsd-debuginfo && \
+        rpm -i pcieDriver* && \
+        rpm -i halcsd-debuginfo*.x86_64.rpm && \
+        rpm -i halcsd*_x86_64.rpm && \
         (chmod 777 /tmp/malamute || :) && \
         ldconfig && \
         mv /home/lnls-bpm/halcs.cfg.temp /etc/halcs/halcs.cfg && \
