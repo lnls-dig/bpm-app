@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+if [ ! $# -eq 1 ]
+then
+    echo "Wrong usage! $0 <COMMIT_ID>"
+    exit
+fi
+
+COMMIT_ID=$1
+
 CRATES=()
 CRATES+=("IA-01RaBPM-CO-IOCSrv")
 CRATES+=("IA-02RaBPM-CO-IOCSrv")
@@ -31,13 +39,13 @@ for crate in "${CRATES[@]}"; do
         yum -y install cmake3 dkms && \
         cd /root/postinstall/apps/bpm-app/halcs && \
         git fetch --all && \
+        git reset --hard ${COMMIT_ID} && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
         (cp /usr/local/etc/halcs/halcs.cfg /home/lnls-bpm/halcs.cfg.temp || \
         cp /etc/halcs/halcs.cfg /home/lnls-bpm/halcs.cfg.temp) && \
         systemctl stop halcs@{1,2,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         cd /root/postinstall/apps/bpm-app/halcs && \
         ./gradle_uninstall.sh; \
-        git reset --hard origin/master && \
         git submodule update && \
         rm -rf build && \
         mkdir -p build && \
