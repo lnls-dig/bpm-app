@@ -43,7 +43,6 @@ for crate in "${CRATES[@]}"; do
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
         (cp /usr/local/etc/halcs/halcs.cfg /home/lnls-bpm/halcs.cfg.temp || \
         cp /etc/halcs/halcs.cfg /home/lnls-bpm/halcs.cfg.temp) && \
-        systemctl stop halcs@{1,2,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         git submodule update && \
         rm -rf build && \
         mkdir -p build && \
@@ -52,6 +51,7 @@ for crate in "${CRATES[@]}"; do
         make package && \
         cmake3 -Dcpack_generator_OPT=\"RPM\" -Dcpack_components_grouping_OPT=ALL_COMPONENTS_IN_ONE -Dcpack_components_all_OPT='Binaries;Libs;Scripts;Tools' ../ && \
         make package && \
+        systemctl stop halcs@{1,2,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         rpm -e pcieDriver && \
         rpm -e halcsd && \
         rpm -e halcsd-debuginfo && \
