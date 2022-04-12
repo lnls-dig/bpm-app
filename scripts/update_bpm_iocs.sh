@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+if [ ! $# -eq 1 ]
+then
+    echo "Wrong usage! $0 <COMMIT_ID>"
+    exit
+fi
+
+COMMIT_ID=$1
+
 CRATES=()
 CRATES+=("IA-01RaBPM-CO-IOCSrv")
 CRATES+=("IA-02RaBPM-CO-IOCSrv")
@@ -31,9 +39,8 @@ for crate in "${CRATES[@]}"; do
         cd /opt/epics/ioc && \
         (git clone https://github.com/lnls-dig/bpm-epics-ioc || (cd bpm-epics-ioc && git fetch --all)) && \
         cd /opt/epics/ioc/bpm-epics-ioc && \
+        git reset --hard ${COMMIT_ID} && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
-        git checkout master && \
-        git reset --hard origin/master && \
         cp /etc/sysconfig/bpm-epics-ioc /home/lnls-bpm/bpm-epics-ioc.temp && \
         systemctl stop halcs-ioc@{5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         make clean && \
