@@ -41,8 +41,8 @@ for crate in "${CRATES[@]}"; do
         cd /opt/epics/ioc/fofb-epics-ioc && \
         git reset --hard ${COMMIT_ID} && \
         git checkout -b stable-\$(date +%Y%m%d-%H%M%S) && \
-        (systemctl stop fofb-ioc@5 || :) && \
         cp /etc/sysconfig/fofb-epics-ioc /home/lnls-bpm/fofb-epics-ioc.temp && \
+        systemctl stop fofb-ioc@3 && \
         make clean && \
         make && \
         make install && \
@@ -50,6 +50,6 @@ for crate in "${CRATES[@]}"; do
         mv /home/lnls-bpm/fofb-epics-ioc.temp /etc/sysconfig/fofb-epics-ioc && \
         chown -R fofb-epics-ioc:fofb-epics-ioc /opt/epics/ioc/fofb-epics-ioc && \
         systemctl daemon-reload && \
-        (systemctl start fofb-ioc@5 || :)" &
+        systemctl start fofb-ioc@3" &
 
 done
