@@ -47,7 +47,6 @@ for crate in "${CRATES[@]}"; do
         make && \
         make install && \
         (chmod 777 /tmp/malamute || :) && \
-        (sudo useradd fofb-epics-ioc || :) && \
         mv /home/lnls-bpm/fofb-epics-ioc.temp /etc/sysconfig/fofb-epics-ioc && \
         chown -R fofb-epics-ioc:fofb-epics-ioc /opt/epics/ioc/fofb-epics-ioc && \
         systemctl daemon-reload && \
