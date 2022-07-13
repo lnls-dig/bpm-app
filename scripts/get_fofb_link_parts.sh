@@ -21,31 +21,19 @@ CRATES+=("IA-17RaBPM-CO-IOCSrv")
 CRATES+=("IA-18RaBPM-CO-IOCSrv")
 CRATES+=("IA-19RaBPM-CO-IOCSrv")
 CRATES+=("IA-20RaBPM-CO-IOCSrv")
-CRATES+=("IA-20RaBPMTL-CO-IOCSrv")
-
-LOGS=()
-LOGS+=("halcsd1_be0.log")
-LOGS+=("halcsd2_be0.log")
-LOGS+=("halcsd3_be0.log")
-LOGS+=("halcsd4_be0.log")
-LOGS+=("halcsd5_be0.log")
-LOGS+=("halcsd6_be0.log")
-LOGS+=("halcsd7_be0.log")
-LOGS+=("halcsd8_be0.log")
-LOGS+=("halcsd9_be0.log")
-LOGS+=("halcsd10_be0.log")
-LOGS+=("halcsd11_be0.log")
-LOGS+=("halcsd12_be0.log")
 
 for crate in "${CRATES[@]}"; do
 
-    echo "Crate: ${crate}" && \
+    echo "${crate}" && \
     SSHPASS=lnls-bpm sshpass -e ssh -o StrictHostKeyChecking=no lnls-bpm@${crate} bash -c "\
-        cd && \
-        for log in "${LOGS[@]}"; do
-            if [ -f /var/log/halcs/\${log} ]; then 
-                COMMIT=\$(cat /var/log/halcs/\${log} | grep \"commit-id:\" | head -n 2)
-		[ ! -z \"\${COMMIT}\" ] && (echo -n \"${crate} \${log}: \" && echo \${COMMIT});
-	    fi
-        done"
+        set -x > /dev/null && \
+	echo \"P2P:\" && \
+        fofb_ctrl --verbose --num_gts 8 --brokerendp ipc:///tmp/malamute --boardslot 2 --halcsnumber 1 --bpm_cnt && \
+        fofb_ctrl --verbose --num_gts 8 --brokerendp ipc:///tmp/malamute --boardslot 2 --halcsnumber 1 --link_partners && \
+	echo \"FMC:\" && \
+        fofb_ctrl --verbose --num_gts 8 --brokerendp ipc:///tmp/malamute --boardslot 2 --halcsnumber 0 --bpm_cnt && \
+        fofb_ctrl --verbose --num_gts 4 --brokerendp ipc:///tmp/malamute --boardslot 2 --halcsnumber 0 --link_partners"
+
+    echo ""
+
 done
