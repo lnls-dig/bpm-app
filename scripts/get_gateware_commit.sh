@@ -25,6 +25,7 @@ CRATES+=("IA-20RaBPMTL-CO-IOCSrv")
 
 LOGS=()
 LOGS+=("halcsd1_be0.log")
+LOGS+=("halcsd2_be0.log")
 LOGS+=("halcsd3_be0.log")
 LOGS+=("halcsd4_be0.log")
 LOGS+=("halcsd5_be0.log")
