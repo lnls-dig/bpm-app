@@ -40,8 +40,6 @@ for crate in "${CRATES[@]}"; do
   echo "Synchronizing BPMs and arming DCCs of crate ${crate_number}"
   SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
     set -x > /dev/null && \
-    cd /opt/epics/ioc/bpm-epics-ioc/scripts/ && \
-    ./sync_bpms.sh 7,8,9,10 ${crate_number} && \
     cd /root/postinstall/apps/bpm-app/halcs/examples/scripts/ && \
     ./cfg_fofb.sh 7,8,9,10 1 8 ${crate_number} && \
     ./cfg_fofb.sh 2 2 8 ${crate_number}" > ${LOG_DIR}/sync_bpm_arm_dcc_${crate_number} &
