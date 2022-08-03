@@ -33,10 +33,6 @@ else
   mkdir ${LOG_DIR}
 fi
 
-# Disables FOFB clock
-echo "Disabling FOFB clock"
-caput AS-RaMO:TI-EVG:Clk7MuxEnbl-Sel Dsbl
-
 # Synchronizes BPMs and arms DCCs
 for crate in "${CRATES[@]}"; do
   crate_number=$(echo ${crate} | sed -e "{s/IA-//;s/RaBPM-CO-IOCSrv//;s/^0//;}")
@@ -58,8 +54,6 @@ for pid in "${PIDS[@]}"; do
   wait ${pid}
 done
 
-# Enables FOFB clock
-echo "Enabling FOFB clock"
-caput AS-RaMO:TI-EVG:Clk7MuxEnbl-Sel Enbl
+caput AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd ON
 
 echo "FOFB initialized!"
