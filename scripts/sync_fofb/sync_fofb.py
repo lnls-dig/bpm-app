@@ -40,10 +40,10 @@ def pv_prefix_gen(slot, crate):
 
 def fofb_ctrl_pv_list_gen(name, slot, crate):
 	pv_prefix = pv_prefix_gen(slot, crate)
-	pv_list = [PV(pv_prefix + "P2P:" + name)]
+	pv_list = [PV(pv_prefix + "DCCP2P" + name)]
 	if slot == rtmlamp_slot:
 		# has additional FOFB_CC core
-		pv_list.append(PV(pv_prefix + "FMC:" + name))
+		pv_list.append(PV(pv_prefix + "DCCFMC" + name))
 
 	for pv in pv_list:
 		success = pv.wait_for_connection(5)
