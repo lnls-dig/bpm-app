@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Script to configure FOFB_CC cores across FOFB and BPM AFCs
 
 Receives as argument each crate number we are interested in configuring.
