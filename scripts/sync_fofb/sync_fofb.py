@@ -100,14 +100,16 @@ for key in product(crates, slots):
 			rcv_src.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvSrc-Sel")])
 			rcv_in_sel.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvInSel-SP")])
 
+print("Connecting to all PVs...")
 consume((pv.wait_for_connection() for pv in global_pv_list))
 
+print("Disabling DCC and configuring TimeFrameLen...")
 put_pv(cc_enable, 0)
 put_pv(time_frame_len, time_frame_len_val, wait=False)
 
 for key in product(crates, slots):
 	crate, slot = key
-	print(f"Configuring crate {crate}...")
+	print(f"Writing BPM IDs for {crate}...")
 
 	bpm_id_value = None
 	phys_slot = (slot + 1) // 2
@@ -120,12 +122,14 @@ for key in product(crates, slots):
 
 wait_pv(chain(time_frame_len, bpm_id_list))
 
+print("Enabling DCC and configuring timer muxes...")
 put_pv(cc_enable, 1)
 
 put_pv(rcv_src, 0, wait=False)
 put_pv(rcv_in_sel, 5, wait=False)
 wait_pv(chain(rcv_src, rcv_in_sel))
 
+print("Sending trigger event...")
 evg_evt10 = PV("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
 # doesn't return "ON"
 put_pv([evg_evt10], "ON", check=False)
