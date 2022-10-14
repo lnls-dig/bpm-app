@@ -127,4 +127,5 @@ put_pv(rcv_in_sel, 5, wait=False)
 wait_pv(chain(rcv_src, rcv_in_sel))
 
 evg_evt10 = PV("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
-evg_evt10.put("ON", wait=True)
+# doesn't return "ON"
+put_pv([evg_evt10], "ON", check=False)
