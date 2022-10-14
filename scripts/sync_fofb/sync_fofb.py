@@ -8,6 +8,7 @@ Author: Melissa Aguiar
 Modified by: Érico Nogueira, Guilherme Ricioli
 '''
 
+from itertools import chain, product
 from time import sleep
 from epics import PV
 import collections
@@ -59,62 +60,71 @@ def fofb_ctrl_pv_list_gen(name, slot, crate):
 
 	return pv_list
 
-def put_pv(pv_list, value):
+def wait_pv(pv_list):
+	waiting = True
+	while waiting:
+		sleep(0.001)
+		waiting = not all((pv.put_complete for pv in pv_list))
+
+def put_pv(pv_list, value, wait=True, check=True):
 	for pv in pv_list:
 		print(f"Writing '{value}' into '{pv.pvname}'...")
-		pv.put(value, wait=True)
-		# FIXME: sleep added because CCEnable wasn't being updated fast enough for some reason
-		sleep(.3)
-        # TODO: check -RB instead
-		new_value = pv.get()
-		if new_value != value:
-			print(f"{pv.info}")
-			raise RuntimeError(f"writing into '{pv.pvname}' wasn't successful: '{new_value}' != '{value}'")
+		pv.put(value, use_complete=True)
+	if wait:
+		wait_pv(pv_list)
 
-cc_enable = {}
+		if check:
+			for pv in pv_list:
+				assert(pv.get() == value)
+
+cc_enable = []
+time_frame_len = []
+rcv_src = []
+rcv_in_sel = []
+
+bpm_id_list = []
 bpm_id = {}
-time_frame_len = {}
-rcv_src = {}
-rcv_in_sel = {}
-for crate in crates:
-	for slot in slots:
-		key = (crate, slot)
-		cc_enable[key] = fofb_ctrl_pv_list_gen("CCEnable-SP", slot, crate)
-		bpm_id[key] = fofb_ctrl_pv_list_gen("BPMId-SP", slot, crate)
-		time_frame_len[key] = fofb_ctrl_pv_list_gen("TimeFrameLen-SP", slot, crate)
 
-		pv_prefix = pv_prefix_gen(slot, crate)
-		if slot != rtmlamp_slot:
-			rcv_src[key] = []
-			rcv_in_sel[key] = []
-			for trigger in trigger_chans:
-				rcv_src[key].extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvSrc-Sel")])
-				rcv_in_sel[key].extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvInSel-SP")])
+for key in product(crates, slots):
+	crate, slot = key
+
+	cc_enable.extend(fofb_ctrl_pv_list_gen("CCEnable-SP", slot, crate))
+	time_frame_len.extend(fofb_ctrl_pv_list_gen("TimeFrameLen-SP", slot, crate))
+
+	bpm_id[key] = fofb_ctrl_pv_list_gen("BPMId-SP", slot, crate)
+	bpm_id_list.extend(bpm_id[key])
+
+	pv_prefix = pv_prefix_gen(slot, crate)
+	if slot != rtmlamp_slot:
+		for trigger in trigger_chans:
+			rcv_src.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvSrc-Sel")])
+			rcv_in_sel.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvInSel-SP")])
 
 consume((pv.wait_for_connection() for pv in global_pv_list))
 
-for crate in crates:
+put_pv(cc_enable, 0)
+put_pv(time_frame_len, time_frame_len_val, wait=False)
+
+for key in product(crates, slots):
+	crate, slot = key
 	print(f"Configuring crate {crate}...")
 
-	for slot in slots:
-		key = (crate, slot)
+	bpm_id_value = None
+	phys_slot = (slot + 1) // 2
+	if slot == rtmlamp_slot:
+		bpm_id_value = fofb_ctrl_offs + int(crate) - 1
+	else:
+		bpm_id_value = 8*(int(crate) - 1) + 2*(phys_slot - 7)
 
-		put_pv(cc_enable[key], 0)
-		put_pv(time_frame_len[key], time_frame_len_val)
+	put_pv(bpm_id[key], bpm_id_value, wait=False)
 
-		bpm_id_value = None
-		phys_slot = (slot + 1) // 2
-		if slot == rtmlamp_slot:
-			bpm_id_value = fofb_ctrl_offs + int(crate) - 1
-		else:
-			bpm_id_value = 8*(int(crate) - 1) + 2*(phys_slot - 7)
-		put_pv(bpm_id[key], bpm_id_value)
+wait_pv(chain(time_frame_len, bpm_id_list))
 
-		put_pv(cc_enable[key], 1)
+put_pv(cc_enable, 1)
 
-		if slot != rtmlamp_slot:
-			put_pv(rcv_src[key], 0)
-			put_pv(rcv_in_sel[key], 5)
+put_pv(rcv_src, 0, wait=False)
+put_pv(rcv_in_sel, 5, wait=False)
+wait_pv(chain(rcv_src, rcv_in_sel))
 
 evg_evt10 = PV("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
 evg_evt10.put("ON", wait=True)
