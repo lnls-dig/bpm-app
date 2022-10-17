@@ -24,7 +24,7 @@ crates = [f"{int(i):02}" for i in sys.argv[1:]]
 # FOFB and BPMs slot number (physical_slot*2-1)
 
 # XXX: is this slot sequence correct?
-slots = [rtmlamp_slot, 13, 15, 17, 19]
+slots = [rtmlamp_slot, 13, 14, 15, 16, 17, 18, 19, 20]
 
 trigger_chans = [1, 2, 20]
 
