@@ -17,18 +17,21 @@ import sys
 
 import bpm_epics_ioc_slot_mapping
 
-rtmlamp_slot = 3
+# configurable options
+time_frame_len_val = 5000
+
+# fixed options
 fofb_ctrl_offs = 480
-
-crates = [f"{int(i):02}" for i in sys.argv[1:]]
-# FOFB and BPMs slot number (physical_slot*2-1)
-
-# XXX: is this slot sequence correct?
-slots = [rtmlamp_slot, 13, 14, 15, 16, 17, 18, 19, 20]
-
 trigger_chans = [1, 2, 20]
 
-time_frame_len_val = 5000
+# format crate numbers taken from CLI args
+crates = [f"{int(i):02}" for i in sys.argv[1:]]
+
+# slot information
+rtmlamp_slot = 3
+# FOFB and BPMs slot numbers (physical_slot*2-1 and physical_slot*2)
+slots = [rtmlamp_slot, 13, 14, 15, 16, 17, 18, 19, 20]
+
 
 def consume(iterator):
 	collections.deque(iterator, maxlen=0)
