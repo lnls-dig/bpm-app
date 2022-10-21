@@ -18,7 +18,7 @@ import sys
 import bpm_epics_ioc_slot_mapping
 
 # configurable options
-time_frame_len_val = 5000
+time_frame_len_val = 2000
 
 # fixed options
 fofb_ctrl_offs = 480
