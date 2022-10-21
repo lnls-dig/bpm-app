@@ -32,6 +32,13 @@ rtmlamp_slot = 3
 # FOFB and BPMs slot numbers (physical_slot*2-1 and physical_slot*2)
 slots = [rtmlamp_slot, 13, 14, 15, 16, 17, 18, 19, 20]
 
+# devices whose CC core will be enabled:
+# we only need M1/M2 for normal operation
+cc_enable_crates = crates
+cc_enable_slots = [rtmlamp_slot, 13, 14]
+# exception for faulty crate:
+def cc_enable_exception(slot, crate):
+	return crate == '05' and slot in [15,16,19,20]
 
 def consume(iterator):
 	collections.deque(iterator, maxlen=0)
@@ -81,6 +88,7 @@ def put_pv(pv_list, value, wait=True, check=True):
 				assert(pv.get() == value)
 
 cc_enable = []
+cc_enable_one = []
 time_frame_len = []
 rcv_src = []
 rcv_in_sel = []
@@ -91,7 +99,10 @@ bpm_id = {}
 for key in product(crates, slots):
 	crate, slot = key
 
-	cc_enable.extend(fofb_ctrl_pv_list_gen("CCEnable-SP", slot, crate))
+	cc_enable_k = fofb_ctrl_pv_list_gen("CCEnable-SP", slot, crate)
+	cc_enable.extend(cc_enable_k)
+	if crate in cc_enable_crates and slot in cc_enable_slots or cc_enable_exception(slot, crate):
+		cc_enable_one.extend(cc_enable_k)
 	time_frame_len.extend(fofb_ctrl_pv_list_gen("TimeFrameLen-SP", slot, crate))
 
 	bpm_id[key] = fofb_ctrl_pv_list_gen("BPMId-SP", slot, crate)
@@ -126,7 +137,7 @@ for key in product(crates, slots):
 wait_pv(chain(time_frame_len, bpm_id_list))
 
 print("Enabling DCC and configuring timer muxes...")
-put_pv(cc_enable, 1)
+put_pv(cc_enable_one, 1)
 
 put_pv(rcv_src, 0, wait=False)
 put_pv(rcv_in_sel, 5, wait=False)
