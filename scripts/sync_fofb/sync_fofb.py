@@ -18,7 +18,7 @@ import sys
 import bpm_epics_ioc_slot_mapping
 
 # configurable options
-time_frame_len_val = 2000
+time_frame_len_val = 2100
 
 # fixed options
 fofb_ctrl_offs = 480
@@ -33,9 +33,9 @@ rtmlamp_slot = 3
 slots = [rtmlamp_slot, 13, 14, 15, 16, 17, 18, 19, 20]
 
 # devices whose CC core will be enabled:
-# we only need M1/M2 for normal operation
+# we only need M1/M2 and C2/C3-1 for normal operation
 cc_enable_crates = crates
-cc_enable_slots = [rtmlamp_slot, 13, 14]
+cc_enable_slots = [rtmlamp_slot, 13, 14, 17, 18]
 # exception for faulty crate:
 def cc_enable_exception(slot, crate):
 	return crate == '05' and slot in [15,16,19,20]
