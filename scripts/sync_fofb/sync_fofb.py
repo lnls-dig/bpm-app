@@ -38,7 +38,7 @@ cc_enable_crates = crates
 cc_enable_slots = [rtmlamp_slot, 13, 14, 17, 18]
 # exception for faulty crate:
 def cc_enable_exception(slot, crate):
-	return crate == '05' and slot in [15,16,19,20]
+	return False
 
 def consume(iterator):
 	collections.deque(iterator, maxlen=0)
