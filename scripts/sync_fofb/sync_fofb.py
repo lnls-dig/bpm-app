@@ -96,6 +96,8 @@ rcv_in_sel = []
 bpm_id_list = []
 bpm_id = {}
 
+bpm_cnt = []
+
 for key in product(crates, slots):
 	crate, slot = key
 
@@ -113,6 +115,9 @@ for key in product(crates, slots):
 		for trigger in trigger_chans:
 			rcv_src.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvSrc-Sel")])
 			rcv_in_sel.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvInSel-SP")])
+
+	if slot == rtmlamp_slot and crate in cc_enable_crates:
+		bpm_cnt.extend(fofb_ctrl_pv_list_gen("BPMCnt-Mon", slot, crate))
 
 print("Connecting to all PVs...")
 consume((pv.wait_for_connection() for pv in global_pv_list))
@@ -147,3 +152,7 @@ print("Sending trigger event...")
 evg_evt10 = PV("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
 # doesn't return "ON"
 put_pv([evg_evt10], "ON", check=False)
+
+sleep(1)
+for pv in bpm_cnt:
+	print(f"{pv.pvname}: {pv.get(use_monitor=False)}")
