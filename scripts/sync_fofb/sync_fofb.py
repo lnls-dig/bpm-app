@@ -32,6 +32,10 @@ rtmlamp_slot = 3
 # FOFB and BPMs slot numbers (physical_slot*2-1 and physical_slot*2)
 slots = [rtmlamp_slot, 13, 14, 15, 16, 17, 18, 19, 20]
 
+# crates where the ID (insertion device) BPM boards are installed
+extra_slots = [11, 12]
+extra_slots_crates = ['06', '07', '08', '09', '10', '11', '12', '21']
+
 # devices whose CC core will be enabled:
 # we only need M1/M2 and C2/C3-1 for normal operation
 cc_enable_crates = crates
@@ -98,26 +102,32 @@ bpm_id = {}
 
 bpm_cnt = []
 
-for key in product(crates, slots):
-	crate, slot = key
+for crate in crates:
+	if crate in extra_slots_crates:
+		current_slots = slots + extra_slots
+	else:
+		current_slots = slots
+	
+	for slot in current_slots:
+		key = (crate, slot)
 
-	cc_enable_k = fofb_ctrl_pv_list_gen("CCEnable-SP", slot, crate)
-	cc_enable.extend(cc_enable_k)
-	if crate in cc_enable_crates and slot in cc_enable_slots or cc_enable_exception(slot, crate):
-		cc_enable_one.extend(cc_enable_k)
-	time_frame_len.extend(fofb_ctrl_pv_list_gen("TimeFrameLen-SP", slot, crate))
+		cc_enable_k = fofb_ctrl_pv_list_gen("CCEnable-SP", slot, crate)
+		cc_enable.extend(cc_enable_k)
+		if crate in cc_enable_crates and slot in cc_enable_slots or cc_enable_exception(slot, crate):
+			cc_enable_one.extend(cc_enable_k)
+		time_frame_len.extend(fofb_ctrl_pv_list_gen("TimeFrameLen-SP", slot, crate))
 
-	bpm_id[key] = fofb_ctrl_pv_list_gen("BPMId-SP", slot, crate)
-	bpm_id_list.extend(bpm_id[key])
+		bpm_id[key] = fofb_ctrl_pv_list_gen("BPMId-SP", slot, crate)
+		bpm_id_list.extend(bpm_id[key])
 
-	pv_prefix = pv_prefix_gen(slot, crate)
-	if slot != rtmlamp_slot:
-		for trigger in trigger_chans:
-			rcv_src.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvSrc-Sel")])
-			rcv_in_sel.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvInSel-SP")])
+		pv_prefix = pv_prefix_gen(slot, crate)
+		if slot != rtmlamp_slot:
+			for trigger in trigger_chans:
+				rcv_src.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvSrc-Sel")])
+				rcv_in_sel.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvInSel-SP")])
 
-	if slot == rtmlamp_slot and crate in cc_enable_crates:
-		bpm_cnt.extend(fofb_ctrl_pv_list_gen("BPMCnt-Mon", slot, crate))
+		if slot == rtmlamp_slot and crate in cc_enable_crates:
+			bpm_cnt.extend(fofb_ctrl_pv_list_gen("BPMCnt-Mon", slot, crate))
 
 print("Connecting to all PVs...")
 consume((pv.wait_for_connection() for pv in global_pv_list))
