@@ -8,14 +8,13 @@ Author: Melissa Aguiar
 Modified by: Érico Nogueira, Guilherme Ricioli
 '''
 
-from itertools import chain, product
+from itertools import product
 from time import sleep
-from epics import PV
-import collections
 import numpy as np
 import sys
 
 from bpm_slot_mapping import area_prefix, device_prefix
+from pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv
 
 # configurable options
 time_frame_len_val = 2100
@@ -44,15 +43,6 @@ cc_enable_slots = [rtmlamp_slot, 13, 14, 17, 18]
 def cc_enable_exception(slot, crate):
 	return False
 
-def consume(iterator):
-	collections.deque(iterator, maxlen=0)
-
-global_pv_list = []
-def create_pv(name):
-	pv = PV(name)
-	global_pv_list.append(pv)
-	return pv
-
 def pv_prefix_gen(slot, crate):
 	pv_prefix = ""
 	if slot == rtmlamp_slot:
@@ -73,23 +63,6 @@ def fofb_ctrl_pv_list_gen(name, slot, crate):
 		pv_list.append(create_pv(pv_prefix + "DCCFMC" + name))
 
 	return pv_list
-
-def wait_pv(pv_list):
-	waiting = True
-	while waiting:
-		sleep(0.001)
-		waiting = not all((pv.put_complete for pv in pv_list))
-
-def put_pv(pv_list, value, wait=True, check=True):
-	for pv in pv_list:
-		print(f"Writing '{value}' into '{pv.pvname}'...")
-		pv.put(value, use_complete=True)
-	if wait:
-		wait_pv(pv_list)
-
-		if check:
-			for pv in pv_list:
-				assert(pv.get() == value)
 
 cc_enable = []
 cc_enable_one = []
@@ -129,8 +102,10 @@ for crate in crates:
 		if slot == rtmlamp_slot and crate in cc_enable_crates:
 			bpm_cnt.extend(fofb_ctrl_pv_list_gen("BPMCnt-Mon", slot, crate))
 
+evg_evt10 = create_pv("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
+
 print("Connecting to all PVs...")
-consume((pv.wait_for_connection() for pv in global_pv_list))
+wait_for_pv_connection()
 
 print("Disabling DCC and configuring TimeFrameLen...")
 put_pv(cc_enable, 0)
@@ -149,17 +124,16 @@ for key in product(crates, slots):
 
 	put_pv(bpm_id[key], bpm_id_value, wait=False)
 
-wait_pv(chain(time_frame_len, bpm_id_list))
+wait_pv()
 
 print("Enabling DCC and configuring timer muxes...")
 put_pv(cc_enable_one, 1)
 
 put_pv(rcv_src, 0, wait=False)
 put_pv(rcv_in_sel, 5, wait=False)
-wait_pv(chain(rcv_src, rcv_in_sel))
+wait_pv()
 
 print("Sending trigger event...")
-evg_evt10 = PV("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
 # doesn't return "ON"
 put_pv([evg_evt10], "ON", check=False)
 
