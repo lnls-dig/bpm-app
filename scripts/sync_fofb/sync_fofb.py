@@ -15,7 +15,7 @@ import collections
 import numpy as np
 import sys
 
-import bpm_epics_ioc_slot_mapping
+from bpm_slot_mapping import area_prefix, device_prefix
 
 # configurable options
 time_frame_len_val = 2100
@@ -59,9 +59,9 @@ def pv_prefix_gen(slot, crate):
 		# board connected to physical slot 2 == RTMLAMP
 		pv_prefix = "IA-" + crate + "RaBPM:BS-FOFBCtrl:"
 	else:
-		key_prefix = "CRATE_" + str(crate) + "_BPM_" + str(slot)
-		pv_prefix += bpm_epics_ioc_slot_mapping.area_prefix_dict[key_prefix + "_PV_AREA_PREFIX"]
-		pv_prefix += bpm_epics_ioc_slot_mapping.device_prefix_dict[key_prefix + "_PV_DEVICE_PREFIX"]
+		key = (crate, str(slot))
+		pv_prefix += area_prefix[key]
+		pv_prefix += device_prefix[key]
 
 	return pv_prefix
 
