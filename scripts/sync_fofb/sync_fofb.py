@@ -13,8 +13,8 @@ from time import sleep
 import numpy as np
 import sys
 
-from bpm_slot_mapping import area_prefix, device_prefix
 from pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv
+from sirius import rtmlamp_slot, slots_by_crate, crate_number, get_pv_prefix, get_fofb_cc_pv_list
 
 # configurable options
 time_frame_len_val = 2100
@@ -24,45 +24,15 @@ fofb_ctrl_offs = 480
 trigger_chans = [1, 2, 20]
 
 # format crate numbers taken from CLI args
-crates = [f"{int(i):02}" for i in sys.argv[1:]]
-
-# slot information
-rtmlamp_slot = 3
-# FOFB and BPMs slot numbers (physical_slot*2-1 and physical_slot*2)
-slots = [rtmlamp_slot, 13, 14, 15, 16, 17, 18, 19, 20]
-
-# crates where the ID (insertion device) BPM boards are installed
-extra_slots = [11, 12]
-extra_slots_crates = ['06', '07', '08', '09', '10', '11', '12', '21']
+crates = [crate_number(i) for i in sys.argv[1:]]
 
 # devices whose CC core will be enabled:
 # we only need M1/M2 and C2/C3-1 for normal operation
 cc_enable_crates = crates
 cc_enable_slots = [rtmlamp_slot, 13, 14, 17, 18]
 # exception for faulty crate:
-def cc_enable_exception(slot, crate):
+def cc_enable_exception(crate, slot):
 	return False
-
-def pv_prefix_gen(slot, crate):
-	pv_prefix = ""
-	if slot == rtmlamp_slot:
-		# board connected to physical slot 2 == RTMLAMP
-		pv_prefix = "IA-" + crate + "RaBPM:BS-FOFBCtrl:"
-	else:
-		key = (crate, str(slot))
-		pv_prefix += area_prefix[key]
-		pv_prefix += device_prefix[key]
-
-	return pv_prefix
-
-def fofb_ctrl_pv_list_gen(name, slot, crate):
-	pv_prefix = pv_prefix_gen(slot, crate)
-	pv_list = [create_pv(pv_prefix + "DCCP2P" + name)]
-	if slot == rtmlamp_slot:
-		# has additional FOFB_CC core
-		pv_list.append(create_pv(pv_prefix + "DCCFMC" + name))
-
-	return pv_list
 
 cc_enable = []
 cc_enable_one = []
@@ -76,31 +46,26 @@ bpm_id = {}
 bpm_cnt = []
 
 for crate in crates:
-	if crate in extra_slots_crates:
-		current_slots = slots + extra_slots
-	else:
-		current_slots = slots
-	
-	for slot in current_slots:
+	for slot in slots_by_crate[crate]:
 		key = (crate, slot)
 
-		cc_enable_k = fofb_ctrl_pv_list_gen("CCEnable-SP", slot, crate)
+		cc_enable_k = get_fofb_cc_pv_list("CCEnable-SP", crate, slot)
 		cc_enable.extend(cc_enable_k)
 		if crate in cc_enable_crates and slot in cc_enable_slots or cc_enable_exception(slot, crate):
 			cc_enable_one.extend(cc_enable_k)
-		time_frame_len.extend(fofb_ctrl_pv_list_gen("TimeFrameLen-SP", slot, crate))
+		time_frame_len.extend(get_fofb_cc_pv_list("TimeFrameLen-SP", crate, slot))
 
-		bpm_id[key] = fofb_ctrl_pv_list_gen("BPMId-SP", slot, crate)
+		bpm_id[key] = get_fofb_cc_pv_list("BPMId-SP", crate, slot)
 		bpm_id_list.extend(bpm_id[key])
 
-		pv_prefix = pv_prefix_gen(slot, crate)
 		if slot != rtmlamp_slot:
+			pv_prefix = get_pv_prefix(crate, slot)
 			for trigger in trigger_chans:
 				rcv_src.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvSrc-Sel")])
 				rcv_in_sel.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvInSel-SP")])
 
 		if slot == rtmlamp_slot and crate in cc_enable_crates:
-			bpm_cnt.extend(fofb_ctrl_pv_list_gen("BPMCnt-Mon", slot, crate))
+			bpm_cnt.extend(get_fofb_cc_pv_list("BPMCnt-Mon", crate, slot))
 
 evg_evt10 = create_pv("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
 
@@ -111,18 +76,19 @@ print("Disabling DCC and configuring TimeFrameLen...")
 put_pv(cc_enable, 0)
 put_pv(time_frame_len, time_frame_len_val, wait=False)
 
-for key in product(crates, slots):
-	crate, slot = key
-	print(f"Writing BPM IDs for {crate}...")
+for crate in crates:
+	for slot in slots_by_crate[crate]:
+		key = (crate, slot)
+		print(f"Writing BPM IDs for {crate}...")
 
-	bpm_id_value = None
-	phys_slot = (slot + 1) // 2
-	if slot == rtmlamp_slot:
-		bpm_id_value = fofb_ctrl_offs + int(crate) - 1
-	else:
-		bpm_id_value = 8*(int(crate) - 1) + 2*(phys_slot - 7)
+		bpm_id_value = None
+		phys_slot = (slot + 1) // 2
+		if slot == rtmlamp_slot:
+			bpm_id_value = fofb_ctrl_offs + int(crate) - 1
+		else:
+			bpm_id_value = 8*(int(crate) - 1) + 2*(phys_slot - 7)
 
-	put_pv(bpm_id[key], bpm_id_value, wait=False)
+		put_pv(bpm_id[key], bpm_id_value, wait=False)
 
 wait_pv()
 
