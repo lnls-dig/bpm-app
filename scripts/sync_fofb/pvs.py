@@ -4,8 +4,10 @@ Author: Érico Nogueira
 '''
 
 from epics import PV
-from time import sleep
+from time import sleep, clock_gettime, CLOCK_MONOTONIC
 import collections
+
+timeout = 10
 
 def _consume(iterator):
 	collections.deque(iterator, maxlen=0)
@@ -24,10 +26,17 @@ def wait_for_pv_connection():
 _global_wait_list = []
 
 def _wait_pv(wait_list):
+	start_time = clock_gettime(CLOCK_MONOTONIC)
 	waiting = True
 	while waiting:
 		sleep(0.001)
 		waiting = not all((pv.put_complete for pv_list, _ in wait_list for pv in pv_list))
+		if waiting and clock_gettime(CLOCK_MONOTONIC) - start_time > timeout:
+			for pv_list, _ in wait_list:
+				for pv in pv_list:
+					if not pv.put_complete:
+						print(f'Writing into {pv.pvname} taking too long...')
+			raise Exception('PV write timeout')
 
 	for pv_list, value in wait_list:
 		if value is None:
