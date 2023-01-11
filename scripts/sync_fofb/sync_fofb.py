@@ -13,7 +13,7 @@ from time import sleep
 import numpy as np
 import sys
 
-from pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv
+from pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv, print_pv
 from sirius import rtmlamp_slot, slots_by_crate, crate_number, get_pv_prefix, get_fofb_cc_pv_list
 
 # configurable options
@@ -104,5 +104,4 @@ print("Sending trigger event...")
 put_pv([evg_evt10], "ON", check=False)
 
 sleep(1)
-for pv in bpm_cnt:
-	print(f"{pv.pvname}: {pv.get(use_monitor=False)}")
+print_pv(bpm_cnt)
