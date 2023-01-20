@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+'''Read a file whose lines are formatted as "PV: value" and write those values
+into those PVs. Run as:
+
+    ./write_pvs input
+
+Author: Érico Nogueira
+'''
+
+import sys
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv, wait_pv
+
+file_name = sys.argv[1]
+
+pv_and_value = []
+with open(file_name, 'r') as f:
+    for line in f:
+        pv_name, pv_value = line.strip().split()
+        pv_and_value.append((create_pv(pv_name), float(pv_value)))
+
+wait_for_pv_connection()
+
+for pv, value in pv_and_value:
+    # TODO: implement floating point checking support in put_pv
+    put_pv([pv], value, wait=False, check=False)
+
+wait_pv()
