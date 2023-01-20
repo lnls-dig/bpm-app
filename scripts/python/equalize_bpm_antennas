@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+
+'''Output a list of antenna gain PVs and their values, using acquisition data
+to find those gains. The list can then be used by the write_pvs script. Run as:
+
+    ./equalize_bpm_antennas input.pickle algorithm output [plot-directory]
+
+Author: Érico Nogueira
+'''
+
+import sys
+from pathlib import Path
+from pickle import load
+
+import numpy as np
+
+from bpm_app.sirius import get_pv_prefix
+
+file_name = sys.argv[1]
+multiplier_method = sys.argv[2]
+out_name = sys.argv[3]
+directory = Path(sys.argv[4]) if len(sys.argv) >= 5 else None
+
+if directory is not None:
+    from scipy import signal
+    import matplotlib.pyplot as plt
+
+# fixed point value
+max_multiplier = 0xffffff / (1<<24)
+print(f'{max_multiplier=}')
+
+min_multiplier = 0.80 # arbitrary value
+antennas = ['a','b','c','d']
+
+# to keep plots less busy
+plot_range = range(40000, 45000)
+
+# compute multipliers to equalize antennas
+
+def get_semicycles(d):
+    def split_semicycles(pos):
+        return pos[::2], pos[1::2]
+
+    return {l: list(split_semicycles(d[l])) for l in antennas}
+
+def get_averages(s):
+    return {l: [np.mean(a) for a in s[l]] for l in antennas}
+
+def get_multipliers(a, method='aaes'):
+    # this function needs to account for the representation of the gains: there are 24 bits and no integer ones;
+    # since the non-1 gain was already applied to acquisitions, we can simply take it into account as a final step.
+
+    if method == 'eabs':
+
+        # equalize each antenna for both semicycles
+        rv = [{}, {}]
+        for l in antennas:
+            min_ant = min((a[l][0], a[l][1]))
+            for i in range(2):
+                rv[i][l] = max_multiplier * (min_ant / a[l][i])
+        return rv
+
+    elif method == 'aabs':
+
+        # equalize the 4 antennas for both semicycles
+        semi_avgs = []
+        for i in range(2):
+            semi_avgs.append(np.array([a[l][i] for l in antennas]))
+        min_ant = min((np.min(semi_avg) for semi_avg in semi_avgs))
+        rv = []
+        for i, semi_avg in enumerate(semi_avgs):
+            mults = max_multiplier * (min_ant / semi_avg)
+            rv.append({l: mults[j] for j, l in enumerate(antennas)})
+        return rv
+
+    elif method == 'aaes':
+
+        # equalize the 4 antennas for each semicycle
+        rv = []
+        for i in range(2):
+            semi_avgs = np.array([a[l][i] for l in antennas])
+            mults = max_multiplier * (np.min(semi_avgs) / semi_avgs)
+            rv.append({l: mults[j] for j, l in enumerate(antennas)})
+        return rv
+
+# compute position using antenna data
+
+def get_equalized_antennas(d, m):
+    rv = {}
+    acq_len = len(d['a'])
+    for key in d:
+        if key in antennas:
+            l = key
+            mult_antenna = np.tile([mults[l] for mults in m], acq_len//2)
+            rv[l] = d[l] * mult_antenna
+        else:
+            rv[key] = d[key]
+    return rv
+
+def partial_delta_sigma_x(a, b, c, d):
+    return ((a-c)/(a+c) + (d-b)/(d+b)) / 2
+def partial_delta_sigma_y(a, b, c, d):
+    return ((a-c)/(a+c) + (b-d)/(b+d)) / 2
+
+# don't use offset
+def abcd_to_pos(a, b, c, d, gain, antenna_fn):
+    return gain * antenna_fn(a, b, c, d)
+
+def data_to_x(d):
+    return abcd_to_pos(*(d[l] for l in antennas), d['xgain'], partial_delta_sigma_x)
+def data_to_y(d):
+    return abcd_to_pos(*(d[l] for l in antennas), d['ygain'], partial_delta_sigma_y)
+
+# normalizing functions to help with plotting
+
+def moving_average(x, w):
+    h = np.ones(w) / w
+    x[:] = signal.lfilter(h, 1, x)
+
+def remove_offset(x):
+    x[:] -= np.mean(x)
+
+# implement PSD
+
+def psd(x):
+    return signal.welch(x, fs=25e3, nperseg=4096)
+
+# actually run the functions
+
+with open(file_name, 'rb') as f:
+    acq_data = load(f)
+
+if directory is not None:
+    directory.mkdir(exist_ok=True)
+
+with open(out_name, 'w') as f:
+    for key in acq_data:
+        antennas_data = acq_data[key]
+        semicycles = get_semicycles(antennas_data)
+        averages = get_averages(semicycles)
+        multipliers = get_multipliers(averages, multiplier_method)
+
+        print(key)
+        print(averages)
+        print(multipliers)
+
+        for antenna_mults in multipliers:
+            for antenna_mult in antenna_mults.values():
+                assert antenna_mult > min_multiplier
+
+        antennas_data_eq = get_equalized_antennas(antennas_data, multipliers)
+        posx_eq = data_to_x(antennas_data_eq)
+        posy_eq = data_to_y(antennas_data_eq)
+
+        if multiplier_method != 'eabs':
+            assert np.abs(np.mean(posx_eq)) < 1
+            assert np.abs(np.mean(posy_eq)) < 1
+
+        prefix = get_pv_prefix(*key)
+
+        for i, cycle in enumerate(['Inv', 'Dir']):
+            for l in antennas:
+                f.write(f'{prefix}Sw{cycle}Gain{l.upper()}-SP {multipliers[i][l]}\n')
+
+        # skip plotting if desired
+        if directory is None:
+            continue
+
+        posx = data_to_x(antennas_data)
+        posy = data_to_y(antennas_data)
+
+        # plot PSD -- do so before cleaning up position so it can be plotted
+        fig, ax = plt.subplots(2, sharex=True, figsize=(16,12), dpi=300)
+        freqs, psdx_eq = psd(posx_eq)
+        _, psdy_eq = psd(posy_eq)
+        _, psdx = psd(posx)
+        _, psdy = psd(posy)
+
+        ax[0].semilogy(freqs, psdx, '--', label='x: original', alpha=0.7)
+        ax[1].semilogy(freqs, psdy, '--', label='y: original', alpha=0.7)
+
+        ax[0].semilogy(freqs, psdx_eq, label='x: equalized', alpha=0.5)
+        ax[1].semilogy(freqs, psdy_eq, label='y: equalized', alpha=0.5)
+
+        for x in ax:
+            x.legend()
+
+        fig.savefig(directory / (prefix + '-psd'), dpi=300)
+        plt.close(fig)
+
+        # plot position
+        fig, ax = plt.subplots(2, sharex=True, figsize=(16,9), dpi=300)
+        moving_average(posx, 2)
+        moving_average(posy, 2)
+        remove_offset(posx)
+        remove_offset(posy)
+        # clean up first sample to help with scaling the graph
+        posx[0] = 0
+        posy[0] = 0
+
+        ax[0].plot(posx[plot_range], '--', label='x: moving average and offset removed', alpha=0.7)
+        ax[1].plot(posy[plot_range], '--', label='y: moving average and offset removed', alpha=0.7)
+
+        ax[0].plot(posx_eq[plot_range], label='x: equalized', alpha=0.5)
+        ax[1].plot(posy_eq[plot_range], label='y: equalized', alpha=0.5)
+
+        for x in ax:
+            x.legend()
+
+        fig.savefig(directory / prefix, dpi=300)
+        plt.close(fig)
