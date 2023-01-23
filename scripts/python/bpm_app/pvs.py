@@ -11,9 +11,6 @@ timeout = 10
 
 PVPair = collections.namedtuple('PVPair', ['sp', 'rb'])
 
-def _consume(iterator):
-	collections.deque(iterator, maxlen=0)
-
 # list of PV
 _global_pv_list = []
 def create_pv(name):
@@ -34,7 +31,9 @@ def create_pv(name):
 	return pv_pair
 
 def wait_for_pv_connection():
-	_consume((pv.wait_for_connection() for pv in _global_pv_list))
+    for pv in _global_pv_list:
+        if not pv.wait_for_connection(timeout=timeout):
+            raise Exception(f'PV connection timeout: {pv.pvname}')
 
 # list of ([PVPair], value)
 _global_wait_list = []
@@ -78,6 +77,9 @@ def put_pv(pv_list, value, wait=True, check=True):
 		_wait_pv([wait])
 	else:
 		_global_wait_list.append(wait)
+
+def get_pv(pv_list, which='sp'):
+	return [pv_pair.sp.get() if which == 'sp' else pv_pair.rb.get() for pv_pair in pv_list]
 
 def print_pv(pv_list, which='sp'):
 	for pv_pair in pv_list:
