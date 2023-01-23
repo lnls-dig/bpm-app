@@ -5,8 +5,8 @@
 Author: Érico Nogueira
 '''
 
-from bpm_slot_mapping import area_prefix, device_prefix
-from pvs import create_pv
+from bpm_app.bpm_slot_mapping import area_prefix, device_prefix
+from bpm_app.pvs import create_pv
 
 # slot information
 rtmlamp_slot = 3

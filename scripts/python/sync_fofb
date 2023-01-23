@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-'''Script to configure FOFB_CC cores across FOFB and BPM AFCs
+'''Script to configure FOFB_CC cores across FOFB and BPM AFCs. Receives as
+argument each crate number we are interested in configuring. Run as:
 
-Receives as argument each crate number we are interested in configuring.
+    ./sync_fofb crate-number ...
 
 Author: Melissa Aguiar
 Modified by: Érico Nogueira, Guilherme Ricioli
@@ -13,8 +14,8 @@ from time import sleep
 import numpy as np
 import sys
 
-from pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv, print_pv
-from sirius import rtmlamp_slot, slots_by_crate, crate_number, get_pv_prefix, get_fofb_cc_pv_list
+from bpm_app.pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv, print_pv
+from bpm_app.sirius import rtmlamp_slot, slots_by_crate, crate_number, get_pv_prefix, get_fofb_cc_pv_list
 
 # configurable options
 time_frame_len_val = 2100
