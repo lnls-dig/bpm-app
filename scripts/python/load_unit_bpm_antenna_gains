@@ -6,20 +6,16 @@ Author: Érico Nogueira
 '''
 
 from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv
-from bpm_app.sirius import rtmlamp_slot, slots_by_crate, crate_number, get_pv_prefix
+from bpm_app.sirius import rtmlamp_slot, all_bpm_slots, crate_number, get_pv_prefix
 
 max_multiplier = 0xffffff / (1<<24)
 
-# TODO: add crate 21
-crates = [crate_number(i) for i in range(1, 21)]
+crates = [crate_number(i) for i in range(1, 22)]
 
 gains = []
 
 for crate in crates:
-    for slot in slots_by_crate[crate]:
-        if slot == rtmlamp_slot:
-            continue
-
+    for slot in all_bpm_slots[crate]:
         prefix = get_pv_prefix(crate, slot)
         for l in ['A','B','C','D']:
             for cycle in ['Inv', 'Dir']:
