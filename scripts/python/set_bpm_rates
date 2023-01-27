@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+
+'''Set the rate information PVs in our BPM IOCs and the divisor clock for the
+switching rate.
+
+Author: Érico Nogueira
+'''
+
+import sys
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv, wait_pv
+from bpm_app.sirius import bo_bpm_slots, si_bpm_slots, all_bpm_slots, crate_number, get_pv_prefix
+
+harmonic_number = 864
+bo_harmonic_number = 828
+
+tbt_rate = 382
+bo_tbt_rate = 362
+
+if sys.argv[1] == '25k':
+    fofb_rate = tbt_rate * 23
+    facq_rate = fofb_rate * 25
+    monit_rate = facq_rate * 40
+
+    switching_rate = 8786
+
+    bo_fofb_rate = bo_tbt_rate * 24
+    bo_facq_rate = bo_fofb_rate * 25
+    bo_monit_rate = bo_facq_rate * 100
+
+    bo_switching_rate = bo_fofb_rate
+elif sys.argv[1].startswith('48k'):
+    fofb_rate = tbt_rate * 12
+    facq_rate = fofb_rate * 8
+    monit_rate = facq_rate * 575
+
+    if sys.argv[1] == '48k-eq':
+        switching_rate = fofb_rate
+    elif sys.argv[1] == '48k':
+        switching_rate = fofb_rate * 2
+
+    bo_fofb_rate = bo_tbt_rate * 12
+    bo_facq_rate = bo_fofb_rate * 16
+    bo_monit_rate = bo_facq_rate * 300
+
+    bo_switching_rate = bo_fofb_rate * 2
+
+harmonic = []
+tbt = []
+fofb = []
+facq = []
+monit = []
+switching = []
+
+bo_harmonic = []
+bo_tbt = []
+bo_fofb = []
+bo_facq = []
+bo_monit = []
+bo_switching = []
+
+for crate in [crate_number(i) for i in range(1, 22)]:
+    all_or_si = all_bpm_slots if crate == '21' else si_bpm_slots
+
+    for slot in all_or_si[crate]:
+        prefix = get_pv_prefix(crate, slot)
+
+        harmonic.append(create_pv(prefix + 'INFOHarmonicNumber-SP'))
+        tbt.append(create_pv(prefix + 'INFOTbTRate-SP'))
+        fofb.append(create_pv(prefix + 'INFOFOFBRate-SP'))
+        facq.append(create_pv(prefix + 'INFOMONIT1Rate-SP'))
+        monit.append(create_pv(prefix + 'INFOMONITRate-SP'))
+        switching.append(create_pv(prefix + 'SwDivClk-SP'))
+
+    if crate == '21':
+        continue
+
+    for slot in bo_bpm_slots[crate]:
+        prefix = get_pv_prefix(crate, slot)
+
+        bo_harmonic.append(create_pv(prefix + 'INFOHarmonicNumber-SP'))
+        bo_tbt.append(create_pv(prefix + 'INFOTbTRate-SP'))
+        bo_fofb.append(create_pv(prefix + 'INFOFOFBRate-SP'))
+        bo_facq.append(create_pv(prefix + 'INFOMONIT1Rate-SP'))
+        bo_monit.append(create_pv(prefix + 'INFOMONITRate-SP'))
+        bo_switching.append(create_pv(prefix + 'SwDivClk-SP'))
+
+evg_mux_div = create_pv('AS-RaMO:TI-EVG:Clk3MuxDiv-SP')
+
+wait_for_pv_connection()
+
+put_pv(harmonic, harmonic_number, wait=False)
+put_pv(tbt, tbt_rate, wait=False)
+put_pv(fofb, fofb_rate, wait=False)
+put_pv(facq, facq_rate, wait=False)
+put_pv(monit, monit_rate, wait=False)
+put_pv(switching, switching_rate, wait=False)
+
+put_pv(bo_harmonic, bo_harmonic_number, wait=False)
+put_pv(bo_tbt, bo_tbt_rate, wait=False)
+put_pv(bo_fofb, bo_fofb_rate, wait=False)
+put_pv(bo_facq, bo_facq_rate, wait=False)
+put_pv(bo_monit, bo_monit_rate, wait=False)
+put_pv(bo_switching, bo_switching_rate, wait=False)
+
+monit_timing_div = (monit_rate // tbt_rate) * harmonic_number // 4
+put_pv([evg_mux_div], monit_timing_div)
+
+wait_pv()
