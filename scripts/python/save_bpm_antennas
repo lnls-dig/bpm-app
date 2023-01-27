@@ -13,7 +13,7 @@ from pickle import dump
 import numpy as np
 
 from bpm_app.pvs import create_pv, wait_for_pv_connection, get_pv
-from bpm_app.sirius import slots_by_crate, crate_number, get_pv_prefix
+from bpm_app.sirius import si_bpm_slots, first_si_bpm_slot, crate_number, get_pv_prefix
 
 file_name = sys.argv[1]
 
@@ -24,9 +24,9 @@ xgains = {}
 ygains = {}
 
 for crate in crates:
-    for slot in slots_by_crate[crate]:
-        # ignore rtmlamp_slot and ID BPMs
-        if slot < 13:
+    for slot in si_bpm_slots[crate]:
+        # ignore ID BPMs
+        if slot < first_si_bpm_slot:
             continue
 
         key = (crate, slot)

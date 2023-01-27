@@ -15,7 +15,7 @@ import numpy as np
 import sys
 
 from bpm_app.pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv, print_pv
-from bpm_app.sirius import rtmlamp_slot, slots_by_crate, crate_number, get_pv_prefix, get_fofb_cc_pv_list
+from bpm_app.sirius import rtmlamp_slot, fofb_cc_slots, crate_number, get_pv_prefix, get_fofb_cc_pv_list
 
 # configurable options
 time_frame_len_val = 2100
@@ -47,7 +47,7 @@ bpm_id = {}
 bpm_cnt = []
 
 for crate in crates:
-	for slot in slots_by_crate[crate]:
+	for slot in fofb_cc_slots[crate]:
 		key = (crate, slot)
 
 		cc_enable_k = get_fofb_cc_pv_list("CCEnable-SP", crate, slot)
@@ -78,7 +78,7 @@ put_pv(cc_enable, 0)
 put_pv(time_frame_len, time_frame_len_val, wait=False)
 
 for crate in crates:
-	for slot in slots_by_crate[crate]:
+	for slot in fofb_cc_slots[crate]:
 		key = (crate, slot)
 		print(f"Writing BPM IDs for {crate}...")
 

@@ -8,14 +8,29 @@ Author: Érico Nogueira
 from bpm_app.bpm_slot_mapping import area_prefix, device_prefix
 from bpm_app.pvs import create_pv
 
-# slot information
+# crate information
+_tl_crate = 21
+_homolog_crate = 22
+
+# slot numbers are (physical_slot*2-1) and (physical_slot*2)
+
+# general slot information
 rtmlamp_slot = 3
-# FOFB and BPMs slot numbers (physical_slot*2-1 and physical_slot*2)
-_slots = [rtmlamp_slot, 13, 14, 15, 16, 17, 18, 19, 20]
+first_si_bpm_slot = 13
+
+# default slots in storage ring
+_si_slots = list(range(first_si_bpm_slot, 21))
 
 # crates where the ID (insertion device) BPMs are installed
-_extra_slots = [11, 12]
-_extra_slots_crates = ['06', '07', '08', '09', '10', '11', '12', '21']
+_extra_si_slots = [11, 12]
+_extra_si_slots_crates = ['06', '07', '08', '09', '10', '11', '12', '21']
+
+# default and extra slots in booster ring
+_booster_slots = [21, 22]
+_extra_booster_slots = [23]
+_extra_booster_slots_crates = ['02', '04', '06', '08', '10', '12', '14', '16', '18', '20']
+
+_tl_slots = list(range(11, 22))
 
 def crate_number(n):
 	return f"{int(n):02}"
@@ -23,10 +38,26 @@ def crate_number(n):
 def get_key(crate, slot):
 	return crate_number(crate), str(slot)
 
-slots_by_crate = {}
+si_bpm_slots = {}
+bo_bpm_slots = {}
+all_bpm_slots = {}
+
+fofb_cc_slots = {}
+
 for crate_n in range(1, 23):
 	crate = crate_number(crate_n)
-	slots_by_crate[crate] = _slots + (_extra_slots if crate in _extra_slots_crates else [])
+
+	if crate_n != _tl_crate:
+		si_bpm_slots[crate] = _si_slots + (_extra_si_slots if crate in _extra_si_slots_crates else [])
+
+		if crate_n != _homolog_crate:
+			bo_bpm_slots[crate] = _booster_slots + (_extra_booster_slots if crate in _extra_booster_slots_crates else [])
+
+		all_bpm_slots[crate] = si_bpm_slots[crate] + bo_bpm_slots.get(crate, [])
+
+		fofb_cc_slots[crate] = [rtmlamp_slot] + all_bpm_slots[crate]
+	else:
+		all_bpm_slots[crate] = _tl_slots
 
 def get_pv_prefix(crate, slot):
 	if slot == rtmlamp_slot:
