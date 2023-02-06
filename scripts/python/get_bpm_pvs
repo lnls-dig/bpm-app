@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+'''Print the requested PVs and their values for each BPM we know of. Run as:
+
+    ./get_bpm_pvs PV-suffix ...
+
+Author: Érico Nogueira
+'''
+
+import sys
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, print_pv
+from bpm_app.sirius import all_bpm_slots, get_pv_prefix, crate_number
+
+pv_names = sys.argv[1:]
+pvs = []
+
+for crate in range(1, 22):
+    for slot in all_bpm_slots[crate_number(crate)]:
+        prefix = get_pv_prefix(crate, slot)
+        pvs.extend((create_pv(prefix + name) for name in pv_names))
+
+wait_for_pv_connection()
+print_pv(pvs)
