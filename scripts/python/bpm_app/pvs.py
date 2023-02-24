@@ -13,12 +13,12 @@ PVPair = collections.namedtuple('PVPair', ['sp', 'rb'])
 
 # list of PV
 _global_pv_list = []
-def create_pv(name):
-	sp = PV(name)
+def create_pv(name, **kwargs):
+	sp = PV(name, **kwargs)
 	if name.endswith('-SP'):
-		rb = PV(name.removesuffix('SP') + 'RB')
+		rb = PV(name.removesuffix('SP') + 'RB', **kwargs)
 	elif name.endswith('-Sel'):
-		rb = PV(name.removesuffix('Sel') + 'Sts')
+		rb = PV(name.removesuffix('Sel') + 'Sts', **kwargs)
 	else:
 		# covers -Cmd and any other weird cases
 		rb = None
