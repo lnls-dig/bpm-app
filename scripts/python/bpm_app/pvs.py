@@ -87,4 +87,4 @@ def print_pv(pv_list, which='sp'):
 			pv = pv_pair.sp
 		else:
 			pv = pv_pair.rb
-		print(f"{pv.pvname}: {pv.get(use_monitor=False)}")
+		print(f"{pv.pvname} {pv.get(use_monitor=False)}")
