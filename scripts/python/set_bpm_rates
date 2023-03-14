@@ -68,7 +68,7 @@ for crate in [crate_number(i) for i in range(1, 22)]:
         harmonic.append(create_pv(prefix + 'INFOHarmonicNumber-SP'))
         tbt.append(create_pv(prefix + 'INFOTbTRate-SP'))
         fofb.append(create_pv(prefix + 'INFOFOFBRate-SP'))
-        facq.append(create_pv(prefix + 'INFOMONIT1Rate-SP'))
+        facq.append(create_pv(prefix + 'INFOFAcqRate-SP'))
         monit.append(create_pv(prefix + 'INFOMONITRate-SP'))
         switching.append(create_pv(prefix + 'SwDivClk-SP'))
 
@@ -81,7 +81,7 @@ for crate in [crate_number(i) for i in range(1, 22)]:
         bo_harmonic.append(create_pv(prefix + 'INFOHarmonicNumber-SP'))
         bo_tbt.append(create_pv(prefix + 'INFOTbTRate-SP'))
         bo_fofb.append(create_pv(prefix + 'INFOFOFBRate-SP'))
-        bo_facq.append(create_pv(prefix + 'INFOMONIT1Rate-SP'))
+        bo_facq.append(create_pv(prefix + 'INFOFAcqRate-SP'))
         bo_monit.append(create_pv(prefix + 'INFOMONITRate-SP'))
         bo_switching.append(create_pv(prefix + 'SwDivClk-SP'))
 
