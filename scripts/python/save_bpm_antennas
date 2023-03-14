@@ -16,6 +16,9 @@ from bpm_app.pvs import create_pv, wait_for_pv_connection, get_pv
 from bpm_app.sirius import si_bpm_slots, first_si_bpm_slot, crate_number, get_pv_prefix
 
 file_name = sys.argv[1]
+acq_type = 'GEN'
+if len(sys.argv) >= 3:
+    acq_type = sys.argv[2]
 
 crates = [crate_number(i) for i in range(1, 21)]
 
@@ -34,7 +37,7 @@ for crate in crates:
         prefix = get_pv_prefix(crate, slot)
         bpm_pvs = {}
         for l in ['a','b','c','d']:
-            bpm_pvs[l] = create_pv(prefix + f'GEN_{l.upper()}ArrayData')
+            bpm_pvs[l] = create_pv(prefix + f'{acq_type}_{l.upper()}ArrayData')
 
         bpm_pvs['xgain'] = create_pv(prefix + 'PosKx-RB')
         bpm_pvs['ygain'] = create_pv(prefix + 'PosKy-RB')
