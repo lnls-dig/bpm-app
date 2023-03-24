@@ -1,0 +1,71 @@
+#! /usr/bin/env python3
+
+''' Script to scan FOFB DCC FMC/P2P links.
+
+This script reads DCC link partners PVs, builts a directed graph and saves it on
+disk using json format.
+
+    ./scan_dcc_links.py <JSON FILENAME> <LIST OF CRATES>
+
+    <JSON FILENAME>:    output filename
+    <LIST OF CRATES>:   list of crates' indexes separated by spaces
+
+Author: Guilherme Ricioli
+'''
+
+import json
+import sys
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, get_pv
+from bpm_app.sirius import rtmlamp_slot, si_bpm_slots, crate_number, get_fofb_cc_pv_list
+
+# crates
+crates = [crate_number(i) for i in sys.argv[2:]]
+
+num_of_gts = 8
+link_partners_pvs_suffix = [f"LinkPartnerCH{gt}-Mon" for gt in range(num_of_gts)]
+
+pvs_dict = {}
+
+def slots_to_scan(crate):
+    return [rtmlamp_slot] + si_bpm_slots[crate]
+
+for crate in crates:
+	for slot in slots_to_scan(crate):
+		# we only want to deal with one IOC per BPM board
+		if slot % 2 == 0:
+			continue
+
+		key = (crate, slot)
+
+		pvs_ids = get_fofb_cc_pv_list("BPMId-RB", crate, slot)
+		pvs_neighbors = []
+		for pv_suffix in link_partners_pvs_suffix:
+			pvs_neighbors.extend(get_fofb_cc_pv_list(pv_suffix, crate, slot))
+
+		pvs_dict[key] = (pvs_ids, pvs_neighbors)
+
+wait_for_pv_connection()
+
+dcc_graph = {}
+for crate in crates:
+	for slot in slots_to_scan(crate):
+		if slot % 2 == 0:
+			continue
+
+		key = (crate, slot)
+
+		pvs_ids, pvs_neighbors = pvs_dict[key]
+
+		# using DCCP2PBPMId as id
+		bpm_id = get_pv(pvs_ids)[0]
+		neighbors = get_pv(pvs_neighbors)
+		neighbors = list(set(neighbors)) # removing duplicates
+		neighbors.sort()
+
+		# FIXME: id 0 is valid for crate 01, but it is also DCC's default id when no link is stablished
+		dcc_graph[bpm_id] = neighbors if crate == "01" else list(filter(lambda i: i != 0, neighbors))
+
+# saving graph to disk
+with open(sys.argv[1], "w") as json_f:
+	json_f.write(json.dumps(dcc_graph))

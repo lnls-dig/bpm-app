@@ -9,7 +9,6 @@ Author: Melissa Aguiar
 Modified by: Érico Nogueira, Guilherme Ricioli
 '''
 
-from itertools import product
 from time import sleep
 import numpy as np
 import sys
@@ -86,8 +85,12 @@ for crate in crates:
 		phys_slot = (slot + 1) // 2
 		if slot == rtmlamp_slot:
 			bpm_id_value = fofb_ctrl_offs + int(crate) - 1
-		else:
+		elif slot >= 13:
+			# 160 SI BPMs
 			bpm_id_value = 8*(int(crate) - 1) + 2*(phys_slot - 7)
+		else:
+			# ID BPMs
+			bpm_id_value = 160 + 2*(int(crate) - 1)
 
 		put_pv(bpm_id[key], bpm_id_value, wait=False)
 
