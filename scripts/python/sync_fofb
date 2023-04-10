@@ -21,6 +21,7 @@ time_frame_len_val = 2100
 
 # fixed options
 fofb_ctrl_offs = 480
+physical_trigger = 5
 trigger_chans = [1, 2, 20]
 
 # format crate numbers taken from CLI args
@@ -39,6 +40,8 @@ cc_enable_one = []
 time_frame_len = []
 rcv_src = []
 rcv_in_sel = []
+trigger_dir = []
+trigger_pol = []
 
 bpm_id_list = []
 bpm_id = {}
@@ -58,11 +61,15 @@ for crate in crates:
 		bpm_id[key] = get_fofb_cc_pv_list("BPMId-SP", crate, slot)
 		bpm_id_list.extend(bpm_id[key])
 
+		pv_prefix = get_pv_prefix(crate, slot)
+
 		if slot != rtmlamp_slot:
-			pv_prefix = get_pv_prefix(crate, slot)
 			for trigger in trigger_chans:
 				rcv_src.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvSrc-Sel")])
 				rcv_in_sel.extend([create_pv(pv_prefix + "TRIGGER" + str(trigger) + "RcvInSel-SP")])
+
+		trigger_dir.append(create_pv(pv_prefix + f"TRIGGER{physical_trigger}Dir-Sel"))
+		trigger_pol.append(create_pv(pv_prefix + f"TRIGGER{physical_trigger}DirPol-Sel"))
 
 		if slot == rtmlamp_slot and crate in cc_enable_crates:
 			bpm_cnt.extend(get_fofb_cc_pv_list("BPMCnt-Mon", crate, slot))
@@ -100,7 +107,9 @@ print("Enabling DCC and configuring timer muxes...")
 put_pv(cc_enable_one, 1)
 
 put_pv(rcv_src, 0, wait=False)
-put_pv(rcv_in_sel, 5, wait=False)
+put_pv(rcv_in_sel, physical_trigger, wait=False)
+put_pv(trigger_dir, 1, wait=False)
+put_pv(trigger_pol, 1, wait=False)
 wait_pv()
 
 print("Sending trigger event...")
