@@ -56,9 +56,12 @@ def _wait_pv(wait_list):
 			continue
 		for pv_pair in pv_list:
 			if pv_pair.rb is not None:
-				assert pv_pair.rb.get() == value
+				read_pv = pv_pair.rb
 			else:
-				assert pv_pair.sp.get() == value
+				read_pv = pv_pair.sp
+			if read_pv.get(use_monitor=False) != value:
+				print(f'Read from {read_pv.pvname} not matching write into {pv_pair.sp.pvname}')
+				raise Exception('PV value mismatch')
 
 	if wait_list is _global_wait_list:
 		_global_wait_list[:] = []
