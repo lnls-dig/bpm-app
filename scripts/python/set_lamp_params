@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+
+'''
+Author: Érico Nogueira
+'''
+
+from argparse import ArgumentParser
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv, wait_pv
+from bpm_app.sirius import rtmlamp_slot, crate_number, rtmlamp_channels, get_rtmlamp_prefix
+
+parser = ArgumentParser(
+        'set_lamp_params',
+        'Set the base RTM-LAMP parameters. This includes CurrOffset by default, which should be restored or remeasured afterwards.')
+
+parser.add_argument('--no-curr-offsets', action='store_true')
+args = parser.parse_args()
+
+current_gain_value = 6.25e-5
+voltage_gain_value = 1.12916762036e-4
+pi_kp_value = 2_500_000
+pi_ti_value = 1_000
+
+current_gain = []
+current_offset = []
+voltage_gain = []
+voltage_offset = []
+pi_kp = []
+pi_ti = []
+
+for crate in range(1, 21):
+    for channel in rtmlamp_channels:
+        prefix = get_rtmlamp_prefix(crate, channel)
+        current_gain.append(create_pv(prefix + 'CurrGain-SP'))
+        current_offset.append(create_pv(prefix + 'CurrOffset-SP'))
+        voltage_gain.append(create_pv(prefix + 'VoltGain-SP'))
+        voltage_offset.append(create_pv(prefix + 'VoltOffset-SP'))
+        pi_kp.append(create_pv(prefix + 'CurrLoopKp-SP'))
+        pi_ti.append(create_pv(prefix + 'CurrLoopTi-SP'))
+
+wait_for_pv_connection()
+
+put_pv(current_gain, current_gain_value, wait=False, check=False)
+if not args.no_curr_offsets:
+    put_pv(current_offset, 0, wait=False)
+put_pv(voltage_gain, voltage_gain_value, wait=False, check=False)
+put_pv(voltage_offset, 0, wait=False)
+put_pv(pi_kp, pi_kp_value, wait=False)
+put_pv(pi_ti, pi_ti_value, wait=False)
+
+wait_pv()
