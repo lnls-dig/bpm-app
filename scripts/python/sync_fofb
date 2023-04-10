@@ -49,7 +49,7 @@ for crate in crates:
 	for slot in fofb_cc_slots[crate]:
 		key = (crate, slot)
 
-		cc_enable_k = get_fofb_cc_pv_list("CCEnable-SP", crate, slot)
+		cc_enable_k = get_fofb_cc_pv_list("CCEnable-Sel", crate, slot)
 		cc_enable.extend(cc_enable_k)
 		if crate in cc_enable_crates and slot in cc_enable_slots or cc_enable_exception(slot, crate):
 			cc_enable_one.extend(cc_enable_k)
