@@ -74,12 +74,12 @@ def put_pv(pv_list, value, wait=True, check=True):
 		print(f"Writing '{value}' into '{pv_pair.sp.pvname}'...")
 		pv_pair.sp.put(value, use_complete=True)
 
-	wait = (pv_list, value if check else None)
+	wait_list = (pv_list, value if check else None)
 
 	if wait:
-		_wait_pv([wait])
+		_wait_pv([wait_list])
 	else:
-		_global_wait_list.append(wait)
+		_global_wait_list.append(wait_list)
 
 def get_pv(pv_list, which='sp'):
 	return [pv_pair.sp.get() if which == 'sp' else pv_pair.rb.get() for pv_pair in pv_list]
