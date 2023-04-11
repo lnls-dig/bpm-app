@@ -27,10 +27,9 @@ for crate in "${CRATES[@]}"; do
 
     SSHPASS=root sshpass -e ssh -o StrictHostKeyChecking=no root@${crate} bash -c "\
         set -x > /dev/null && \
-        systemctl stop halcs@{1,2,3,4,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
+        systemctl stop halcs@{1,2,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         systemctl restart malamute && \
         systemctl restart tim-rx-ioc@1 && \
-        systemctl restart fofb-ioc@3 && \
         systemctl restart halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target" &
 
 done
