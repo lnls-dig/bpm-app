@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+'''Acquire BPM antennas for equalization by synching the acquisition with the
+Monit rate clock
+
+    ./acquire_bpm_antennas_for_eq
+
+Author: Érico Nogueira
+'''
+
+import sys
+
+import numpy as np
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv
+from bpm_app.sirius import si_bpm_slots, first_si_bpm_slot, crate_number, get_pv_prefix
+
+crates = [crate_number(i) for i in range(1, 21)]
+
+samples = 100_000
+channel_n = 3
+trigger_n = 1
+trigger_mux_name = 'TRIGGER11'
+trigger_mux_value = 7
+trigger_event_value = 0
+
+samples_pre = []
+samples_post = []
+channel = []
+trigger = []
+trigger_mux = []
+trigger_event = []
+trigger_rep = []
+
+for crate in crates:
+    for slot in si_bpm_slots[crate]:
+        # ignore ID BPMs
+        if slot < first_si_bpm_slot:
+            continue
+
+        key = (crate, slot)
+
+        prefix = get_pv_prefix(crate, slot)
+        samples_pre.append(create_pv(prefix + 'ACQSamplesPre-SP'))
+        samples_post.append(create_pv(prefix + 'ACQSamplesPost-SP'))
+        channel.append(create_pv(prefix + 'ACQChannel-Sel'))
+        trigger.append(create_pv(prefix + 'ACQTrigger-Sel'))
+        trigger_mux.append(create_pv(prefix + trigger_mux_name + 'RcvInSel-SP'))
+        trigger_rep.append(create_pv(prefix + 'ACQTriggerRep-Sel'))
+        trigger_event.append(create_pv(prefix + 'ACQTriggerEvent-Sel'))
+
+wait_for_pv_connection()
+
+put_pv(samples_pre, 0)
+put_pv(samples_post, samples)
+put_pv(channel, channel_n)
+put_pv(trigger, trigger_n)
+put_pv(trigger_mux, trigger_mux_value)
+put_pv(trigger_rep, 0)
+put_pv(trigger_event, trigger_event_value)
