@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+
+'''
+Author: Érico Nogueira
+'''
+
+from argparse import ArgumentParser
+from pickle import dump
+from time import sleep
+
+from bpm_app.pvs import create_pv, put_pv, get_pv, wait_for_pv_connection, wait_pv
+from bpm_app.sirius import rtmlamp_slot, get_pv_prefix, crate_number, rtmlamp_channels, get_rtmlamp_prefix
+
+parser = ArgumentParser(
+        'acquire_lamp',
+        'Acquire and save RTM-LAMP data')
+parser.add_argument('output_file')
+parser.add_argument('--voltage-step', type=float)
+parser.add_argument('--current-step', type=float)
+parser.add_argument('--single-crate', type=int)
+parser.add_argument('--no-trigger', action='store_true')
+parser.add_argument('--now', action='store_true')
+
+args = parser.parse_args()
+
+out_file = args.output_file
+voltage_step = args.voltage_step
+current_step = args.current_step
+
+voltage_step_b = voltage_step is not None
+current_step_b = current_step is not None
+
+if args.single_crate is None:
+    crates_n = range(1, 21)
+else:
+    crates_n = [args.single_crate]
+
+if voltage_step_b and current_step_b:
+    raise "Can't use both voltage and current steps at the same time"
+
+control_ps = voltage_step_b or current_step_b
+
+no_trigger = args.no_trigger
+acq_now = args.now
+
+lamp_triggers = [0, 4]
+lamp_trigger_source = 5
+
+trigger_type = []
+trigger_rep = []
+trigger_event = []
+samples_pre = []
+samples_post = []
+
+trigger_mux_sel = []
+trigger_mux_src = []
+
+trig_en = []
+voltage_sp = []
+current_sp = []
+curr_loop_mode = []
+pwr_state = []
+
+current_data = {}
+voltage_data = {}
+
+crates = [crate_number(i) for i in crates_n]
+for crate in crates:
+    prefix = get_pv_prefix(crate, rtmlamp_slot)
+
+    trigger_type.append(create_pv(prefix + f'LAMPTrigger-Sel'))
+    trigger_rep.append(create_pv(prefix + f'LAMPTriggerRep-Sel'))
+    trigger_event.append(create_pv(prefix + f'LAMPTriggerEvent-Cmd'))
+    samples_pre.append(create_pv(prefix + f'LAMPSamplesPre-SP'))
+    samples_post.append(create_pv(prefix + f'LAMPSamplesPost-SP'))
+
+    trigger_mux_sel.extend((create_pv(prefix + f'TRIGGER_LAMP{i}RcvInSel-SP') for i in lamp_triggers))
+    trigger_mux_src.extend((create_pv(prefix + f'TRIGGER_LAMP{i}RcvSrc-Sel') for i in lamp_triggers))
+
+    voltage_data[crate] = []
+    current_data[crate] = []
+
+    for channel in rtmlamp_channels:
+        rprefix = get_rtmlamp_prefix(crate, channel)
+
+        trig_en.append(create_pv(rprefix + 'TrigEn-Sel'))
+        voltage_sp.append(create_pv(rprefix + 'Voltage-SP'))
+        current_sp.append(create_pv(rprefix + 'Current-SP'))
+        curr_loop_mode.append(create_pv(rprefix + 'CurrLoopMode-Sel'))
+        pwr_state.append(create_pv(rprefix + 'PwrState-Sel'))
+
+        voltage_data[crate].append(create_pv(rprefix + 'LAMPVoltageData'))
+        current_data[crate].append(create_pv(rprefix + 'LAMPCurrentData'))
+
+fofb_event = create_pv("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
+
+wait_for_pv_connection()
+
+# setup acq
+put_pv(trigger_type, 0 if acq_now else 1, wait=False, check=False)
+put_pv(trigger_rep, 0, wait=False, check=False)
+if acq_now:
+    put_pv(samples_pre, 100_000, wait=False, check=False)
+    put_pv(samples_post, 0, wait=False, check=False)
+else:
+    put_pv(samples_pre, 100, wait=False, check=False)
+    put_pv(samples_post, 100_000, wait=False, check=False)
+put_pv(trigger_event, 1, wait=False)
+
+# setup triggering
+put_pv(trigger_mux_src, 0, wait=False)
+put_pv(trigger_mux_sel, lamp_trigger_source, wait=False)
+
+# reset rtmlamp
+if control_ps:
+    put_pv(trig_en, 0, wait=False);
+    put_pv(voltage_sp, 0, wait=False);
+    put_pv(current_sp, 0, wait=False);
+    put_pv(curr_loop_mode, 0 if voltage_step_b else 2, wait=False);
+    put_pv(pwr_state, 1, wait=False);
+
+wait_pv()
+
+if control_ps:
+    put_pv(trig_en, 1);
+
+if voltage_step_b:
+    put_pv(voltage_sp, voltage_step, check=False);
+elif current_step_b:
+    put_pv(current_sp, current_step, check=False);
+wait_pv()
+
+put_pv(trigger_event, 0)
+sleep(1)
+
+if control_ps and not no_trigger:
+    put_pv([fofb_event], 1)
+# TODO: use get_timevars() to know if all waveforms have been updated
+sleep(5)
+
+data = {}
+for crate in crates:
+    data_per_crate = []
+    i_data = get_pv(current_data[crate])
+    v_data = get_pv(voltage_data[crate])
+    for i in range(12):
+        data_per_crate.append({'i': i_data[i], 'v': v_data[i]})
+    data[crate] = data_per_crate
+
+with open(out_file, 'wb') as f:
+    dump(data, f)
+
+if control_ps:
+    put_pv(trig_en, 0)
+    put_pv(voltage_sp, 0)
+    put_pv(current_sp, 0)
