@@ -77,3 +77,9 @@ def get_fofb_cc_pv_list(name, crate, slot):
 		pv_list.append(create_pv(pv_prefix + "DCCFMC" + name))
 
 	return pv_list
+
+rtmlamp_channels = ['M1:PS-FCH:', 'M1:PS-FCV:', 'M2:PS-FCH:', 'M2:PS-FCV:', 'C2:PS-FCH:', 'C2:PS-FCV:', 'C3:PS-FCH:', 'C3:PS-FCV:']
+rtmlamp_channels += [f'XX:PS-FC{i:02}:' for i in range(8, 12)]
+
+def get_rtmlamp_prefix(crate, channel):
+	return f'SI-{crate_number(crate)}{channel}'
