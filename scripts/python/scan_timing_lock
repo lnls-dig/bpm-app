@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+
+''' Test that attenuation PVs for all RFFEs on a given crate are working
+
+    ./scan_timing_lock band step tries crates
+
+    Author: Guilherme Ricioli
+'''
+
+import sys, time
+import numpy as np
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv, get_pv
+from bpm_app.sirius import crate_number
+from epics import PV
+
+band, step, tries = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])
+crates = sys.argv[4:]
+
+def get_pv_prefix(crate):
+    if int(crate) >= 22:
+        prefix = 'DE-' + crate_number(crate) + 'SL01:TI-AMCFPGAEVR:'
+    else:
+        prefix = 'IA-' + crate_number(crate) + 'RaBPM:TI-AMCFPGAEVR:'
+    return prefix
+
+afcfreq_base = 69398055
+
+timing_lock_scan = {}
+
+for afcfreq in range(afcfreq_base - band//2, afcfreq_base + band//2 + 1, step):
+    afcfreq_pvs = []
+    refclklocked_mon_pvs = []
+    for crate in crates:
+        afcfreq_pvs.append(create_pv(get_pv_prefix(crate) + 'AFCFreq-SP'))
+        refclklocked_mon_pvs.append(create_pv(get_pv_prefix(crate) + 'RefClkLocked-Mon'))
+    wait_for_pv_connection()
+
+    refclklocked_mon_pvs_val_ored = np.zeros(len(refclklocked_mon_pvs))
+    for _try in range(tries):
+        put_pv(afcfreq_pvs, afcfreq)
+
+        time.sleep(10)
+        refclklocked_mon_pvs_val = get_pv(refclklocked_mon_pvs)
+
+        refclklocked_mon_pvs_val_ored = np.logical_or(refclklocked_mon_pvs_val_ored, np.array(refclklocked_mon_pvs_val))
+        if np.all(refclklocked_mon_pvs_val_ored == 1):
+            break
+
+        put_pv(afcfreq_pvs, afcfreq + 1)
+        time.sleep(2)
+
+    timing_lock_scan[afcfreq] = refclklocked_mon_pvs_val_ored
+
+print(timing_lock_scan)
