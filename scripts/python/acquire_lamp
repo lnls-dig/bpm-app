@@ -41,6 +41,8 @@ despike_threshold = args.despike
 
 if args.only_main_channels:
     rtmlamp_channels = rtmlamp_channels[:8]
+h_channels = rtmlamp_channels[0::2]
+v_channels = rtmlamp_channels[1::2]
 
 samples_val = args.samples
 samples_pre_val = args.samples_pre
@@ -48,6 +50,7 @@ samples_pre_val = args.samples_pre
 voltage_step_b = voltage_step is not None
 current_step_b = current_step is not None
 
+single_crate = args.single_crate
 if args.single_crate is None:
     crates_n = range(1, 21)
 else:
@@ -88,8 +91,10 @@ current_sp = []
 curr_loop_mode = []
 pwr_state = []
 
-current_data = {}
-voltage_data = {}
+h_current_data = []
+h_voltage_data = []
+v_current_data = []
+v_voltage_data = []
 
 crates = [crate_number(i) for i in crates_n]
 for crate in crates:
@@ -104,9 +109,6 @@ for crate in crates:
     trigger_mux_sel.extend((create_pv(prefix + f'TRIGGER_LAMP{i}RcvInSel-SP') for i in lamp_triggers))
     trigger_mux_src.extend((create_pv(prefix + f'TRIGGER_LAMP{i}RcvSrc-Sel') for i in lamp_triggers))
 
-    voltage_data[crate] = []
-    current_data[crate] = []
-
     for channel in rtmlamp_channels:
         rprefix = get_rtmlamp_prefix(crate, channel)
 
@@ -116,13 +118,29 @@ for crate in crates:
         curr_loop_mode.append(create_pv(rprefix + 'CurrLoopMode-Sel'))
         pwr_state.append(create_pv(rprefix + 'PwrState-Sel'))
 
-        voltage_data[crate].append(create_pv(rprefix + 'LAMPVoltageData'))
-        current_data[crate].append(create_pv(rprefix + 'LAMPCurrentData'))
+    for channel in h_channels:
+        rprefix = get_rtmlamp_prefix(crate, channel)
+        h_current_data.append(create_pv(rprefix + 'LAMPCurrentData'))
+        h_voltage_data.append(create_pv(rprefix + 'LAMPVoltageData'))
+    for channel in v_channels:
+        rprefix = get_rtmlamp_prefix(crate, channel)
+        v_current_data.append(create_pv(rprefix + 'LAMPCurrentData'))
+        v_voltage_data.append(create_pv(rprefix + 'LAMPVoltageData'))
 
-all_data = []
-for i, v in zip(current_data.values(), voltage_data.values()):
-    all_data.extend(i)
-    all_data.extend(v)
+def move_01M1(l):
+    tmp = l[0]
+    l[0:-1] = l[1:]
+    l[-1] = tmp
+
+if single_crate is None:
+    move_01M1(h_current_data)
+    move_01M1(h_voltage_data)
+    move_01M1(v_current_data)
+    move_01M1(v_voltage_data)
+
+current_data = h_current_data + v_current_data
+voltage_data = h_voltage_data + v_voltage_data
+all_data = current_data + voltage_data
 
 fofb_event = create_pv("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
 
@@ -185,14 +203,14 @@ if control_ps:
 data = {'current_step': current_step, 'voltage_step': voltage_step, 'samples_pre': samples_val if acq_now else samples_pre_val}
 data['current'] = np.zeros((samples_val, len(crates) * len(rtmlamp_channels)))
 data['voltage'] = np.zeros((samples_val, len(crates) * len(rtmlamp_channels)))
-for i, crate in enumerate(crates):
-    i_data = np.array(get_pv(current_data[crate]))
-    v_data = np.array(get_pv(voltage_data[crate]))
-    if despike_threshold:
-        for j in range(len(i_data)):
-            despiker(i_data[j], despike_threshold)
-    data['current'][:,i * len(rtmlamp_channels):(i+1) * len(rtmlamp_channels)] = i_data.T
-    data['voltage'][:,i * len(rtmlamp_channels):(i+1) * len(rtmlamp_channels)] = v_data.T
+
+i_data = np.array(get_pv(current_data))
+v_data = np.array(get_pv(voltage_data))
+if despike_threshold:
+    for j in range(len(i_data)):
+        despiker(i_data[j], despike_threshold)
+data['current'][:] = i_data.T
+data['voltage'][:] = v_data.T
 
 with open(out_file, 'wb') as f:
     dump(data, f)
