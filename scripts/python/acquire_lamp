@@ -8,6 +8,8 @@ from argparse import ArgumentParser
 from pickle import dump
 from time import sleep
 
+import numpy as np
+
 from bpm_app.pvs import create_pv, put_pv, get_pv, wait_for_pv_connection, wait_pv
 from bpm_app.sirius import rtmlamp_slot, get_pv_prefix, crate_number, rtmlamp_channels, get_rtmlamp_prefix
 
@@ -18,6 +20,9 @@ parser.add_argument('output_file')
 parser.add_argument('--voltage-step', type=float)
 parser.add_argument('--current-step', type=float)
 parser.add_argument('--single-crate', type=int)
+parser.add_argument('--only-main-channels', action='store_true')
+parser.add_argument('--samples', type=int, default=100_000)
+parser.add_argument('--samples-pre', type=int, default=100)
 parser.add_argument('--no-trigger', action='store_true')
 parser.add_argument('--now', action='store_true')
 
@@ -26,6 +31,12 @@ args = parser.parse_args()
 out_file = args.output_file
 voltage_step = args.voltage_step
 current_step = args.current_step
+
+if args.only_main_channels:
+    rtmlamp_channels = rtmlamp_channels[:8]
+
+samples_val = args.samples
+samples_pre_val = args.samples_pre
 
 voltage_step_b = voltage_step is not None
 current_step_b = current_step is not None
@@ -92,6 +103,11 @@ for crate in crates:
         voltage_data[crate].append(create_pv(rprefix + 'LAMPVoltageData'))
         current_data[crate].append(create_pv(rprefix + 'LAMPCurrentData'))
 
+all_data = []
+for i, v in zip(current_data.values(), voltage_data.values()):
+    all_data.extend(i)
+    all_data.extend(v)
+
 fofb_event = create_pv("AS-RaMO:TI-EVG:Evt10ExtTrig-Cmd")
 
 wait_for_pv_connection()
@@ -100,11 +116,11 @@ wait_for_pv_connection()
 put_pv(trigger_type, 0 if acq_now else 1, wait=False, check=False)
 put_pv(trigger_rep, 0, wait=False, check=False)
 if acq_now:
-    put_pv(samples_pre, 100_000, wait=False, check=False)
+    put_pv(samples_pre, samples_val, wait=False, check=False)
     put_pv(samples_post, 0, wait=False, check=False)
 else:
-    put_pv(samples_pre, 100, wait=False, check=False)
-    put_pv(samples_post, 100_000, wait=False, check=False)
+    put_pv(samples_pre, samples_pre_val, wait=False, check=False)
+    put_pv(samples_post, samples_val - samples_pre_val, wait=False, check=False)
 put_pv(trigger_event, 1, wait=False)
 
 # setup triggering
@@ -130,27 +146,34 @@ elif current_step_b:
     put_pv(current_sp, current_step, check=False);
 wait_pv()
 
+def get_data_timestamps(data):
+    return np.array([pv.sp.get_timevars()['timestamp'] for pv in data])
+all_data_timestamps_initial = get_data_timestamps(all_data)
+
 put_pv(trigger_event, 0)
 sleep(1)
 
 if control_ps and not no_trigger:
     put_pv([fofb_event], 1)
-# TODO: use get_timevars() to know if all waveforms have been updated
-sleep(5)
 
-data = {}
-for crate in crates:
-    data_per_crate = []
-    i_data = get_pv(current_data[crate])
-    v_data = get_pv(voltage_data[crate])
-    for i in range(12):
-        data_per_crate.append({'i': i_data[i], 'v': v_data[i]})
-    data[crate] = data_per_crate
-
-with open(out_file, 'wb') as f:
-    dump(data, f)
+print('Waiting for array data to be updated')
+while np.any(get_data_timestamps(all_data) == all_data_timestamps_initial):
+    sleep(1)
 
 if control_ps:
     put_pv(trig_en, 0)
-    put_pv(voltage_sp, 0)
-    put_pv(current_sp, 0)
+    put_pv(voltage_sp, 0, wait=False)
+    put_pv(current_sp, 0, wait=False)
+    wait_pv()
+
+data = {'current_step': current_step, 'voltage_step': voltage_step, 'samples_pre': samples_val if acq_now else samples_pre_val}
+data['current'] = np.zeros((samples_val, len(crates) * len(rtmlamp_channels)))
+data['voltage'] = np.zeros((samples_val, len(crates) * len(rtmlamp_channels)))
+for i, crate in enumerate(crates):
+    i_data = np.array(get_pv(current_data[crate]))
+    v_data = np.array(get_pv(voltage_data[crate]))
+    data['current'][:,i * len(rtmlamp_channels):(i+1) * len(rtmlamp_channels)] = i_data.T
+    data['voltage'][:,i * len(rtmlamp_channels):(i+1) * len(rtmlamp_channels)] = v_data.T
+
+with open(out_file, 'wb') as f:
+    dump(data, f)
