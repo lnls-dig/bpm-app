@@ -190,9 +190,11 @@ sleep(1)
 if control_ps and not no_trigger:
     put_pv([fofb_event], 1)
 
-print('Waiting for array data to be updated')
+print('Waiting for array data to be updated...', end='', flush=True)
 while np.any(get_data_timestamps(all_data) == all_data_timestamps_initial):
+    print('.', end='', flush=True)
     sleep(1)
+print('')
 
 if control_ps:
     put_pv(trig_en, 0)
@@ -204,14 +206,19 @@ data = {'current_step': current_step, 'voltage_step': voltage_step, 'samples_pre
 data['current'] = np.zeros((samples_val, len(crates) * len(rtmlamp_channels)))
 data['voltage'] = np.zeros((samples_val, len(crates) * len(rtmlamp_channels)))
 
+print('Fetching current data...')
 i_data = np.array(get_pv(current_data))
+print('Fetching voltage data...')
 v_data = np.array(get_pv(voltage_data))
 if despike_threshold:
+    print('Despiking data...')
     for j in range(len(i_data)):
         despiker(i_data[j], despike_threshold)
+print('Copying data to dict...')
 data['current'][:] = i_data.T
 data['voltage'][:] = v_data.T
 
+print('Saving data')
 with open(out_file, 'wb') as f:
     dump(data, f)
 
