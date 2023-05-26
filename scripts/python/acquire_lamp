@@ -21,6 +21,7 @@ parser.add_argument('output_file')
 parser.add_argument('--mat-file')
 parser.add_argument('--voltage-step', type=float)
 parser.add_argument('--current-step', type=float)
+parser.add_argument('--despike', type=float)
 parser.add_argument('--single-crate', type=int)
 parser.add_argument('--only-main-channels', action='store_true')
 parser.add_argument('--samples', type=int, default=100_000)
@@ -35,6 +36,8 @@ out_mat_file = args.mat_file
 
 voltage_step = args.voltage_step
 current_step = args.current_step
+
+despike_threshold = args.despike
 
 if args.only_main_channels:
     rtmlamp_channels = rtmlamp_channels[:8]
@@ -60,6 +63,15 @@ acq_now = args.now
 
 lamp_triggers = [0, 4]
 lamp_trigger_source = 5
+
+def despiker(array, thres):
+    for idx in range(len(array)):
+        if idx == 0:
+            # Assumes no spike on index 0
+            continue
+        else:
+            if abs(array[idx] - array[idx - 1]) > thres:
+                array[idx] = array[idx - 1]
 
 trigger_type = []
 trigger_rep = []
@@ -176,6 +188,9 @@ data['voltage'] = np.zeros((samples_val, len(crates) * len(rtmlamp_channels)))
 for i, crate in enumerate(crates):
     i_data = np.array(get_pv(current_data[crate]))
     v_data = np.array(get_pv(voltage_data[crate]))
+    if despike_threshold:
+        for j in range(len(i_data)):
+            despiker(i_data[j], despike_threshold)
     data['current'][:,i * len(rtmlamp_channels):(i+1) * len(rtmlamp_channels)] = i_data.T
     data['voltage'][:,i * len(rtmlamp_channels):(i+1) * len(rtmlamp_channels)] = v_data.T
 
