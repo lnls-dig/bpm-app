@@ -9,6 +9,7 @@ Author: Érico Nogueira
 '''
 
 import sys
+from time import sleep
 
 import numpy as np
 
@@ -31,6 +32,7 @@ trigger = []
 trigger_mux = []
 trigger_event = []
 trigger_rep = []
+trigger_delay = []
 
 for crate in crates:
     for slot in si_bpm_slots[crate]:
@@ -47,14 +49,19 @@ for crate in crates:
         trigger.append(create_pv(prefix + 'ACQTrigger-Sel'))
         trigger_mux.append(create_pv(prefix + trigger_mux_name + 'RcvInSel-SP'))
         trigger_rep.append(create_pv(prefix + 'ACQTriggerRep-Sel'))
+        trigger_delay.append(create_pv(prefix + 'ACQTriggerHwDly-SP'))
         trigger_event.append(create_pv(prefix + 'ACQTriggerEvent-Sel'))
 
 wait_for_pv_connection()
+
+put_pv(trigger_event, 1)
+sleep(3)
 
 put_pv(samples_pre, 0)
 put_pv(samples_post, samples)
 put_pv(channel, channel_n)
 put_pv(trigger, trigger_n)
-put_pv(trigger_mux, trigger_mux_value)
+put_pv(trigger_mux, trigger_mux_value) # TODO: restore value
 put_pv(trigger_rep, 0)
+put_pv(trigger_delay, 0) # TODO: restore value
 put_pv(trigger_event, trigger_event_value)
