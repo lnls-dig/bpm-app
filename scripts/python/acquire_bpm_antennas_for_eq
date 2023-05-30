@@ -18,7 +18,7 @@ from bpm_app.sirius import si_bpm_slots, first_si_bpm_slot, crate_number, get_pv
 
 crates = [crate_number(i) for i in range(1, 21)]
 
-samples = 100_000
+samples = 2046
 channel_n = 3
 trigger_n = 1
 trigger_mux_name = 'TRIGGER11'
