@@ -39,7 +39,8 @@ plot_range = range(40000, 45000)
 
 def get_semicycles(d):
     def split_semicycles(pos):
-        return pos[::2], pos[1::2]
+        pos_reshape = pos.reshape((-1, 2))
+        return pos_reshape[::2].ravel(), pos_reshape[1::2].ravel()
 
     return {l: list(split_semicycles(d[l])) for l in antennas}
 
