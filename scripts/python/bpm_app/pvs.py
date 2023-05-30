@@ -59,7 +59,11 @@ def _wait_pv(wait_list):
 				read_pv = pv_pair.rb
 			else:
 				read_pv = pv_pair.sp
-			if read_pv.get(use_monitor=False) != value:
+			for i in range(10):
+				if read_pv.get(use_monitor=False) == value:
+					break
+				sleep(.1)
+			else:
 				print(f'Read from {read_pv.pvname} not matching write into {pv_pair.sp.pvname}')
 				raise Exception('PV value mismatch')
 
