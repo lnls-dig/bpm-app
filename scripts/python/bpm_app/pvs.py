@@ -73,9 +73,10 @@ def _wait_pv(wait_list):
 def wait_pv():
 	_wait_pv(_global_wait_list)
 
-def put_pv(pv_list, value, wait=True, check=True):
+def put_pv(pv_list, value, wait=True, check=True, verbose=True):
 	for pv_pair in pv_list:
-		print(f"Writing '{value}' into '{pv_pair.sp.pvname}'...")
+		if verbose:
+			print(f"Writing '{value}' into '{pv_pair.sp.pvname}'...")
 		pv_pair.sp.put(value, use_complete=True)
 
 	wait_list = (pv_list, value if check else None)
