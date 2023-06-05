@@ -1,0 +1,152 @@
+#!/usr/bin/env python
+
+'''
+Author: Augusto Fraga Giachero
+'''
+
+from argparse import ArgumentParser
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv, wait_pv, get_pv
+from bpm_app.sirius import get_rtmlamp_prefix, rtmlamp_channels
+from time import sleep
+import numpy as np
+import sys
+
+class AcqLAMP:
+    def __init__(self, prefix):
+        crate = int(prefix[3:5])
+        self._sample_post = create_pv(prefix + ":BS-FOFBCtrl:LAMPSamplesPost-SP")
+        self._sample_pre = create_pv(prefix + ":BS-FOFBCtrl:LAMPSamplesPre-SP")
+        self._trigger_rep = create_pv(prefix + ":BS-FOFBCtrl:LAMPTriggerRep-Sel")
+        self._trigger_sel = create_pv(prefix + ":BS-FOFBCtrl:LAMPTrigger-Sel")
+        self._trigger_evt = create_pv(prefix + ":BS-FOFBCtrl:LAMPTriggerEvent-Cmd")
+        self._current_data = []
+        self._voltage_data = []
+        self._current_data_raw = []
+        self._voltage_data_raw = []
+        rtmlamp_channel_prefixes = [f"SI-{crate:02}" + rtmlamp_channels[i] for i in range(0, 12)]
+        for channel in rtmlamp_channel_prefixes:
+            self._current_data.append(create_pv(channel + "LAMPCurrentData"))
+            self._voltage_data.append(create_pv(channel + "LAMPVoltageData"))
+            self._current_data_raw.append(create_pv(channel + "LAMPCurrentRawData"))
+            self._voltage_data_raw.append(create_pv(channel + "LAMPVoltageRawData"))
+        wait_for_pv_connection()
+
+    def acq(self, samples):
+        put_pv([self._sample_post], 0, wait=False, check=False)
+        put_pv([self._sample_pre], samples, wait=False, check=False)
+        put_pv([self._trigger_rep], "normal", wait=False, check=False)
+        put_pv([self._trigger_sel], "now", wait=False, check=False)
+        wait_pv()
+        put_pv([self._trigger_evt], 0, wait=True, check=False)
+        sleep(2)
+        currents = np.array(get_pv(self._current_data))
+        voltages = np.array(get_pv(self._voltage_data))
+        return currents, voltages
+
+    def acq_raw(self, samples):
+        put_pv([self._sample_post], 0, wait=False, check=False)
+        put_pv([self._sample_pre], samples, wait=False, check=False)
+        put_pv([self._trigger_rep], "normal", wait=False, check=False)
+        put_pv([self._trigger_sel], "now", wait=False, check=False)
+        wait_pv()
+        put_pv([self._trigger_evt], 0, wait=True, check=False)
+        sleep(2)
+        currents = np.array(get_pv(self._current_data_raw))
+        voltages = np.array(get_pv(self._voltage_data_raw))
+        return currents, voltages
+
+parser = ArgumentParser(
+    description="Test script for the FOFB power supply")
+
+parser.add_argument("--board-prefix", type=str, help="PV prefix of the board (ie DE-24SL07 or IA-01RaBPM)", required=True)
+args = parser.parse_args()
+
+board_prefix = args.board_prefix
+crate = int(board_prefix[3:5])
+
+acq = AcqLAMP(board_prefix)
+
+current_gain_value = 6.25e-5
+voltage_gain_value = 1.12916762036e-4
+pi_kp_value = 2_500_000
+pi_ti_value = 1_000
+
+rtmlamp_channel_prefixes = [f"SI-{crate:02}" + rtmlamp_channels[i] for i in range(0, 12)]
+
+curr_loop_mode = []
+current_gain = []
+current_offset = []
+voltage_gain = []
+voltage_offset = []
+pi_kp = []
+pi_ti = []
+pwr_sts = []
+alarms_amp_ltc = []
+alarms_amp_ltc_rst = []
+current_sp = []
+
+for prefix in rtmlamp_channel_prefixes:
+    curr_loop_mode.append(create_pv(prefix + 'CurrLoopMode-Sel'))
+    current_gain.append(create_pv(prefix + 'CurrGain-SP'))
+    current_offset.append(create_pv(prefix + 'CurrOffset-SP'))
+    voltage_gain.append(create_pv(prefix + 'VoltGain-SP'))
+    voltage_offset.append(create_pv(prefix + 'VoltOffset-SP'))
+    pi_kp.append(create_pv(prefix + 'CurrLoopKp-SP'))
+    pi_ti.append(create_pv(prefix + 'CurrLoopTi-SP'))
+    pwr_sts.append(create_pv(prefix + 'PwrState-Sel'))
+    alarms_amp_ltc.append(create_pv(prefix + 'AlarmsAmpLtc-Mon'))
+    alarms_amp_ltc_rst.append(create_pv(prefix + 'AlarmsAmpLtcRst-Cmd'))
+    current_sp.append(create_pv(prefix + 'Current-SP'))
+
+wait_for_pv_connection()
+put_pv(alarms_amp_ltc_rst, 1, wait=False, check=False)
+put_pv(curr_loop_mode, "open_loop_manual", wait=False, check=False)
+put_pv(pwr_sts, 0, wait=False, check=False)
+put_pv(current_gain, current_gain_value, wait=False, check=False)
+put_pv(current_offset, 0, wait=False)
+put_pv(voltage_gain, voltage_gain_value, wait=False, check=False)
+put_pv(voltage_offset, 0, wait=False)
+put_pv(pi_kp, pi_kp_value, wait=False)
+put_pv(pi_ti, pi_ti_value, wait=False)
+
+wait_pv()
+
+currents, voltages = acq.acq_raw(1000)
+offsets = [round(np.average(current)) for current in currents]
+
+for offset, pv in zip(offsets, current_offset):
+    put_pv([pv], offset, wait=False, check=False)
+
+wait_pv()
+
+for channel_group in [0, 4, 8]:
+    print(f"Please connect the test loads on channels {channel_group} to {channel_group + 3} and press enter.")
+    proceed = input()
+    put_pv(pwr_sts[channel_group:(channel_group + 4)], 1, wait=False, check=False)
+    put_pv(curr_loop_mode[channel_group:(channel_group + 4)], "closed_loop_manual", wait=False, check=False)
+    wait_pv()
+
+    put_pv(current_sp[channel_group:(channel_group + 4)], -0.95, wait=True, check=False)
+    put_pv(alarms_amp_ltc_rst, 1, wait=True, check=False)
+
+    for current_setpoint in np.linspace(-0.95, 0.95, num=40):
+        put_pv(current_sp[channel_group:(channel_group + 4)], current_setpoint, wait=True, check=False)
+        sleep(0.5)
+        currents, voltages = acq.acq(1000)
+        avg_currents = [np.average(current) for current in currents[channel_group:(channel_group + 4)]]
+        alarms = np.array(get_pv(alarms_amp_ltc))
+        for ch, avg_curr in zip(range(channel_group, channel_group + 4), avg_currents):
+            if abs(current_setpoint - avg_curr) > 0.005:
+                put_pv(current_sp, 0, wait=True, check=False)
+                print(f"Channel {ch} fail! Expected current: {current_setpoint}, read {avg_curr}", file=sys.stderr)
+                exit(1)
+            if alarms[ch] != 0:
+                print(f"Channel {ch} fail! Alarms: {alarms[ch]}", file=sys.stderr)
+                exit(1)
+        print(avg_currents)
+
+    put_pv(current_sp[channel_group:(channel_group + 4)], 0, wait=True, check=False)
+    put_pv(alarms_amp_ltc_rst, 1, wait=False, check=False)
+    put_pv(curr_loop_mode[channel_group:(channel_group + 4)], "open_loop_manual", wait=True, check=False)
+print("All tests ok!")
