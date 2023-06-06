@@ -60,10 +60,12 @@ parser = ArgumentParser(
     description="Test script for the FOFB power supply")
 
 parser.add_argument("--board-prefix", type=str, help="PV prefix of the board (ie DE-24SL07 or IA-01RaBPM)", required=True)
+parser.add_argument("--channel-sets", type=str, help="Comma separated list of channel sets to test, 0 -> CH0-CH3, 1 -> CH4-CH7, 2 -> CH8-CH11", required=False, default="0,1,2")
 args = parser.parse_args()
 
 board_prefix = args.board_prefix
 crate = int(board_prefix[3:5])
+channel_sets = [(int(i) % 3)*4 for i in args.channel_sets.split(",")]
 
 acq = AcqLAMP(board_prefix)
 
@@ -123,7 +125,7 @@ for offset, pv in zip(offsets, current_offset):
 
 wait_pv()
 
-for channel_group in [0, 4, 8]:
+for channel_group in channel_sets:
     print(f"Please connect the test loads on channels {channel_group} to {channel_group + 3} and press enter.")
     proceed = input()
     put_pv(pwr_sts[channel_group:(channel_group + 4)], 1, wait=False, check=False)
