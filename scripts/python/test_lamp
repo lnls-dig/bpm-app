@@ -142,7 +142,7 @@ for channel_group in [0, 4, 8]:
         for ch, avg_curr in zip(range(channel_group, channel_group + 4), avg_currents):
             if abs(current_setpoint - avg_curr) > 0.005:
                 put_pv(current_sp, 0, wait=True, check=False)
-                print(f"Channel {ch} fail! Expected current: {current_setpoint}, read {avg_curr}", file=sys.stderr)
+                print(f"Channel {ch} fail! Expected current: {current_setpoint}, read {avg_curr}, Alarms: {alarms[ch]}", file=sys.stderr)
                 exit(1)
             if alarms[ch] != 0:
                 print(f"Channel {ch} fail! Alarms: {alarms[ch]}", file=sys.stderr)
