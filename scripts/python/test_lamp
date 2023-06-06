@@ -85,6 +85,7 @@ pwr_sts = []
 alarms_amp_ltc = []
 alarms_amp_ltc_rst = []
 current_sp = []
+trig_mode = []
 
 for prefix in rtmlamp_channel_prefixes:
     curr_loop_mode.append(create_pv(prefix + 'CurrLoopMode-Sel'))
@@ -98,8 +99,10 @@ for prefix in rtmlamp_channel_prefixes:
     alarms_amp_ltc.append(create_pv(prefix + 'AlarmsAmpLtc-Mon'))
     alarms_amp_ltc_rst.append(create_pv(prefix + 'AlarmsAmpLtcRst-Cmd'))
     current_sp.append(create_pv(prefix + 'Current-SP'))
+    trig_mode.append(create_pv(prefix + 'TrigEn-Sel'))
 
 wait_for_pv_connection()
+put_pv(trig_mode, "disable", wait=False, check=False)
 put_pv(alarms_amp_ltc_rst, 1, wait=False, check=False)
 put_pv(curr_loop_mode, "open_loop_manual", wait=False, check=False)
 put_pv(pwr_sts, 0, wait=False, check=False)
