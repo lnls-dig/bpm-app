@@ -24,6 +24,7 @@ parser.add_argument('--current-step', type=float)
 parser.add_argument('--despike', type=float)
 parser.add_argument('--single-crate', type=int)
 parser.add_argument('--only-main-channels', action='store_true')
+parser.add_argument('--channels', type=int, nargs='*', help='Channels which will be acted on')
 parser.add_argument('--samples', type=int, default=100_000)
 parser.add_argument('--samples-pre', type=int, default=100)
 parser.add_argument('--no-trigger', action='store_true')
@@ -43,6 +44,11 @@ if args.only_main_channels:
     rtmlamp_channels = rtmlamp_channels[:8]
 h_channels = rtmlamp_channels[0::2]
 v_channels = rtmlamp_channels[1::2]
+
+if args.channels is not None:
+    rtmlamp_channels_act = [rtmlamp_channels[i] for i in args.channels]
+else:
+    rtmlamp_channels_act = rtmlamp_channels
 
 samples_val = args.samples
 samples_pre_val = args.samples_pre
@@ -109,7 +115,7 @@ for crate in crates:
     trigger_mux_sel.extend((create_pv(prefix + f'TRIGGER_LAMP{i}RcvInSel-SP') for i in lamp_triggers))
     trigger_mux_src.extend((create_pv(prefix + f'TRIGGER_LAMP{i}RcvSrc-Sel') for i in lamp_triggers))
 
-    for channel in rtmlamp_channels:
+    for channel in rtmlamp_channels_act:
         rprefix = get_rtmlamp_prefix(crate, channel)
 
         trig_en.append(create_pv(rprefix + 'TrigEn-Sel'))
