@@ -1,0 +1,277 @@
+#!/usr/bin/env python3
+
+'''Script to get AFCs timing delays. Configure
+timing network to monitor events 115 and readback
+  Usage:
+    ./get_afc_timing_delays testbench
+  or
+    ./get_afc_timing_delays sirius
+
+Author: Mauricio Donatti
+'''
+
+from time import sleep
+import numpy as np
+import sys
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv, get_pv
+
+#Global Definitions
+event_trigger = 115
+readback_event = 127
+wait_time_s = 10
+
+sirius = False
+if len(sys.argv) == 2 and sys.argv[1] == 'sirius':
+  print("Getting Sirius Timing Delays!")
+  sirius = True
+else:
+  print("Getting Testbench Timing Delays!")
+
+#define prefixes for tests
+if sirius == False:
+  EVG_prefix = "DE-23RaBPM:TI-EVG:"
+  EVE_prefix = "DE-23RaBPM:TI-EVE:"
+  FOUT_list = ["DE-23RaBPM:TI-Fout:"]
+  AFC_list = { 
+    "DE-23SL01:TI-AMCFPGAEVR:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B0"],
+    #SINAP EVR does not support 115 event echo
+    #"DE-23RaBPM:TI-EVR:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B1","DE-23RaBPM:TI-Fout:RxEnbl-SP.B0"],
+    "DE-23RaBPM:TI-EVE:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B1","DE-23RaBPM:TI-Fout:RxEnbl-SP.B1"],
+    #Minicrate is not available at this moment
+    #"DE-24SL01:TI-AMCFPGAEVR:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B1","DE-23RaBPM:TI-Fout:RxEnbl-SP.B2"],
+    "DE-23RaBPM:TI-EVE-2:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B1","DE-23RaBPM:TI-Fout:RxEnbl-SP.B3"],
+  }
+else:
+  EVG_prefix = "AS-RaMO:TI-EVG:"
+  EVE_prefix = "RA-RaSIA01:TI-EVE:"
+  FOUT_list = ["RA-RaMO:TI-Fout:",
+    "CA-RaTim:TI-Fout-1:",
+    "CA-RaTim:TI-Fout-2:",
+    "CA-RaTim:TI-Fout-3:",
+    "CA-RaTim:TI-Fout-4:",
+    "CA-RaTim:TI-Fout-5:"]
+  AFC_list = {
+    "IA-01RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B0"],
+    "IA-02RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B1"],
+    "IA-03RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B2"],
+    "IA-04RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B3"],
+    "IA-05RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B4"],
+    "IA-06RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B5"],
+    "IA-07RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B6"],
+    "IA-08RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B0"],
+    "IA-09RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B1"],
+    "IA-10RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B2"],
+    "IA-11RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B3"],
+    "IA-12RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B4"],
+    "IA-13RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B5"],
+    "IA-14RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B6"],
+    "IA-15RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B0"],
+    "IA-16RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B1"],
+    "IA-17RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B2"],
+    "IA-18RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B3"],
+    "IA-19RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B4"],
+    "IA-20RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B5"],
+    "IA-20RaBPMTL:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B6"],
+  }
+
+#Create records
+#Timing Network RX enable Records
+rx_evg = [create_pv(f"{EVG_prefix}RxEnbl-SP.B{i}") for i in range(8)]
+rx_fouts = [create_pv(f"{fout}RxEnbl-SP.B{i}") for fout in FOUT_list for i in range(8)]
+all_rx = rx_evg + rx_fouts
+
+#Create EVG Interlock Map Recprds
+evg_evt_in1 = [create_pv(f"{EVG_prefix}IntlkEvtIn1-SP")]
+evg_itlk_en = [create_pv(f"{EVG_prefix}IntlkCtrlEnbl-Sel")]
+evg_evt_out = [create_pv(f"{EVG_prefix}IntlkEvtOut-SP")]
+evg_itlk_rst = [create_pv(f"{EVG_prefix}IntlkCtrlRst-Sel")]
+evg_itlk_table_1 = [create_pv(f"{EVG_prefix}IntlkTbl0to15-Sel.B{i:X}") for i in range(16)]
+evg_itlk_table_2 = [create_pv(f"{EVG_prefix}IntlkTbl16to27-Sel.B{i:X}") for i in range(14)]
+
+#Create EVG Timestamp Records
+evg_timestamp_source = [create_pv(f"{EVG_prefix}TimestampSrc-Sel")]
+
+#EVE Records
+eve_log_all = [create_pv(f"{EVE_prefix}OTP{otp:02d}Log-Sel") for otp in range(24)]
+
+OTPs = [22,23]
+eve_otp_enable = [create_pv(f"{EVE_prefix}OTP{otp:02d}State-Sel") for otp in OTPs]
+eve_otp_evt = [create_pv(f"{EVE_prefix}OTP{otp:02d}Evt-SP") for otp in OTPs]
+
+stoplog = [create_pv(f"{EVE_prefix}stoplog")]
+resetlog = [create_pv(f"{EVE_prefix}rstlog")]
+resetlog_rb = [create_pv(f"{EVE_prefix}RSTLOGRBV")]
+resetlogbuffer = [create_pv(f"{EVE_prefix}rstSoftBuff")]
+eve_timestamp_source = [create_pv(f"{EVE_prefix}TimestampSrc-Sel")]
+eve_freq_pv = [create_pv(f"{EVE_prefix}FPGAClk-Cte")]
+
+subsec_buffer_pv = [create_pv(f"{EVE_prefix}SUBSECbuffer")]
+utc_buffer_pv = [create_pv(f"{EVE_prefix}UTCbuffer")]
+event_buffer_pv = [create_pv(f"{EVE_prefix}EVENTbuffer")]
+
+#wait records to be connected
+wait_for_pv_connection()
+
+#backup records to be restored
+evg_event_in1_bkp = get_pv(evg_evt_in1)[0]
+evg_event_out_bkp = get_pv(evg_evt_out)[0]
+eve_timestamp_src_bkp = get_pv(eve_timestamp_source)[0]
+evg_timestamp_src_bkp = get_pv(evg_timestamp_source)[0]
+
+#Disable all RX at EVG and Fanouts
+print("Disable all RX at EVG and Fanouts")
+put_pv(all_rx,0,wait=False)
+
+#Configure EVE OTPs
+print("Configure EVE OTPs")
+#Disable EVE OTP logs up to OTP21
+put_pv(eve_log_all[:OTPs[0]],0,wait=False)
+#Enable OTP22 and OTP23 and logs
+put_pv(eve_otp_enable,1,wait=True)
+put_pv(eve_log_all[OTPs[0]:OTPs[1]+1],1,wait=True)
+#Configure EVE Events
+put_pv([eve_otp_evt[0]],event_trigger,wait=True)
+put_pv([eve_otp_evt[1]],readback_event,wait=True)
+
+#Configure EVE Timestamp
+print("Configure EVE Timestamp Log")
+put_pv(stoplog,1,wait=False)
+put_pv(eve_timestamp_source,3,wait=False)#Set as internal
+
+#Configure EVG Interlock Map
+print("Configure EVG Interlock Map")
+
+put_pv(evg_evt_in1,event_trigger,wait=True)
+put_pv(evg_evt_out,readback_event,wait=True)
+
+for rec in evg_itlk_table_1[:7]+evg_itlk_table_1[8:]+evg_itlk_table_2:
+  put_pv([rec],0,wait=True)
+put_pv([evg_itlk_table_1[7]],1,wait=True)
+
+put_pv(evg_itlk_en,1,wait=False)
+
+#Configure EVG Timestamp Src
+put_pv(evg_timestamp_source,3,wait=False)#Set as internal
+
+wait_pv()
+
+eve_freq = get_pv(eve_freq_pv)[0]
+print(f"EVE frequency: {eve_freq} Hz")
+
+afc_delays = {}
+
+for afc in AFC_list.keys():
+  print("-----------------------------------------------------------")
+  print(f"Getting Delay for AFC {afc}")
+
+  event_buffer = []
+  while len(event_buffer) <= 1:
+    #Enable Rx for this afc
+    put_pv([rx for rx in all_rx if rx.sp.pvname in AFC_list[afc]],1,wait=True)
+
+    #Reset Buffers
+    put_pv(resetlog,1,wait=True,check=False)
+    #wait reset log readback falling edge
+    while(get_pv(resetlog_rb) == 0):
+      sleep(0.01)
+    while(get_pv(resetlog_rb) == 1):
+      sleep(0.01)
+    
+    put_pv(resetlogbuffer,1,wait=True,check=False)
+    #wait log buffer reset
+    while(get_pv(resetlogbuffer) == 0):
+      sleep(0.01)
+    while(get_pv(resetlogbuffer) == 1):
+      sleep(0.01)
+
+    #Start Logging
+    put_pv(stoplog,0,wait=True,check=False)
+
+    print(f"Waiting Events for {wait_time_s} seconds")
+    sleep(wait_time_s)
+
+    put_pv(stoplog,1,wait=True,check=False)
+
+    #Disable Rx for this afc
+    put_pv([rx for rx in all_rx if rx.sp.pvname in AFC_list[afc]],0,wait=True)
+
+    subsec_buffer = get_pv(subsec_buffer_pv)[0]
+    utc_buffer = get_pv(utc_buffer_pv)[0]
+    event_buffer = get_pv(event_buffer_pv)[0]
+  
+    print(utc_buffer)
+    print(subsec_buffer)
+    print(event_buffer)
+
+    #Each fanout at timing network reply to 115 event
+    nodes = len(AFC_list[afc])
+    delays = np.empty((nodes,0))
+    for idx in range(len(event_buffer)):
+      if idx + 1 + nodes*2 < len(event_buffer):
+        if event_buffer[idx] == event_trigger:
+          delays_to_append = np.empty((nodes,1))
+          valids = 0
+          for node in range(nodes):
+            if event_buffer[idx+node*2+1] == event_buffer[idx + 2 + node*2] == readback_event:
+              delay = (subsec_buffer[idx+1+node*2]-subsec_buffer[idx])*1e6/eve_freq
+              print(f"Delay between events found: {delay} us")
+              delays_to_append[node] = delay
+              valids = valids + 1 
+          if valids == nodes:
+            delays = np.concatenate((delays,delays_to_append),1)
+    if len(event_buffer) <= 1:
+      print("Void buffer. Trying again!")
+  print(delays)
+  afc_delays[afc] = np.empty(nodes)
+  for node in range(nodes):
+    mean_delay = np.mean(delays[node])/2
+    afc_delays[afc][node] = mean_delay
+    print(f"Mean delay: {mean_delay} us")
+
+print("-----------------------------------------------")
+print("Delays in us")
+print(afc_delays)
+
+print("-----------------------------------------------")
+adj_delays = np.array([last[-1] for last in afc_delays.values()])
+print("AFCs total chain delays in us")
+print(adj_delays)
+
+print("-----------------------------------------------")
+max_delay = np.max(adj_delays)
+print("AFCs max delay in us")
+print(max_delay)
+
+print("-----------------------------------------------")
+min_delay = np.min(adj_delays)
+print("AFCs max delay difference in us (expected around 1.25us for sirius):")
+print(max_delay-min_delay)
+
+print("-----------------------------------------------")
+adj_delays = max_delay - adj_delays
+print("Delays to be adjusted (max_delay - all delays) in us:")
+print(adj_delays)
+print("-----------------------------------------------")
+
+#Revert Changes
+print("Disabling Orbit Interlock Map at EVG")
+put_pv(evg_evt_in1,evg_event_in1_bkp,wait=True)
+put_pv(evg_evt_out,evg_event_out_bkp,wait=True)
+put_pv([evg_itlk_table_1[7]],0,wait=False)
+put_pv(evg_itlk_en,0,wait=False)
+
+#Revert EVG Timestamp src
+put_pv(evg_timestamp_source,evg_timestamp_src_bkp,wait=False)
+
+print("Disable EVE Events log")
+put_pv(eve_timestamp_source,eve_timestamp_src_bkp,wait=False)
+put_pv(eve_otp_enable,0,wait=True)
+put_pv(eve_log_all[OTPs[0]:OTPs[1]+1],0,wait=True)
+put_pv(eve_otp_evt,0,wait=True)
+put_pv(stoplog,1,wait=True,check=False)
+
+print("Reset flags")
+put_pv(evg_itlk_rst + resetlog + resetlogbuffer,1,wait=True,check=False)
+
+wait_pv()
