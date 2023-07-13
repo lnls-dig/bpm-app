@@ -110,8 +110,21 @@ subsec_buffer_pv = [create_pv(f"{EVE_prefix}SUBSECbuffer")]
 utc_buffer_pv = [create_pv(f"{EVE_prefix}UTCbuffer")]
 event_buffer_pv = [create_pv(f"{EVE_prefix}EVENTbuffer")]
 
+afcs_rtm_ph_kp = [create_pv(f"{afcs}RTMPhasePropGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_ph_ki = [create_pv(f"{afcs}RTMPhaseIntgGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_fr_kp = [create_pv(f"{afcs}RTMFreqPropGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_fr_ki = [create_pv(f"{afcs}RTMFreqIntgGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+
 #wait records to be connected
 wait_for_pv_connection()
+
+print("Enable RTM Loop")
+put_pv(afcs_rtm_ph_kp,100,wait=False)
+put_pv(afcs_rtm_ph_ki,1,wait=False)
+put_pv(afcs_rtm_fr_kp,1,wait=False)
+put_pv(afcs_rtm_fr_ki,128,wait=False)
+
+wait_pv()
 
 #backup records to be restored
 evg_event_in1_bkp = get_pv(evg_evt_in1)[0]
@@ -270,6 +283,12 @@ put_pv(eve_otp_enable,0,wait=True)
 put_pv(eve_log_all[OTPs[0]:OTPs[1]+1],0,wait=True)
 put_pv(eve_otp_evt,0,wait=True)
 put_pv(stoplog,1,wait=True,check=False)
+
+print("Disable RTM Loop")
+put_pv(afcs_rtm_ph_kp,0,wait=False)
+put_pv(afcs_rtm_ph_ki,0,wait=False)
+put_pv(afcs_rtm_fr_kp,0,wait=False)
+put_pv(afcs_rtm_fr_ki,0,wait=False)
 
 print("Reset flags")
 put_pv(evg_itlk_rst + resetlog + resetlogbuffer,1,wait=True,check=False)
