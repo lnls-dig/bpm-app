@@ -54,7 +54,6 @@ for crate in "${CRATES[@]}"; do
         systemctl daemon-reload && \
         (chmod 777 /tmp/malamute || :) && \
         systemctl start malamute && \
-        systemctl start halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
-        systemctl start tim-rx-ioc@{1,2}" &
+        systemctl start halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target" &
 
 done

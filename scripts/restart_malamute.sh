@@ -29,7 +29,6 @@ for crate in "${CRATES[@]}"; do
         set -x > /dev/null && \
         systemctl stop halcs@{1,2,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target && \
         systemctl restart malamute && \
-        systemctl restart tim-rx-ioc@1 && \
         systemctl restart halcs-ioc@{7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}.target" &
 
 done
