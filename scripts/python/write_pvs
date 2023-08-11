@@ -23,7 +23,6 @@ with open(file_name, 'r') as f:
 wait_for_pv_connection()
 
 for pv, value in pv_and_value:
-    # TODO: implement floating point checking support in put_pv
-    put_pv([pv], value, wait=False, check=False)
+    put_pv([pv], value, wait=False)
 
 wait_pv()

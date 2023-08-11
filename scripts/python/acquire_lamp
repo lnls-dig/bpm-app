@@ -181,9 +181,9 @@ if control_ps:
     put_pv(trig_en, 1);
 
 if voltage_step_b:
-    put_pv(voltage_sp, voltage_step, check=False);
+    put_pv(voltage_sp, voltage_step);
 elif current_step_b:
-    put_pv(current_sp, current_step, check=False);
+    put_pv(current_sp, current_step);
 wait_pv()
 
 def get_data_timestamps(data):

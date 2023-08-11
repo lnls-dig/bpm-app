@@ -40,10 +40,10 @@ for crate in range(1, 21):
 
 wait_for_pv_connection()
 
-put_pv(current_gain, current_gain_value, wait=False, check=False)
+put_pv(current_gain, current_gain_value, wait=False)
 if not args.no_curr_offsets:
     put_pv(current_offset, 0, wait=False)
-put_pv(voltage_gain, voltage_gain_value, wait=False, check=False)
+put_pv(voltage_gain, voltage_gain_value, wait=False)
 put_pv(voltage_offset, 0, wait=False)
 put_pv(pi_kp, pi_kp_value, wait=False)
 put_pv(pi_ti, pi_ti_value, wait=False)
