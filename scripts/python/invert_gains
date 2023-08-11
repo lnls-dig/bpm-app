@@ -21,6 +21,6 @@ dir_gains_vals = get_pv(dir_gains)
 inv_gains_vals = get_pv(inv_gains)
 
 for pv, val in zip(dir_gains, inv_gains_vals):
-    put_pv([pv], val, check=False)
+    put_pv([pv], val)
 for pv, val in zip(inv_gains, dir_gains_vals):
-    put_pv([pv], val, check=False)
+    put_pv([pv], val)

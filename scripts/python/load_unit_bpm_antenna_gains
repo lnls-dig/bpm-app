@@ -22,5 +22,4 @@ for crate in crates:
                 gains.append(create_pv(prefix + f'Sw{cycle}Gain{l}-SP'))
 
 wait_for_pv_connection()
-# TODO: deal with floating point and DRVH limits
-put_pv(gains, max_multiplier, check=False)
+put_pv(gains, max_multiplier)
