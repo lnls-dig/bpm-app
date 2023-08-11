@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+
+'''Script to configure RTM Loop
+  Usage:
+    ./set_afc_timing_rtm_loop testbench
+  or
+    ./set_afc_timing_rtm_loop sirius
+
+Author: Mauricio Donatti
+'''
+
+from time import sleep
+import numpy as np
+import sys
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv, get_pv
+
+sirius = False
+if len(sys.argv) == 2 and sys.argv[1] == 'sirius':
+  print("Set AFC Timing RTM loop constants from Sirius")
+  sirius = True
+else:
+  print("Set AFC Timing RTM loop constants from gie lab testbench")
+
+#define prefixes for tests
+if sirius == False:
+  AFC_list = {
+    #"DE-23SL01:TI-AMCFPGAEVR:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B0"],
+    "DE-24SL01:TI-AMCFPGAEVR:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B1","DE-23RaBPM:TI-Fout:RxEnbl-SP.B2"],
+  }
+else:
+  AFC_list = {
+    "IA-01RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B0"],
+    "IA-02RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B1"],
+    "IA-03RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B2"],
+    "IA-04RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B3"],
+    "IA-05RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B4"],
+    "IA-06RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B5"],
+    "IA-07RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B6"],
+    "IA-08RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B0"],
+    "IA-09RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B1"],
+    "IA-10RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B2"],
+    "IA-11RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B3"],
+    "IA-12RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B4"],
+    "IA-13RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B5"],
+    "IA-14RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B6"],
+    "IA-15RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B0"],
+    "IA-16RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B1"],
+    "IA-17RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B2"],
+    "IA-18RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B3"],
+    "IA-19RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B4"],
+    "IA-20RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B5"],
+    "IA-20RaBPMTL:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B6"],
+  }
+
+#Create records
+
+#Create AFC RTM loop constants records
+afcs_rtm_ph_kp = [create_pv(f"{afcs}RTMPhasePropGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_ph_ki = [create_pv(f"{afcs}RTMPhaseIntgGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_fr_kp = [create_pv(f"{afcs}RTMFreqPropGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_fr_ki = [create_pv(f"{afcs}RTMFreqIntgGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+
+#Create lock status records
+afcs_gt0_lock = [create_pv(f"{afcs}GT0ClkLocked-Mon") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_lock = [create_pv(f"{afcs}RTMClkLocked-Mon") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_afc_lock = [create_pv(f"{afcs}AFCClkLocked-Mon") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+
+#Check lock status latched records
+afcs_gt0_lock_latch = [create_pv(f"{afcs}GT0ClkLockedLtc-Mon") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_lock_latch = [create_pv(f"{afcs}RTMClkLockedLtc-Mon") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_afc_lock_latch = [create_pv(f"{afcs}AFCClkLockedLtc-Mon") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+
+afcs_lock_latch_rst = [create_pv(f"{afcs}ClkLockedLtcRst-Cmd") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+
+afcs_gw_version = [create_pv(f"{afcs}GwInfoCommitID-Cte") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+
+#wait records to be connected
+wait_for_pv_connection()
+
+condition = 'enable'
+
+#check gw version
+for pv in afcs_gw_version:
+  print(f"{pv.sp.pvname} gw version: {get_pv([pv])[0]}")
+
+if 'enable' in condition:
+  print("Enable RTM Loop")
+  put_pv(afcs_rtm_ph_kp,100,wait=False)
+  put_pv(afcs_rtm_ph_ki,1,wait=False)
+  put_pv(afcs_rtm_fr_kp,1,wait=False)
+  put_pv(afcs_rtm_fr_ki,128,wait=False)
+  wait_pv()
+
+  #Wait loop locks
+  counter = 0
+  while any(x != 1 for x in get_pv(afcs_gt0_lock + afcs_afc_lock + afcs_rtm_lock)):
+    sleep(0.5)
+    print(f"Waiting lock... counter {counter}")
+    counter = counter + 1
+
+else:
+  print("Disable RTM Loop")
+  put_pv(afcs_rtm_ph_kp,0,wait=False)
+  put_pv(afcs_rtm_ph_ki,0,wait=False)
+  put_pv(afcs_rtm_fr_kp,0,wait=False)
+  put_pv(afcs_rtm_fr_ki,0,wait=False)
+  wait_pv()
+  sleep(1)
+
+#Reset Latches
+print("Reset latches")
+put_pv(afcs_lock_latch_rst,1,wait=True)
+sleep(2)
+
+#Check loop latched locks
+counter = 0
+while any(x != 1 for x in get_pv(afcs_gt0_lock_latch + afcs_rtm_lock_latch + afcs_afc_lock_latch)):
+  sleep(0.5)
+  print(f"Waiting latched lock... counter {counter}")
+  counter = counter + 1
+  if counter == 10:
+    print("ERROR: latches not 1")
+    exit()
+
+print("Finished succesfully!")
+
+

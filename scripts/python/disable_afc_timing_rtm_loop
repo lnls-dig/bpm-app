@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+
+'''Script to configure RTM Loop
+  Usage:
+    ./set_afc_timing_rtm_loop testbench
+  or
+    ./set_afc_timing_rtm_loop sirius
+
+Author: Mauricio Donatti
+'''
+
+from time import sleep
+import numpy as np
+import sys
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, wait_pv, put_pv, get_pv
+
+sirius = False
+if len(sys.argv) == 2 and sys.argv[1] == 'sirius':
+  print("Set AFC Timing RTM loop constants from Sirius")
+  sirius = True
+else:
+  print("Set AFC Timing RTM loop constants from gie lab testbench")
+
+#define prefixes for tests
+if sirius == False:
+  AFC_list = { 
+    #"DE-23SL01:TI-AMCFPGAEVR:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B0"],
+    "DE-24SL01:TI-AMCFPGAEVR:":["DE-23RaBPM:TI-EVG:RxEnbl-SP.B1","DE-23RaBPM:TI-Fout:RxEnbl-SP.B2"],
+  }
+else:
+  AFC_list = {
+    "IA-01RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B0"],
+    "IA-02RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B1"],
+    "IA-03RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B2"],
+    "IA-04RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B3"],
+    "IA-05RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B4"],
+    "IA-06RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B5"],
+    "IA-07RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B2","CA-RaTim:TI-Fout-3:RxEnbl-SP.B6"],
+    "IA-08RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B0"],
+    "IA-09RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B1"],
+    "IA-10RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B2"],
+    "IA-11RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B3"],
+    "IA-12RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B4"],
+    "IA-13RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B5"],
+    "IA-14RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B3","CA-RaTim:TI-Fout-4:RxEnbl-SP.B6"],
+    "IA-15RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B0"],
+    "IA-16RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B1"],
+    "IA-17RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B2"],
+    "IA-18RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B3"],
+    "IA-19RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B4"],
+    "IA-20RaBPM:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B5"],
+    "IA-20RaBPMTL:TI-AMCFPGAEVR:":["AS-RaMO:TI-EVG:RxEnbl-SP.B4","CA-RaTim:TI-Fout-5:RxEnbl-SP.B6"],
+  }
+
+#Create records
+
+#Create AFC RTM loop constants records
+afcs_rtm_ph_kp = [create_pv(f"{afcs}RTMPhasePropGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_ph_ki = [create_pv(f"{afcs}RTMPhaseIntgGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_fr_kp = [create_pv(f"{afcs}RTMFreqPropGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+afcs_rtm_fr_ki = [create_pv(f"{afcs}RTMFreqIntgGain-SP") for afcs in AFC_list.keys() if 'AMCFPGAEVR' in afcs]
+
+#wait records to be connected
+wait_for_pv_connection()
+
+print("Disable RTM Loop")
+put_pv(afcs_rtm_ph_kp,0,wait=False)
+put_pv(afcs_rtm_ph_ki,0,wait=False)
+put_pv(afcs_rtm_fr_kp,0,wait=False)
+put_pv(afcs_rtm_fr_ki,0,wait=False)
+wait_pv()
+
+print("Finished succesfully!")
+
+
