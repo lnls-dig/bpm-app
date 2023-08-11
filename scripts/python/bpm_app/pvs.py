@@ -6,6 +6,7 @@ Author: Érico Nogueira
 from epics import PV
 from time import sleep, clock_gettime, CLOCK_MONOTONIC
 import collections
+import math
 
 timeout = 10
 
@@ -59,8 +60,9 @@ def _wait_pv(wait_list):
 				read_pv = pv_pair.rb
 			else:
 				read_pv = pv_pair.sp
+			check_fn = lambda x: math.isclose(x, value, rel_tol=.1) if isinstance(value, float) else lambda x: x == value
 			for i in range(10):
-				if read_pv.get(use_monitor=False) == value:
+				if check_fn(read_pv.get(use_monitor=False)):
 					break
 				sleep(.1)
 			else:
