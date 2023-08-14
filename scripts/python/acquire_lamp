@@ -5,6 +5,7 @@ Author: Érico Nogueira
 '''
 
 from argparse import ArgumentParser
+from functools import reduce
 from pickle import dump
 from time import sleep
 
@@ -29,6 +30,9 @@ parser.add_argument('--samples', type=int, default=100_000)
 parser.add_argument('--samples-pre', type=int, default=100)
 parser.add_argument('--no-trigger', action='store_true')
 parser.add_argument('--now', action='store_true')
+parser.add_argument('--voltage-square-low', type=float)
+parser.add_argument('--voltage-square-high', type=float)
+parser.add_argument('--wave-freq', type=float)
 
 args = parser.parse_args()
 
@@ -55,6 +59,7 @@ samples_pre_val = args.samples_pre
 
 voltage_step_b = voltage_step is not None
 current_step_b = current_step is not None
+test_values_b = args.voltage_square_low is not None
 
 single_crate = args.single_crate
 if args.single_crate is None:
@@ -62,16 +67,21 @@ if args.single_crate is None:
 else:
     crates_n = [args.single_crate]
 
-if voltage_step_b and current_step_b:
-    raise "Can't use both voltage and current steps at the same time"
+actions = [voltage_step_b, current_step_b, test_values_b]
 
-control_ps = voltage_step_b or current_step_b
+if reduce(lambda x, y: x + (1 if y else 0), actions, 0) >= 2:
+    raise "Can't use two or more actions at the same time"
+
+control_ps = reduce(lambda x, y: x or y, actions)
 
 no_trigger = args.no_trigger
 acq_now = args.now
 
 lamp_triggers = [0, 4]
 lamp_trigger_source = 5
+
+voltage_gain = 1.12916762036e-4
+square_wave_base_freq = 100e6
 
 def despiker(array, thres):
     for idx in range(len(array)):
@@ -96,6 +106,10 @@ voltage_sp = []
 current_sp = []
 curr_loop_mode = []
 pwr_state = []
+
+test_low = []
+test_high = []
+test_period = []
 
 h_current_data = []
 h_voltage_data = []
@@ -123,6 +137,10 @@ for crate in crates:
         current_sp.append(create_pv(rprefix + 'Current-SP'))
         curr_loop_mode.append(create_pv(rprefix + 'CurrLoopMode-Sel'))
         pwr_state.append(create_pv(rprefix + 'PwrState-Sel'))
+
+        test_low.append(create_pv(rprefix + 'TestLimA-SP'))
+        test_high.append(create_pv(rprefix + 'TestLimB-SP'))
+        test_period.append(create_pv(rprefix + 'TestWavePeriod-SP'))
 
     for channel in h_channels:
         rprefix = get_rtmlamp_prefix(crate, channel)
@@ -167,12 +185,19 @@ put_pv(trigger_event, 1, wait=False)
 put_pv(trigger_mux_src, 0, wait=False)
 put_pv(trigger_mux_sel, lamp_trigger_source, wait=False)
 
+if voltage_step_b:
+    mode = 0
+elif current_step_b:
+    mode = 2
+elif test_values_b:
+    mode = 1
+
 # reset rtmlamp
 if control_ps:
     put_pv(trig_en, 0, wait=False);
     put_pv(voltage_sp, 0, wait=False);
     put_pv(current_sp, 0, wait=False);
-    put_pv(curr_loop_mode, 0 if voltage_step_b else 2, wait=False);
+    put_pv(curr_loop_mode, mode, wait=False);
     put_pv(pwr_state, 1, wait=False);
 
 wait_pv()
@@ -184,6 +209,10 @@ if voltage_step_b:
     put_pv(voltage_sp, voltage_step);
 elif current_step_b:
     put_pv(current_sp, current_step);
+elif test_values_b:
+    put_pv(test_low, args.voltage_square_low/voltage_gain)
+    put_pv(test_high, args.voltage_square_high/voltage_gain)
+    put_pv(test_period, 1/args.wave_freq * square_wave_base_freq / 2)
 wait_pv()
 
 def get_data_timestamps(data):
@@ -206,6 +235,8 @@ if control_ps:
     put_pv(trig_en, 0)
     put_pv(voltage_sp, 0, wait=False)
     put_pv(current_sp, 0, wait=False)
+    put_pv(test_low, 0, wait=False)
+    put_pv(test_high, 0, wait=False)
     wait_pv()
 
 data = {'current_step': current_step, 'voltage_step': voltage_step, 'samples_pre': samples_val if acq_now else samples_pre_val}
