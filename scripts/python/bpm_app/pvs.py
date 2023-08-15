@@ -52,7 +52,7 @@ def _wait_pv(wait_list):
 						print(f'Writing into {pv_pair.sp.pvname} taking too long...')
 			raise Exception('PV write timeout')
 
-	for pv_list, value in wait_list:
+	for pv_list, value, precision in wait_list:
 		if value is None:
 			continue
 		for pv_pair in pv_list:
@@ -60,7 +60,7 @@ def _wait_pv(wait_list):
 				read_pv = pv_pair.rb
 			else:
 				read_pv = pv_pair.sp
-			check_fn = lambda x: math.isclose(x, value, rel_tol=.1) if isinstance(value, float) else lambda x: x == value
+			check_fn = lambda x: math.isclose(x, value, rel_tol=precision) if isinstance(value, float) else lambda x: x == value
 			for i in range(10):
 				if check_fn(read_pv.get(use_monitor=False)):
 					break
@@ -75,13 +75,13 @@ def _wait_pv(wait_list):
 def wait_pv():
 	_wait_pv(_global_wait_list)
 
-def put_pv(pv_list, value, wait=True, check=True, verbose=True):
+def put_pv(pv_list, value, wait=True, check=True, verbose=True, precision=0.1):
 	for pv_pair in pv_list:
 		if verbose:
 			print(f"Writing '{value}' into '{pv_pair.sp.pvname}'...")
 		pv_pair.sp.put(value, use_complete=True)
 
-	wait_list = (pv_list, value if check else None)
+	wait_list = (pv_list, value if check else None, precision)
 
 	if wait:
 		_wait_pv([wait_list])
