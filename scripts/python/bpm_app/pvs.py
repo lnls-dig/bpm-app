@@ -44,9 +44,9 @@ def _wait_pv(wait_list):
 	waiting = True
 	while waiting:
 		sleep(0.001)
-		waiting = not all((pv_pair.sp.put_complete for pv_list, _ in wait_list for pv_pair in pv_list))
+		waiting = not all((pv_pair.sp.put_complete for pv_list, _, _ in wait_list for pv_pair in pv_list))
 		if waiting and clock_gettime(CLOCK_MONOTONIC) - start_time > timeout:
-			for pv_list, _ in wait_list:
+			for pv_list, _, _ in wait_list:
 				for pv_pair in pv_list:
 					if not pv_pair.sp.put_complete:
 						print(f'Writing into {pv_pair.sp.pvname} taking too long...')
