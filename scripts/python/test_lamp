@@ -61,6 +61,9 @@ parser = ArgumentParser(
 
 parser.add_argument("--board-prefix", type=str, help="PV prefix of the board (ie DE-24SL07 or IA-01RaBPM)", required=True)
 parser.add_argument("--channel-sets", type=str, help="Comma separated list of channel sets to test, 0 -> CH0-CH3, 1 -> CH4-CH7, 2 -> CH8-CH11", required=False, default="0,1,2")
+parser.add_argument("--curr-test-max", type=float, help="Maximum test current in Ampers", required=False, default=0.95)
+parser.add_argument("--curr-test-min", type=float, help="Maximum test current in Ampers", required=False, default=-0.95)
+parser.add_argument("--curr-test-steps", type=int, help="Number of current steps", required=False, default=50)
 args = parser.parse_args()
 
 board_prefix = args.board_prefix
@@ -132,15 +135,16 @@ for channel_group in channel_sets:
     put_pv(curr_loop_mode[channel_group:(channel_group + 4)], "closed_loop_manual", wait=False, check=False)
     wait_pv()
 
-    put_pv(current_sp[channel_group:(channel_group + 4)], -0.95, wait=True, check=False)
+    put_pv(current_sp[channel_group:(channel_group + 4)], args.curr_test_min, wait=True, check=False)
     put_pv(alarms_amp_ltc_rst, 1, wait=True, check=False)
 
-    for current_setpoint in np.linspace(-0.95, 0.95, num=40):
+    for current_setpoint in np.linspace(args.curr_test_min, args.curr_test_max, num=args.curr_test_steps):
         put_pv(current_sp[channel_group:(channel_group + 4)], current_setpoint, wait=True, check=False)
         sleep(0.5)
         currents, voltages = acq.acq(1000)
         avg_currents = [np.average(current) for current in currents[channel_group:(channel_group + 4)]]
         alarms = np.array(get_pv(alarms_amp_ltc))
+        print(avg_currents)
         for ch, avg_curr in zip(range(channel_group, channel_group + 4), avg_currents):
             if abs(current_setpoint - avg_curr) > 0.005:
                 put_pv(current_sp, 0, wait=True, check=False)
@@ -149,7 +153,6 @@ for channel_group in channel_sets:
             if alarms[ch] != 0:
                 print(f"Channel {ch} fail! Alarms: {alarms[ch]}", file=sys.stderr)
                 exit(1)
-        print(avg_currents)
 
     put_pv(current_sp[channel_group:(channel_group + 4)], 0, wait=True, check=False)
     put_pv(alarms_amp_ltc_rst, 1, wait=False, check=False)
