@@ -64,6 +64,8 @@ parser.add_argument("--channel-sets", type=str, help="Comma separated list of ch
 parser.add_argument("--curr-test-max", type=float, help="Maximum test current in Ampers", required=False, default=0.95)
 parser.add_argument("--curr-test-min", type=float, help="Maximum test current in Ampers", required=False, default=-0.95)
 parser.add_argument("--curr-test-steps", type=int, help="Number of current steps", required=False, default=50)
+parser.add_argument("--cal-curr-offset-only", action="store_true", help="Don't test channels nor overwrite Kp and Ki, just calibrate the current offsets", required=False)
+
 args = parser.parse_args()
 
 board_prefix = args.board_prefix
@@ -115,8 +117,10 @@ put_pv(current_gain, current_gain_value, wait=False, check=False)
 put_pv(current_offset, 0, wait=False)
 put_pv(voltage_gain, voltage_gain_value, wait=False, check=False)
 put_pv(voltage_offset, 0, wait=False)
-put_pv(pi_kp, pi_kp_value, wait=False)
-put_pv(pi_ti, pi_ti_value, wait=False)
+
+if args.cal_curr_offset_only == False:
+    put_pv(pi_kp, pi_kp_value, wait=False)
+    put_pv(pi_ti, pi_ti_value, wait=False)
 
 wait_pv()
 
@@ -127,6 +131,10 @@ for offset, pv in zip(offsets, current_offset):
     put_pv([pv], offset, wait=False, check=False)
 
 wait_pv()
+
+if args.cal_curr_offset_only:
+    print("End of current calibration")
+    sys.exit(0)
 
 for channel_group in channel_sets:
     print(f"Please connect the test loads on channels {channel_group} to {channel_group + 3} and press enter.")
