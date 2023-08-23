@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+'''
+Author: Érico Nogueira
+'''
+
+from argparse import ArgumentParser
+from threading import Event
+from time import sleep, localtime
+
+from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv
+from bpm_app.sirius import all_bpm_slots, get_pv_prefix, crate_number
+
+parser = ArgumentParser('clear_lamp_alarms', 'Clear RTM-LAMP alarm latches after an event')
+parser.add_argument('power_supplies', nargs='+')
+
+args = parser.parse_args()
+
+pss = args.power_supplies
+
+ltc_rst = {ps: create_pv(ps + ':AlarmsAmpLtcRst-Cmd') for ps in pss}
+wait_for_pv_connection()
+
+event = Event()
+
+to_rst = []
+def alarm_callback(pvname, value, **kwargs):
+    global to_rst
+
+    ps = pvname[:pvname.rfind(':')]
+    if value > 0:
+        print(f'{ps} triggered -> {value} ({localtime()})')
+        to_rst.append(ltc_rst[ps])
+        event.set()
+
+for ps in pss:
+    create_pv(ps + ':AlarmsAmpLtc-Mon', callback=alarm_callback)
+
+wait_for_pv_connection()
+
+print('waiting for events...')
+while True:
+    event.wait()
+    # guarantee it appears in Archiver
+    sleep(.2)
+    put_pv(to_rst, 1)
+    to_rst[:] = []
+    event.clear()
