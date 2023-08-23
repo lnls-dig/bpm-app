@@ -5,7 +5,6 @@ Author: Érico Nogueira
 '''
 
 from argparse import ArgumentParser
-import signal
 from threading import Event
 
 from bpm_app.pvs import create_pv, wait_for_pv_connection, put_pv
@@ -14,19 +13,21 @@ from bpm_app.sirius import all_bpm_slots, get_pv_prefix, crate_number
 parser = ArgumentParser('software_orbintlk', 'Trigger the Study event when Monit orbit goes over a certain threshold')
 parser.add_argument('--x-limit', type=int)
 parser.add_argument('--y-limit', type=int)
-parser.add_argument('bpms', nargs='+')
+parser.add_argument('--alarmsamp', action='store_true')
+parser.add_argument('devices', nargs='+')
 
 args = parser.parse_args()
 
-bpms = args.bpms
+bpms = args.devices
+pss = args.devices
 
 study = create_pv('AS-RaMO:TI-EVG:StudyExtTrig-Cmd')
 wait_for_pv_connection()
 
+event = Event()
+
 old_posx = {bpm: None for bpm in bpms}
 old_posy = {bpm: None for bpm in bpms}
-
-event = Event()
 
 def pos_callback(pvname, value, **kwargs):
     global old_posx
@@ -39,18 +40,31 @@ def pos_callback(pvname, value, **kwargs):
         old_pos = old_posy
         tolerance = args.y_limit
 
-    bpm = pvname[:pvname.rfind(':') + 1]
+    bpm = pvname[:pvname.rfind(':')]
     if old_pos[bpm] is not None:
         if abs(value - old_pos[bpm]) > tolerance:
             print(f'{bpm} triggered: {old_pos[bpm]} -> {value}')
             event.set()
     old_pos[bpm] = value
 
+old_alarm = {ps: 0 for ps in pss}
+
+def alarm_callback(pvname, value, **kwargs):
+    global old_alarm
+
+    ps = pvname[:pvname.rfind(':')]
+    if old_alarm[ps] == 0 and value != 0:
+        print(f'{ps} triggered -> {value}')
+        event.set()
+    old_alarm[ps] = value
+
 for bpm in bpms:
     if args.x_limit is not None:
-        create_pv(bpm + 'PosX-Mon', callback=pos_callback)
+        create_pv(bpm + ':PosX-Mon', callback=pos_callback)
     if args.y_limit is not None:
-        create_pv(bpm + 'PosY-Mon', callback=pos_callback)
+        create_pv(bpm + ':PosY-Mon', callback=pos_callback)
+    if args.alarmsamp:
+        create_pv(bpm + ':AlarmsAmpLtc-Mon', callback=alarm_callback)
 
 wait_for_pv_connection()
 
