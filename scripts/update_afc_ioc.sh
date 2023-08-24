@@ -7,12 +7,12 @@ DECODE_REG="$(realpath "$2")"
 
 USER=iocs
 
-if [ ! -e "${AFC_IOC}/utcaApp" ]; then
+if [ ! -e "${AFC_IOC}/utcaApp" -a "$(basename "$AFC_IOC")" = afc-epics-ioc ]; then
     echo "Make sure '${AFC_IOC}' is an afc-epics-ioc directory" >&2
     exit 1
 fi
 
-if [ ! -x "${DECODE_REG}" ]; then
+if [ ! -x "${DECODE_REG}" -a "$(basename "$DECODE_REG")" = decode-reg ]; then
     echo "Make sure '${DECODE_REG}' is a decode-reg executable" >&2
     exit 1
 fi
