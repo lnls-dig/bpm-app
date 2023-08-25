@@ -56,6 +56,13 @@ class AcqLAMP:
         voltages = np.array(get_pv(self._voltage_data_raw))
         return currents, voltages
 
+def safe_exit(ret, mode_sp_arr, volt_sp_arr):
+    put_pv(volt_sp_arr, 0, wait=False, check=False)
+    put_pv(mode_sp_arr, "open_loop_manual", wait=False, check=False)
+    wait_pv()
+    exit(ret)
+
+
 parser = ArgumentParser(
     description="Test script for the FOFB power supply")
 
@@ -65,6 +72,7 @@ parser.add_argument("--curr-test-max", type=float, help="Maximum test current in
 parser.add_argument("--curr-test-min", type=float, help="Maximum test current in Ampers", required=False, default=-0.95)
 parser.add_argument("--curr-test-steps", type=int, help="Number of current steps", required=False, default=50)
 parser.add_argument("--cal-curr-offset-only", action="store_true", help="Don't test channels nor overwrite Kp and Ki, just calibrate the current offsets", required=False)
+parser.add_argument("--dont-ask", action="store_true", help="Don't ask the user if the loads are connect before proceeding", required=False)
 
 args = parser.parse_args()
 
@@ -92,6 +100,7 @@ pwr_sts = []
 alarms_amp_ltc = []
 alarms_amp_ltc_rst = []
 current_sp = []
+voltage_sp = []
 trig_mode = []
 
 for prefix in rtmlamp_channel_prefixes:
@@ -106,6 +115,7 @@ for prefix in rtmlamp_channel_prefixes:
     alarms_amp_ltc.append(create_pv(prefix + 'AlarmsAmpLtc-Mon'))
     alarms_amp_ltc_rst.append(create_pv(prefix + 'AlarmsAmpLtcRst-Cmd'))
     current_sp.append(create_pv(prefix + 'Current-SP'))
+    voltage_sp.append(create_pv(prefix + 'Voltage-SP'))
     trig_mode.append(create_pv(prefix + 'TrigEn-Sel'))
 
 wait_for_pv_connection()
@@ -137,8 +147,9 @@ if args.cal_curr_offset_only:
     sys.exit(0)
 
 for channel_group in channel_sets:
-    print(f"Please connect the test loads on channels {channel_group} to {channel_group + 3} and press enter.")
-    proceed = input()
+    if args.dont_ask == False:
+        print(f"Please connect the test loads on channels {channel_group} to {channel_group + 3} and press enter.")
+        proceed = input()
     put_pv(pwr_sts[channel_group:(channel_group + 4)], 1, wait=False, check=False)
     put_pv(curr_loop_mode[channel_group:(channel_group + 4)], "closed_loop_manual", wait=False, check=False)
     wait_pv()
@@ -157,12 +168,13 @@ for channel_group in channel_sets:
             if abs(current_setpoint - avg_curr) > 0.005:
                 put_pv(current_sp, 0, wait=True, check=False)
                 print(f"Channel {ch} fail! Expected current: {current_setpoint}, read {avg_curr}, Alarms: {alarms[ch]}", file=sys.stderr)
-                exit(1)
+                safe_exit(1, curr_loop_mode, voltage_sp)
             if alarms[ch] != 0:
                 print(f"Channel {ch} fail! Alarms: {alarms[ch]}", file=sys.stderr)
-                exit(1)
+                safe_exit(1, curr_loop_mode, voltage_sp)
 
     put_pv(current_sp[channel_group:(channel_group + 4)], 0, wait=True, check=False)
     put_pv(alarms_amp_ltc_rst, 1, wait=False, check=False)
     put_pv(curr_loop_mode[channel_group:(channel_group + 4)], "open_loop_manual", wait=True, check=False)
 print("All tests ok!")
+safe_exit(0, curr_loop_mode, voltage_sp)
