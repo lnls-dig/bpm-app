@@ -21,8 +21,6 @@ crates = [crate_number(i) for i in range(1, 21)]
 samples = 2046
 channel_n = 3
 trigger_n = 1
-trigger_mux_name = 'TRIGGER11'
-trigger_mux_value = 7
 trigger_event_value = 0
 
 samples_pre = []
@@ -47,7 +45,6 @@ for crate in crates:
         samples_post.append(create_pv(prefix + 'ACQSamplesPost-SP'))
         channel.append(create_pv(prefix + 'ACQChannel-Sel'))
         trigger.append(create_pv(prefix + 'ACQTrigger-Sel'))
-        trigger_mux.append(create_pv(prefix + trigger_mux_name + 'RcvInSel-SP'))
         trigger_rep.append(create_pv(prefix + 'ACQTriggerRep-Sel'))
         trigger_delay.append(create_pv(prefix + 'ACQTriggerHwDly-SP'))
         trigger_event.append(create_pv(prefix + 'ACQTriggerEvent-Sel'))
@@ -61,7 +58,6 @@ put_pv(samples_pre, 0)
 put_pv(samples_post, samples)
 put_pv(channel, channel_n)
 put_pv(trigger, trigger_n)
-put_pv(trigger_mux, trigger_mux_value) # TODO: restore value
 put_pv(trigger_rep, 0)
 put_pv(trigger_delay, 0) # TODO: restore value
 put_pv(trigger_event, trigger_event_value)
