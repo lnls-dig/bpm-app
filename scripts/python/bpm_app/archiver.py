@@ -2,6 +2,7 @@
 
 import json
 import requests
+from time import sleep
 
 requests.packages.urllib3.disable_warnings()
 
@@ -73,6 +74,33 @@ def delete_pv(pv):
 
 def rename_pv(old_pv, new_pv):
     return command('renamePV', pv=old_pv, newname=new_pv)
+
+def _is_pv_status(pv, status):
+    l = get_pvs(pv)
+    if len(l) != 1:
+        raise Exception(f'_is_pv_status: bad PV pattern: {pv}')
+    return l[0]['status'] == status
+
+def is_pv_archived(pv):
+    return _is_pv_status(pv, 'Being archived')
+def is_pv_paused(pv):
+    return _is_pv_status(pv, 'Paused')
+
+def rename_pvs(pattern, rename_fn):
+    pvs = get_pvs(pattern)
+    for pv in pvs:
+        name = pv['pvName']
+        new_name = rename_fn(name)
+        pause_pv(name)
+        rename_pv(name, new_name)
+        for _ in range(10):
+            if is_pv_paused(new_name):
+                break
+            sleep(.1)
+        else:
+            raise Exception(f'renaming {name} to {new_name} timed out')
+        resume_pv(new_name)
+        delete_pv(name)
 
 # complex functions for dealing with files with PV lists
 # the format is "<PV name>[ <sampling period>]"
