@@ -128,10 +128,11 @@ def archive_pvs_from_file(file):
             else:
                 pvs_by_sampling['0.1'].append(ls[0])
 
-    all_pvs_status = get_pvs(list_into_comma(all_pvs))
-    for pv in all_pvs_status:
+    for pv in all_pvs:
+        pv = get_pvs(pv)[0]
         if pv['status'] != 'Not being archived':
             raise Exception(f'{pv["pvName"]} is already being archived!')
 
     for samplingperiod in pvs_by_sampling:
-        archive_pv(list_into_comma(pvs_by_sampling[samplingperiod]), samplingperiod)
+        for pv in pvs_by_sampling[samplingperiod]:
+            archive_pv(pv, samplingperiod)
