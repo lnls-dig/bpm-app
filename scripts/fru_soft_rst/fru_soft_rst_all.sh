@@ -40,6 +40,7 @@ FRU_IDS+=("14")
 FRU_IDS+=("15")
 FRU_IDS+=("16")
 ## FRU_IDS+=("64")
+FRU_IDS+=("90")
 
 for crate in "${CRATES[@]}"; do
   {
