@@ -1,0 +1,17 @@
+#!/usr/bin/expect
+
+set timeout 20
+set hostname [lindex $argv 0]
+
+spawn telnet $hostname
+expect "Type <?> to see a list of available commands."
+
+for {set i 1} {$i < $argc} {incr i} {
+  set fru_id [lindex $argv $i]
+  send "shutdown $fru_id\r"
+  expect "prevent FRU $fru_id from restart"
+  send "fru_start $fru_id\r"
+  # TODO: Which string should we expect? By now, just waits for the timeout.
+  expect "dummy"
+}
+
