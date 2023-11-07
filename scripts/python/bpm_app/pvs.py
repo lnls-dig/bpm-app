@@ -60,7 +60,7 @@ def _wait_pv(wait_list):
 				read_pv = pv_pair.rb
 			else:
 				read_pv = pv_pair.sp
-			check_fn = lambda x: math.isclose(x, value, rel_tol=precision) if isinstance(value, float) else lambda x: x == value
+			check_fn = (lambda x: math.isclose(x, value, rel_tol=precision)) if isinstance(value, float) else lambda x: x == value
 			for i in range(10):
 				if check_fn(read_pv.get(use_monitor=False)):
 					break
