@@ -23,8 +23,8 @@ for crate in "${CRATES[@]}"; do
     echo $crate
     crate=root@${crate}
 
-    rsync -r --exclude ".git" "${AFC_IOC}" ${crate}:/opt/
-    rsync "${DECODE_REG}" ${crate}:/usr/local/bin
+    rsync -rz --exclude ".git" "${AFC_IOC}" ${crate}:/opt/
+    rsync -z "${DECODE_REG}" ${crate}:/usr/local/bin
     ssh ${crate} "
         mkdir -p /var/opt/erics && (useradd $USER || true) &&
         chown -R ${USER}:${USER} /var/opt/erics &&
