@@ -81,7 +81,6 @@ crate = int(board_prefix[3:5])
 channel_sets = [(int(i) % 3)*4 for i in args.channel_sets.split(",")]
 
 acq = AcqLAMP(board_prefix)
-
 current_gain_value = 6.25e-5
 voltage_gain_value = 1.12916762036e-4
 pi_kp_value = 2_500_000
@@ -103,6 +102,7 @@ current_sp = []
 voltage_sp = []
 trig_mode = []
 
+lamp_data_type = create_pv(board_prefix + ":BS-FOFBCtrl:LAMPDataType")
 for prefix in rtmlamp_channel_prefixes:
     curr_loop_mode.append(create_pv(prefix + 'CurrLoopMode-Sel'))
     current_gain.append(create_pv(prefix + 'CurrGain-SP'))
@@ -119,6 +119,7 @@ for prefix in rtmlamp_channel_prefixes:
     trig_mode.append(create_pv(prefix + 'TrigEn-Sel'))
 
 wait_for_pv_connection()
+put_pv([lamp_data_type], "lamp", wait=False, check=False)
 put_pv(trig_mode, "disable", wait=False, check=False)
 put_pv(alarms_amp_ltc_rst, 1, wait=False, check=False)
 put_pv(curr_loop_mode, "open_loop_manual", wait=False, check=False)
