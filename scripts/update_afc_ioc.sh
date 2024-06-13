@@ -35,5 +35,5 @@ for crate in "${CRATES[@]}"; do
         echo 'epicsEnvSet(TOP, /opt/afc-epics-ioc)' >> iocBoot/iocutca/envPaths &&
         echo 'epicsEnvSet(AUTOSAVE_PATH, /var/opt/erics)' >> iocBoot/iocutca/envPaths &&
         systemctl daemon-reload &&
-        systemctl --no-block restart afc-ioc@{1,2-1}"
+        systemctl --no-block restart afc-ioc@{1,2-1,4,5}"
 done
