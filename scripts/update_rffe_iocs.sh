@@ -24,3 +24,5 @@ for crate in "${CRATES[@]}"; do
         podman-compose down -t 0 &&
         CRATE_NUMBER=\$(/opt/afc-epics-ioc/iocBoot/iocutca/getCrate.sh) podman-compose up -d \$services" &
 done
+
+wait
