@@ -21,11 +21,11 @@ fi
 
 for crate in "${CRATES[@]}"; do
     echo $crate
-    crate=root@${crate}
+    login=root@${crate}
 
-    rsync -rz --exclude ".git" "${AFC_IOC}" ${crate}:/opt/
-    rsync -z "${DECODE_REG}" ${crate}:/usr/local/bin
-    ssh ${crate} "
+    (rsync -rz --exclude ".git" "${AFC_IOC}" ${login}:/opt/
+    rsync -z "${DECODE_REG}" ${login}:/usr/local/bin
+    ssh ${login} "
         mkdir -p /var/opt/erics && (useradd $USER || true) &&
         chown -R ${USER}:${USER} /var/opt/erics &&
         cd /opt/afc-epics-ioc &&
@@ -35,5 +35,12 @@ for crate in "${CRATES[@]}"; do
         echo 'epicsEnvSet(TOP, /opt/afc-epics-ioc)' >> iocBoot/iocutca/envPaths &&
         echo 'epicsEnvSet(AUTOSAVE_PATH, /var/opt/erics)' >> iocBoot/iocutca/envPaths &&
         systemctl daemon-reload &&
-        systemctl --no-block restart afc-ioc@{1,2-1,4,5}"
+        systemctl --no-block restart afc-ioc@{1,2-1,4,5}") &> /tmp/update_afc_ioc_$crate.log &
+done
+
+wait
+
+for crate in "${CRATES[@]}"; do
+    echo $crate
+    cat /tmp/update_afc_ioc_$crate.log
 done
