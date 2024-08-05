@@ -26,14 +26,14 @@ for crate in "${CRATES[@]}"; do
     (rsync -rz --exclude ".git" "${AFC_IOC}" ${login}:/opt/
     rsync -z "${DECODE_REG}" ${login}:/usr/local/bin
     ssh ${login} "
-        mkdir -p /var/opt/erics && (useradd $USER || true) &&
-        chown -R ${USER}:${USER} /var/opt/erics &&
+        mkdir -p /var/opt/afc-epics-ioc && (useradd $USER || true) &&
+        chown -R ${USER}:${USER} /var/opt/afc-epics-ioc &&
         cd /opt/afc-epics-ioc &&
         cp service/95-afc.rules /etc/udev/rules.d &&
         cp service/afc-ioc@.service /etc/systemd/system &&
         udevadm control -R &&
         echo 'epicsEnvSet(TOP, /opt/afc-epics-ioc)' >> iocBoot/iocutca/envPaths &&
-        echo 'epicsEnvSet(AUTOSAVE_PATH, /var/opt/erics)' >> iocBoot/iocutca/envPaths &&
+        echo 'epicsEnvSet(AUTOSAVE_PATH, /var/opt/afc-epics-ioc)' >> iocBoot/iocutca/envPaths &&
         systemctl daemon-reload &&
         systemctl --no-block restart afc-ioc@{1,2-1,4,5}") &> /tmp/update_afc_ioc_$crate.log &
 done
