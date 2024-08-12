@@ -27,7 +27,12 @@ for crate in "${CRATES[@]}"; do
         sudo -u $USER \
             CRATE_NUMBER=\$(/opt/afc-epics-ioc/iocBoot/iocutca/getCrate.sh) \
             podman-compose up -d \$services
-    " &
+    " &> /tmp/update_rffe_iocs_${crate}.log &
 done
 
 wait
+
+for crate in "${CRATES[@]}"; do
+    echo $crate
+    cat /tmp/update_rffe_iocs_${crate}.log
+done
