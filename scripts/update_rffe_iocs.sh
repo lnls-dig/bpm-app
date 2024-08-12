@@ -9,6 +9,7 @@ then
 fi
 
 BRANCH=$1
+USER=iocs
 
 . crate_list.sh
 
@@ -19,10 +20,14 @@ for crate in "${CRATES[@]}"; do
         cd /opt/rffe-epics-ioc && rm -f docker-compose.yml &&
         wget https://raw.githubusercontent.com/lnls-dig/rffe-epics-ioc/${BRANCH}/deploy/docker-compose.yml &&
         mkdir -p /var/opt/rffe-epics-ioc &&
-        podman-compose pull rffe-ioc-1 &&
-        services=\$(podman ps --filter name=rffe-epics-ioc_rffe-ioc --format '{{.Names}}' | sed -e s/rffe-epics-ioc_// -e s/_1//) &&
-        podman-compose down -t 0 &&
-        CRATE_NUMBER=\$(/opt/afc-epics-ioc/iocBoot/iocutca/getCrate.sh) podman-compose up -d \$services" &
+        chown -R $USER /var/opt/rffe-epics-ioc &&
+        sudo -u $USER podman-compose pull rffe-ioc-1 &&
+        services=\$(sudo -u $USER podman ps --filter name=rffe-epics-ioc_rffe-ioc --format '{{.Names}}' | sed -e s/rffe-epics-ioc_// -e s/_1//) &&
+        sudo -u $USER podman-compose down -t 0 &&
+        sudo -u $USER \
+            CRATE_NUMBER=\$(/opt/afc-epics-ioc/iocBoot/iocutca/getCrate.sh) \
+            podman-compose up -d \$services
+    " &
 done
 
 wait
