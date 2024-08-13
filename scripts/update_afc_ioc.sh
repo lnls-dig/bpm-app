@@ -27,7 +27,7 @@ for crate in "${CRATES[@]}"; do
     rsync -z "${DECODE_REG}" ${login}:/usr/local/bin
     ssh ${login} "
         mkdir -p /var/opt/afc-epics-ioc && (useradd $USER || true) &&
-        chown -R ${USER}:${USER} /var/opt/afc-epics-ioc &&
+        chown -R ${USER} /var/opt/afc-epics-ioc &&
         cd /opt/afc-epics-ioc &&
         cp service/95-afc.rules /etc/udev/rules.d &&
         cp service/afc-ioc@.service /etc/systemd/system &&
