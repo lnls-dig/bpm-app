@@ -9,6 +9,7 @@ then
 fi
 
 BRANCH=$1
+REPOSITORY=https://raw.githubusercontent.com/lnls-dig/rffe-epics-ioc/${BRANCH}
 USER=iocs
 
 . crate_list.sh
@@ -18,15 +19,14 @@ for crate in "${CRATES[@]}"; do
         echo $crate
         mkdir -p /opt/rffe-epics-ioc &&
         cd /opt/rffe-epics-ioc && rm -f docker-compose.yml &&
-        wget https://raw.githubusercontent.com/lnls-dig/rffe-epics-ioc/${BRANCH}/deploy/docker-compose.yml &&
+        wget $REPOSITORY/deploy/docker-compose.yml &&
         mkdir -p /var/opt/rffe-epics-ioc &&
         chown -R $USER /var/opt/rffe-epics-ioc &&
         sudo -u $USER podman-compose pull rffe-ioc-1 &&
-        services=\$(sudo -u $USER podman ps --filter name=rffe-epics-ioc_rffe-ioc --format '{{.Names}}' | sed -e s/rffe-epics-ioc_// -e s/_1//) &&
         sudo -u $USER podman-compose down -t 0 &&
-        sudo -u $USER \
-            CRATE_NUMBER=\$(/opt/afc-epics-ioc/iocBoot/iocutca/getCrate.sh) \
-            podman-compose up -d \$services
+        wget $REPOSITORY/deploy/rffe-ioc@.service -O /etc/systemd/system/rffe-ioc@.service &&
+        systemctl daemon-reload &&
+        systemctl restart --no-block rffe-ioc@{11..23}
     " &> /tmp/update_rffe_iocs_${crate}.log &
 done
 
