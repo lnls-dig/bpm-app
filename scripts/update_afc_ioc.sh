@@ -26,7 +26,7 @@ for crate in "${CRATES[@]}"; do
     (rsync -rz --exclude ".git" "${AFC_IOC}" ${login}:/opt/
     rsync -z "${DECODE_REG}" ${login}:/usr/local/bin
     ssh ${login} "
-        mkdir -p /var/opt/afc-epics-ioc && (useradd $USER || true) &&
+        mkdir -p /var/opt/afc-epics-ioc &&
         chown -R ${USER} /var/opt/afc-epics-ioc &&
         cd /opt/afc-epics-ioc &&
         cp service/95-afc.rules /etc/udev/rules.d &&
