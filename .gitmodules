@@ -1,3 +1,0 @@
-[submodule "foreign/epics-dev"]
-	path = foreign/epics-dev
-	url = https://github.com/lnls-sirius/epics-dev
