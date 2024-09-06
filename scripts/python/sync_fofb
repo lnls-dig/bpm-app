@@ -64,8 +64,8 @@ for crate in crates:
 		pv_prefix = get_pv_prefix(crate, slot)
 
 		if slot != rtmlamp_slot:
-			rcv_src.append(create_pv(pv_prefix + f"TRIGGER{trigger_chan}RcvSrc-Sel"))
-			rcv_in_sel.append(create_pv(pv_prefix + f"TRIGGER{trigger_chan}RcvInSel-SP"))
+			rcv_src.append(create_pv(pv_prefix + f"TRIGGER_GEN{trigger_chan}RcvSrc-Sel"))
+			rcv_in_sel.append(create_pv(pv_prefix + f"TRIGGER_GEN{trigger_chan}RcvInSel-SP"))
 
 		trigger_dir.append(create_pv(pv_prefix + f"TRIGGER{physical_trigger}Dir-Sel"))
 		trigger_pol.append(create_pv(pv_prefix + f"TRIGGER{physical_trigger}DirPol-Sel"))
