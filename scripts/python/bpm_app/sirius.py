@@ -11,6 +11,7 @@ from bpm_app.pvs import create_pv
 # crate information
 _tl_crate = 21
 _homolog_crate = 22
+_devel_crate = 23
 
 # slot numbers are (physical_slot*2-1) and (physical_slot*2)
 
@@ -24,6 +25,21 @@ _si_slots = list(range(first_si_bpm_slot, 21))
 # crates where the ID (insertion device) BPMs are installed
 _extra_si_slots = [11, 12]
 _extra_si_slots_crates = ['06', '07', '08', '09', '10', '11', '12', '14']
+
+# crates where XBPMs are installed
+_xbpm4_slots = [7, 8]
+_xbpm5_slots = [9, 10]
+_xbpm_slots_crates = {
+        '06': _xbpm4_slots,
+        '07': _xbpm4_slots,
+        '08': _xbpm4_slots,
+        '09': _xbpm4_slots,
+        '10': _xbpm5_slots,
+        '11': _xbpm4_slots,
+        '12': _xbpm4_slots,
+        '13': _xbpm5_slots,
+        '14': _xbpm4_slots,
+}
 
 # default and extra slots in booster ring
 _booster_slots = [21, 22]
@@ -41,19 +57,30 @@ def get_key(crate, slot):
 si_bpm_slots = {}
 bo_bpm_slots = {}
 all_bpm_slots = {}
+pbpm_slots = {
+    '06': [7, 8],
+    '07': [7, 8],
+    '08': [7, 8],
+    '09': [7, 8],
+    '10': [9, 10],
+    '11': [7, 8],
+    '12': [7, 8],
+    '13': [9, 10],
+    '14': [7, 8],
+}
 
 fofb_cc_slots = {}
 
-for crate_n in range(1, 23):
+for crate_n in range(1, 24):
 	crate = crate_number(crate_n)
 
 	if crate_n != _tl_crate:
 		si_bpm_slots[crate] = _si_slots + (_extra_si_slots if crate in _extra_si_slots_crates else [])
 
-		if crate_n != _homolog_crate:
+		if crate_n < _tl_crate:
 			bo_bpm_slots[crate] = _booster_slots + (_extra_booster_slots if crate in _extra_booster_slots_crates else [])
 
-		all_bpm_slots[crate] = si_bpm_slots[crate] + bo_bpm_slots.get(crate, [])
+		all_bpm_slots[crate] = si_bpm_slots[crate] + bo_bpm_slots.get(crate, []) + _xbpm_slots_crates.get(crate, [])
 
 		fofb_cc_slots[crate] = [rtmlamp_slot] + all_bpm_slots[crate]
 	else:
@@ -61,8 +88,10 @@ for crate_n in range(1, 23):
 
 def get_pv_prefix(crate, slot):
 	if slot == rtmlamp_slot:
-		# board connected to physical slot 2 == RTMLAMP
-		pv_prefix = "IA-" + crate + "RaBPM:BS-FOFBCtrl:"
+		if int(crate) < _homolog_crate:
+			pv_prefix = "IA-" + crate + "RaBPM:BS-FOFBCtrl:"
+		else:
+			pv_prefix = "DE-" + crate + f"SL11" + ":BS-FOFBCtrl:"
 	else:
 		key = get_key(crate, slot)
 		pv_prefix = area_prefix[key] + device_prefix[key]
