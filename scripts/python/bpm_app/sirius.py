@@ -23,7 +23,7 @@ _si_slots = list(range(first_si_bpm_slot, 21))
 
 # crates where the ID (insertion device) BPMs are installed
 _extra_si_slots = [11, 12]
-_extra_si_slots_crates = ['06', '07', '08', '09', '10', '11', '12', '21']
+_extra_si_slots_crates = ['06', '07', '08', '09', '10', '11', '12', '14']
 
 # default and extra slots in booster ring
 _booster_slots = [21, 22]
