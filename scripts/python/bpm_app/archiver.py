@@ -110,7 +110,7 @@ def dump_pvs_to_file(pv, file):
     with open(file, 'w') as f:
         f.writelines((f'{pv["pvName"]} {pv.get("samplingPeriod", None)}\n' for pv in pvs))
 
-def archive_pvs_from_file(file):
+def archive_pvs_from_file(file, strict=True):
     # initialize with the most common one
     pvs_by_sampling = {'0.1': []}
     all_pvs = []
@@ -130,7 +130,7 @@ def archive_pvs_from_file(file):
 
     for pv in all_pvs:
         pv = get_pvs(pv)[0]
-        if pv['status'] != 'Not being archived':
+        if strict and pv['status'] != 'Not being archived':
             raise Exception(f'{pv["pvName"]} is already being archived!')
 
     for samplingperiod in pvs_by_sampling:
